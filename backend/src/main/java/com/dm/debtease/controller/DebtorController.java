@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @Validated
@@ -30,60 +29,49 @@ import java.util.Objects;
 @SecurityRequirement(name = "dmapi")
 public class DebtorController {
     private final DebtorService debtorService;
+
     @Autowired
     public DebtorController(DebtorService debtorService) {
         this.debtorService = debtorService;
     }
+
     @GetMapping("/all")
     public ResponseEntity<List<Debtor>> getAllDebtors() {
         List<Debtor> debtors = debtorService.getAllDebtors();
-        if (Objects.nonNull(debtors)) {
-            return ResponseEntity.ok(debtors);
-        }
-
-        return ResponseEntity.badRequest().build();
+        return ResponseEntity.ok(debtors);
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<Debtor> getDebtorById(@Valid
-                                                    @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
-                                                    @NotNull @PathVariable(name = "id") int id) {
+                                                @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
+                                                @NotNull @PathVariable(name = "id") int id) {
         Debtor debtor = debtorService.getDebtorById(id);
-        if (Objects.nonNull(debtor)) {
-            return ResponseEntity.ok(debtor);
-        }
-
-        return ResponseEntity.badRequest().build();
+        return ResponseEntity.ok(debtor);
     }
+
     @GetMapping("/username/{username}")
     public ResponseEntity<Debtor> getDebtorByUsername(@Valid
-                                                          @NotBlank
-                                                          @PathVariable(name = "username") String username) {
+                                                      @NotBlank
+                                                      @PathVariable(name = "username") String username) {
         Debtor debtor = debtorService.getDebtorByUsername(username);
-        if (Objects.nonNull(debtor)) {
-            return ResponseEntity.ok(debtor);
-        }
-
-        return ResponseEntity.badRequest().build();
+        return ResponseEntity.ok(debtor);
     }
+
     @PutMapping("/edit/{id}")
     public ResponseEntity<Debtor> editDebtorById(@Valid @RequestBody DebtorDTO debtorDTO,
-                                                     @Valid
-                                                     @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
-                                                     @NotNull @PathVariable(name = "id") int id) {
+                                                 @Valid
+                                                 @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
+                                                 @NotNull @PathVariable(name = "id") int id) {
         Debtor debtor = debtorService.editDebtorById(debtorDTO, id);
-
-        if (Objects.nonNull(debtor)) {
-            return ResponseEntity.ok(debtor);
-        }
-
-        return ResponseEntity.badRequest().build();
+        return ResponseEntity.ok(debtor);
     }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteCreditorById(@Valid
-                                                     @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
-                                                     @NotNull @PathVariable(name = "id") int id) {
+    public ResponseEntity<String> deleteDebtorById(@Valid
+                                                   @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
+                                                   @NotNull @PathVariable(name = "id") int id) {
         if (Boolean.TRUE.equals(debtorService.deleteDebtorById(id))) {
-            return ResponseEntity.ok(String.format("Debtor with id %d deleted successfully", id));
+            return ResponseEntity.noContent().build();
         }
 
         return ResponseEntity.badRequest().body("Remove debtor from debtcases!");

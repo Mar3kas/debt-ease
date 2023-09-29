@@ -1,12 +1,12 @@
 package com.dm.debtease.service.impl;
 
+import com.dm.debtease.exception.InvalidFileFormatException;
 import com.dm.debtease.model.DebtCase;
 import com.dm.debtease.model.dto.DebtCaseDTO;
 import com.dm.debtease.repository.DebtCaseRepository;
 import com.dm.debtease.repository.DebtCaseTypeRepository;
 import com.dm.debtease.service.CsvService;
 import com.dm.debtease.service.DebtCaseService;
-import com.dm.debtease.service.DebtorService;
 import com.opencsv.exceptions.CsvValidationException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,71 +23,69 @@ public class DebtCaseServiceImpl implements DebtCaseService {
     private final DebtCaseRepository debtCaseRepository;
     private final DebtCaseTypeRepository debtCaseTypeRepository;
     private final CsvService csvService;
-    private final DebtorService debtorService;
+
     @Autowired
     public DebtCaseServiceImpl(DebtCaseRepository debtCaseRepository, DebtCaseTypeRepository debtCaseTypeRepository,
-                               CsvService csvService, DebtorService debtorService) {
+                               CsvService csvService) {
         this.debtCaseRepository = debtCaseRepository;
         this.debtCaseTypeRepository = debtCaseTypeRepository;
         this.csvService = csvService;
-        this.debtorService = debtorService;
     }
+
     @Override
     public List<DebtCase> getAllDebtCases() {
         return debtCaseRepository.findAll();
     }
+
     @Override
     public DebtCase getDebtCaseById(int id) {
         Optional<DebtCase> optionalDebtCase = debtCaseRepository.findById(id);
 
         return optionalDebtCase.orElseThrow(() -> new EntityNotFoundException("Debtcase not found with id " + id));
     }
-    @Override
-    public List<DebtCase> getDebtCasesByDebtorId(int id) {
-        List<DebtCase> debtCases = debtCaseRepository.findAll();
 
-        return debtCases.stream().filter(debtCase -> debtCase.getDebtor().getId() == id).toList();
-    }
     @Override
     public List<DebtCase> getDebtCasesByCreditorId(int id) {
         List<DebtCase> debtCases = debtCaseRepository.findAll();
 
         return debtCases.stream().filter(debtCase -> debtCase.getCreditor().getId() == id).toList();
     }
+
     @Override
-    public List<DebtCase> createDebtCase(MultipartFile file, int id) throws CsvValidationException, IOException {
+    public List<DebtCase> createDebtCase(MultipartFile file, int id) throws CsvValidationException, IOException, InvalidFileFormatException {
         List<DebtCase> debtCases = csvService.readCsvData(file, id);
 
         return debtCaseRepository.saveAll(debtCases);
     }
+
     @Override
-    public DebtCase editDebtCaseById(DebtCaseDTO debtCaseDTO, int id, int debtorId, int typeId) {
+    public DebtCase editDebtCaseById(DebtCaseDTO debtCaseDTO, int id, int creditorId) {
         Optional<DebtCase> optionalDebtCase = debtCaseRepository.findById(id);
         if (optionalDebtCase.isPresent()) {
             DebtCase debtCase = optionalDebtCase.get();
-            if (Objects.nonNull(debtCaseDTO.getAmountOwed())) {
-                debtCase.setAmountOwed(debtCaseDTO.getAmountOwed());
-            }
-            if (Objects.nonNull(debtCaseDTO.getDueDate())) {
-                debtCase.setDueDate(debtCaseDTO.getDueDate());
-            }
-            if (Objects.nonNull(debtCaseDTO.getDebtorDTO())) {
-                debtCase.setDebtor(debtorService.editDebtorById(debtCaseDTO.getDebtorDTO(), debtorId));
-            }
-            if (typeId > 0) {
-                debtCase.setDebtCaseType(debtCaseTypeRepository.findById(typeId)
-                        .orElseThrow(() -> new EntityNotFoundException("Debtcase type not found with id " + typeId)));
-            }
+            if (debtCase.getCreditor().getId() == creditorId) {
+                if (Objects.nonNull(debtCaseDTO.getAmountOwed())) {
+                    debtCase.setAmountOwed(debtCaseDTO.getAmountOwed());
+                }
+                if (Objects.nonNull(debtCaseDTO.getDueDate())) {
+                    debtCase.setDueDate(debtCaseDTO.getDueDate());
+                }
+                if (debtCaseDTO.getTypeId() > 0) {
+                    debtCase.setDebtCaseType(debtCaseTypeRepository.findById(debtCaseDTO.getTypeId())
+                            .orElseThrow(() -> new EntityNotFoundException("Debtcase type not found with id " + debtCaseDTO.getTypeId())));
+                }
 
-            return debtCaseRepository.save(debtCase);
+                return debtCaseRepository.save(debtCase);
+            }
         }
 
         throw new EntityNotFoundException("Debtcase not found with id " + id);
     }
+
     @Override
-    public boolean deleteDebtCaseById(int id) {
+    public boolean deleteDebtCaseById(int id, int creditorId) {
         Optional<DebtCase> optionalDebtCase = debtCaseRepository.findById(id);
-        if (optionalDebtCase.isPresent()) {
+        if (optionalDebtCase.isPresent() && optionalDebtCase.get().getCreditor().getId() == creditorId) {
             debtCaseRepository.deleteById(id);
 
             return true;
@@ -95,6 +93,7 @@ public class DebtCaseServiceImpl implements DebtCaseService {
 
         throw new EntityNotFoundException("Debtcase not found with id " + id);
     }
+
     @Override
     public void markDebtCaseEmailAsSentById(int id) {
         DebtCase debtCase = debtCaseRepository.findById(id)

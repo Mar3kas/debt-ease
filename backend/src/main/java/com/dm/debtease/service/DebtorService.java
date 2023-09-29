@@ -7,8 +7,12 @@ import java.util.List;
 
 public interface DebtorService {
     List<Debtor> getAllDebtors();
+
     Debtor getDebtorById(int id);
+
     Debtor getDebtorByUsername(String username);
+
     Debtor editDebtorById(DebtorDTO debtorDTO, int id);
+
     boolean deleteDebtorById(int id);
 }

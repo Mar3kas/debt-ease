@@ -12,6 +12,7 @@ import com.dm.debtease.repository.RoleRepository;
 import com.dm.debtease.service.CreditorService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,7 @@ public class CreditorServiceImpl implements CreditorService {
     private final RoleRepository roleRepository;
     private final DebtCaseRepository debtCaseRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
     @Autowired
     public CreditorServiceImpl(CreditorRepository creditorRepository, CustomUserRepository customUserRepository,
                                RoleRepository roleRepository, DebtCaseRepository debtCaseRepository,
@@ -36,22 +38,26 @@ public class CreditorServiceImpl implements CreditorService {
         this.debtCaseRepository = debtCaseRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
+
     @Override
     public List<Creditor> getAllCreditors() {
         return creditorRepository.findAll();
     }
+
     @Override
     public Creditor getCreditorById(int id) {
         Optional<Creditor> optionalCreditor = creditorRepository.findById(id);
 
-        return optionalCreditor.orElseThrow(() -> new EntityNotFoundException("Creditor not found with ID: " + id));
+        return optionalCreditor.orElseThrow(() -> new EntityNotFoundException("Creditor not found with id " + id));
     }
+
     @Override
     public Creditor getCreditorByUsername(String username) {
         Optional<Creditor> optionalCreditor = creditorRepository.findByUserUsername(username);
 
-        return optionalCreditor.orElseThrow(() -> new EntityNotFoundException("Creditor not found with username: " + username));
+        return optionalCreditor.orElseThrow(() -> new UsernameNotFoundException("Creditor not found with username " + username));
     }
+
     @Override
     public Creditor editCreditorById(CreditorDTO creditorDTO, int id) {
         Optional<Creditor> optionalCreditor = creditorRepository.findById(id);
@@ -78,12 +84,15 @@ public class CreditorServiceImpl implements CreditorService {
 
         throw new EntityNotFoundException("Creditor not found with id " + id);
     }
+
     @Override
     public Creditor createCreditor(CreditorDTO creditorDTO) {
         Creditor creditor = new Creditor();
         creditor.setName(creditorDTO.getName());
         creditor.setAddress(creditorDTO.getAddress());
         creditor.setPhoneNumber(creditorDTO.getPhoneNumber());
+        creditor.setEmail(creditorDTO.getEmail());
+        creditor.setAccountNumber(creditorDTO.getAccountNumber());
 
         Role role = roleRepository.findById(3).orElseThrow(() -> new EntityNotFoundException("Role not found with id 3"));
         CustomUser customUser = new CustomUser();
@@ -96,6 +105,7 @@ public class CreditorServiceImpl implements CreditorService {
 
         return creditorRepository.save(creditor);
     }
+
     @Override
     public boolean deleteCreditorById(int id) {
         Optional<Creditor> optionalCreditor = creditorRepository.findById(id);

@@ -1,5 +1,6 @@
 package com.dm.debtease.service;
 
+import com.dm.debtease.exception.InvalidFileFormatException;
 import com.dm.debtease.model.DebtCase;
 import com.dm.debtease.model.dto.DebtCaseDTO;
 import com.opencsv.exceptions.CsvValidationException;
@@ -10,11 +11,16 @@ import java.util.List;
 
 public interface DebtCaseService {
     List<DebtCase> getAllDebtCases();
+
     DebtCase getDebtCaseById(int id);
-    List<DebtCase> getDebtCasesByDebtorId(int id);
+
     List<DebtCase> getDebtCasesByCreditorId(int id);
-    List<DebtCase> createDebtCase(MultipartFile file, int id) throws CsvValidationException, IOException;
-    DebtCase editDebtCaseById(DebtCaseDTO debtCaseDTO, int id, int debtorId, int typeId);
-    boolean deleteDebtCaseById(int id);
+
+    List<DebtCase> createDebtCase(MultipartFile file, int id) throws CsvValidationException, IOException, InvalidFileFormatException;
+
+    DebtCase editDebtCaseById(DebtCaseDTO debtCaseDTO, int id, int creditorId);
+
+    boolean deleteDebtCaseById(int id, int creditorId);
+
     void markDebtCaseEmailAsSentById(int id);
 }

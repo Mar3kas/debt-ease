@@ -13,5 +13,5 @@ public class DebtCaseDTO {
     BigDecimal amountOwed;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime dueDate;
-    DebtorDTO debtorDTO;
+    int typeId;
 }

@@ -25,11 +25,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
+
     @Autowired
     public UserController(AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
     }
+
     @PostMapping("/login")
     public ResponseEntity<String> authenticateUser(@Valid @RequestBody UserDTO userDTO) {
         Authentication authentication = authenticationManager.authenticate(

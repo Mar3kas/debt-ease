@@ -20,9 +20,11 @@ import java.util.Date;
 @Log4j2
 public class JwtTokenProvider {
     private final Key key;
+
     public JwtTokenProvider() {
         this.key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
     }
+
     public String createToken(Authentication authentication) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         Collection<? extends GrantedAuthority> roles = userDetails.getAuthorities();
@@ -40,6 +42,7 @@ public class JwtTokenProvider {
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
     }
+
     public String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
@@ -48,16 +51,19 @@ public class JwtTokenProvider {
 
         return null;
     }
+
     public String getUsername(String token) {
         Claims claims = parseClaims(token);
 
         return claims != null ? claims.getSubject() : null;
     }
+
     public boolean validateToken(String token) {
         Claims claims = parseClaims(token);
 
         return claims != null;
     }
+
     private Claims parseClaims(String token) {
         try {
             return Jwts.parserBuilder()

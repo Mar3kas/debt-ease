@@ -17,10 +17,12 @@ import java.util.Optional;
 @Service
 public class CustomUserDetailsServiceImpl implements UserDetailsService {
     private final CustomUserRepository customUserRepository;
+
     @Autowired
     public CustomUserDetailsServiceImpl(CustomUserRepository customUserRepository) {
         this.customUserRepository = customUserRepository;
     }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<CustomUser> optionalCustomUser = customUserRepository.findByUsername(username);

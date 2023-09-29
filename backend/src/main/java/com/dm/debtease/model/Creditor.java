@@ -45,5 +45,5 @@ public class Creditor {
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     @JsonIgnore
-    private CustomUser user;
+    CustomUser user;
 }

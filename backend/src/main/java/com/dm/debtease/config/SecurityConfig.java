@@ -35,12 +35,14 @@ public class SecurityConfig implements WebMvcConfigurer {
     private final BCryptPasswordEncoder bCryptEncoder;
     private final UserDetailsService userDetailsService;
     private final JwtTokenFilter jwtTokenFilter;
+
     public SecurityConfig(BCryptPasswordEncoder bCryptEncoder, UserDetailsService userDetailsService,
                           JwtTokenFilter jwtTokenFilter) {
         this.bCryptEncoder = bCryptEncoder;
         this.userDetailsService = userDetailsService;
         this.jwtTokenFilter = jwtTokenFilter;
     }
+
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
@@ -49,20 +51,22 @@ public class SecurityConfig implements WebMvcConfigurer {
 
         return daoAuthenticationProvider;
     }
+
     @Bean
     AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
+
     @Override
     public void addCorsMappings(CorsRegistry corsRegistry) {
         corsRegistry.addMapping("/**").allowedOrigins("*").allowedMethods("*");
     }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors(Customizer.withDefaults())
                 .authorizeHttpRequests(authorize -> authorize.requestMatchers(AUTH_WHITELIST).permitAll()
                         .anyRequest().authenticated())
-//                .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exception -> exception.authenticationEntryPoint((request, response, authException)

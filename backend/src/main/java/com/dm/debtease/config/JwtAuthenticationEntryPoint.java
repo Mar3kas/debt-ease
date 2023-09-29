@@ -15,6 +15,7 @@ public class JwtAuthenticationEntryPoint extends BasicAuthenticationEntryPoint {
         setRealmName("JWT Authentication");
         super.afterPropertiesSet();
     }
+
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) throws IOException {
