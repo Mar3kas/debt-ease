@@ -12,6 +12,8 @@ public interface DebtorService {
 
     Debtor getDebtorByUsername(String username);
 
+    Debtor editDebtorById(DebtorDTO debtorDTO, int id, int debtcaseId, int creditorId);
+
     Debtor editDebtorById(DebtorDTO debtorDTO, int id);
 
     boolean deleteDebtorById(int id);

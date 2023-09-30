@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -53,9 +54,8 @@ public class DebtCaseServiceImpl implements DebtCaseService {
 
     @Override
     public List<DebtCase> createDebtCase(MultipartFile file, int id) throws CsvValidationException, IOException, InvalidFileFormatException {
-        List<DebtCase> debtCases = csvService.readCsvData(file, id);
 
-        return debtCaseRepository.saveAll(debtCases);
+        return csvService.readCsvData(file, id);
     }
 
     @Override

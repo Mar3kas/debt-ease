@@ -57,12 +57,23 @@ public class DebtorController {
         return ResponseEntity.ok(debtor);
     }
 
-    @PutMapping("/edit/{id}")
+    @PutMapping(value = {"/{id}", "/{id}/debtcase/{debtcaseId}/creditor/{creditorId}"})
     public ResponseEntity<Debtor> editDebtorById(@Valid @RequestBody DebtorDTO debtorDTO,
                                                  @Valid
                                                  @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
-                                                 @NotNull @PathVariable(name = "id") int id) {
-        Debtor debtor = debtorService.editDebtorById(debtorDTO, id);
+                                                 @NotNull @PathVariable(name = "id") int id,
+                                                 @Valid
+                                                 @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
+                                                 @NotNull @PathVariable(name = "debtcaseId", required = false) Integer debtcaseId,
+                                                 @Valid
+                                                 @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
+                                                 @NotNull @PathVariable(name = "creditorId", required = false) Integer creditorId) {
+        Debtor debtor;
+        if (debtcaseId != null && creditorId != null) {
+            debtor = debtorService.editDebtorById(debtorDTO, id, debtcaseId, creditorId);
+        } else {
+            debtor = debtorService.editDebtorById(debtorDTO, id);
+        }
         return ResponseEntity.ok(debtor);
     }
 
@@ -74,6 +85,6 @@ public class DebtorController {
             return ResponseEntity.noContent().build();
         }
 
-        return ResponseEntity.badRequest().body("Remove debtor from debtcases!");
+        return ResponseEntity.badRequest().body("Error");
     }
 }

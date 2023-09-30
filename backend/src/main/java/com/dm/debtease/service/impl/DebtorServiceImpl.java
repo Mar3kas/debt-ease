@@ -40,8 +40,34 @@ public class DebtorServiceImpl implements DebtorService {
     }
 
     @Override
+    public Debtor editDebtorById(DebtorDTO debtorDTO, int id, int debtcaseId, int creditorId) {
+        Optional<Debtor> optionalDebtor = debtorRepository.findByIdAndDebtCase_IdAndDebtCase_Creditor_Id(id, debtcaseId, creditorId);
+
+        if (optionalDebtor.isPresent()) {
+            Debtor debtor = optionalDebtor.get();
+            if (Objects.nonNull(debtorDTO.getName())) {
+                debtor.setName(debtorDTO.getName());
+            }
+            if (Objects.nonNull(debtorDTO.getSurname())) {
+                debtor.setSurname(debtorDTO.getSurname());
+            }
+            if (Objects.nonNull(debtorDTO.getEmail())) {
+                debtor.setEmail(debtorDTO.getEmail());
+            }
+            if (Objects.nonNull(debtorDTO.getPhoneNumber())) {
+                debtor.setPhoneNumber(debtorDTO.getPhoneNumber());
+            }
+
+            return debtorRepository.save(debtor);
+        }
+
+        throw new EntityNotFoundException("Debtor not found with id " + id);
+    }
+
+    @Override
     public Debtor editDebtorById(DebtorDTO debtorDTO, int id) {
         Optional<Debtor> optionalDebtor = debtorRepository.findById(id);
+
         if (optionalDebtor.isPresent()) {
             Debtor debtor = optionalDebtor.get();
             if (Objects.nonNull(debtorDTO.getName())) {

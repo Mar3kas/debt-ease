@@ -1,6 +1,5 @@
 package com.dm.debtease.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -40,8 +39,8 @@ public class Debtor {
     @Column(name = "phone_number")
     String phoneNumber;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "debtcase_id")
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "debtcase_id", nullable = false)
     DebtCase debtCase;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
