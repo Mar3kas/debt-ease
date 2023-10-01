@@ -84,15 +84,15 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler({InvalidFileFormatException.class})
-    @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     public ResponseEntity<APIError> handleInvalidFileFormatError(Exception ex) {
         APIError error = APIError.builder()
-                .statusCode(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value())
+                .statusCode(HttpStatus.UNPROCESSABLE_ENTITY.value())
                 .time(LocalDateTime.now())
-                .message("Unsupported Media Type")
+                .message("Invalid File Format")
                 .description(ex.getMessage())
                 .build();
 
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(error, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 }
