@@ -43,20 +43,19 @@ public class CreditorController {
         return ResponseEntity.ok(creditors);
     }
 
-    @GetMapping(value = {"/creditors/{id}", "/creditors/{username}"})
+    @GetMapping("/creditors/{id}")
     public ResponseEntity<Creditor> getCreditorById(@Valid
                                                     @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
-                                                    @PathVariable(name = "id", required = false) Integer id,
-                                                    @Valid @NotBlank
-                                                    @PathVariable(name = "username", required = false) String username) {
-        Creditor creditor = null;
+                                                    @PathVariable(name = "id") int id) {
+        Creditor creditor = creditorService.getCreditorById(id);
+        return ResponseEntity.ok(creditor);
+    }
 
-        if (id != null) {
-            creditor = creditorService.getCreditorById(id);
-        } else if (username != null) {
-            creditor = creditorService.getCreditorByUsername(username);
-        }
-
+    @GetMapping("/creditors/profile/{username}")
+    public ResponseEntity<Creditor> getDebtorByUsername(@Valid
+                                                        @NotBlank
+                                                        @PathVariable(name = "username") String username) {
+        Creditor creditor = creditorService.getCreditorByUsername(username);
         return ResponseEntity.ok(creditor);
     }
 
