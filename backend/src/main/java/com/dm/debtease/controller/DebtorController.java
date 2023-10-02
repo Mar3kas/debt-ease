@@ -25,7 +25,7 @@ import java.util.List;
 @RestController
 @Validated
 @CrossOrigin
-@RequestMapping(value = "/api/debtors")
+@RequestMapping(value = "/api")
 @SecurityRequirement(name = "dmapi")
 public class DebtorController {
     private final DebtorService debtorService;
@@ -35,21 +35,31 @@ public class DebtorController {
         this.debtorService = debtorService;
     }
 
-    @GetMapping
+    @GetMapping("/debtors")
     public ResponseEntity<List<Debtor>> getAllDebtors() {
         List<Debtor> debtors = debtorService.getAllDebtors();
         return ResponseEntity.ok(debtors);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(value = {"/debtors/{id}", "/debtors/{username}"})
     public ResponseEntity<Debtor> getDebtorById(@Valid
                                                 @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
-                                                @PathVariable(name = "id") int id) {
-        Debtor debtor = debtorService.getDebtorById(id);
+                                                @PathVariable(name = "id", required = false) Integer id,
+                                                @Valid
+                                                @NotBlank
+                                                @PathVariable(name = "username", required = false) String username) {
+        Debtor debtor = null;
+
+        if (id != null) {
+            debtor = debtorService.getDebtorById(id);
+        } else if (username != null) {
+            debtor = debtorService.getDebtorByUsername(username);
+        }
+
         return ResponseEntity.ok(debtor);
     }
 
-    @GetMapping("/profile/{username}")
+    @GetMapping("/debtors/profile/{username}")
     public ResponseEntity<Debtor> getDebtorByUsername(@Valid
                                                       @NotBlank
                                                       @PathVariable(name = "username") String username) {
@@ -57,7 +67,7 @@ public class DebtorController {
         return ResponseEntity.ok(debtor);
     }
 
-    @PutMapping(value = {"/{id}", "/{id}/debtcase/{debtcaseId}/creditor/{creditorId}"})
+    @PutMapping(value = {"/debtors/{id}", "/creditor/{creditorId}/debtcase/{debtcaseId}/debtors/{id}"})
     public ResponseEntity<Debtor> editDebtorById(@Valid @RequestBody DebtorDTO debtorDTO, BindingResult result,
                                                  @Valid
                                                  @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
@@ -77,7 +87,7 @@ public class DebtorController {
         return ResponseEntity.ok(debtor);
     }
 
-    @DeleteMapping(value = {"/{id}", "/{id}/debtcase/{debtcaseId}/creditor/{creditorId}"})
+    @DeleteMapping(value = {"/{id}", "/creditor/{creditorId}/debtcase/{debtcaseId}/debtors/{id}"})
     public ResponseEntity<String> deleteDebtorById(@Valid
                                                    @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
                                                    @PathVariable(name = "id") int id,

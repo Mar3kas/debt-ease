@@ -32,7 +32,7 @@ import java.util.List;
 @RestController
 @Validated
 @CrossOrigin
-@RequestMapping(value = "/api/debtcases")
+@RequestMapping(value = "/api")
 @SecurityRequirement(name = "dmapi")
 public class DebtCaseController {
     private final DebtCaseService debtCaseService;
@@ -42,13 +42,13 @@ public class DebtCaseController {
         this.debtCaseService = debtCaseService;
     }
 
-    @GetMapping
+    @GetMapping("/debtcases")
     public ResponseEntity<List<DebtCase>> getAllDebtCases() {
         List<DebtCase> debtCases = debtCaseService.getAllDebtCases();
         return ResponseEntity.ok(debtCases);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/debtcases/{id}")
     public ResponseEntity<DebtCase> getDebtCaseById(@Valid
                                                     @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
                                                     @PathVariable(name = "id") int id) {
@@ -56,7 +56,7 @@ public class DebtCaseController {
         return ResponseEntity.ok(debtCase);
     }
 
-    @GetMapping("/creditor/{id}")
+    @GetMapping("/creditor/{id}/debtcases")
     public ResponseEntity<List<DebtCase>> getDebtCasesByCreditorId(@Valid
                                                                    @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
                                                                    @PathVariable(name = "id") int id) {
@@ -64,7 +64,7 @@ public class DebtCaseController {
         return ResponseEntity.ok(debtCases);
     }
 
-    @PutMapping("/{id}/creditor/{creditorId}")
+    @PutMapping("/creditor/{creditorId}/debtcases/{id}")
     public ResponseEntity<DebtCase> editDebtCaseById(@Valid @RequestBody DebtCaseDTO debtCaseDTO, BindingResult result,
                                                      @Valid
                                                      @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
@@ -76,7 +76,7 @@ public class DebtCaseController {
         return ResponseEntity.ok(debtCase);
     }
 
-    @PostMapping(value = "/creditor/{id}/upload/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/creditor/{id}/debtcases/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<List<DebtCase>> createDebtCase(@Valid
                                                          @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
                                                          @PathVariable(name = "id") int id,
@@ -85,7 +85,7 @@ public class DebtCaseController {
         return ResponseEntity.status(HttpStatus.CREATED).body(debtCases);
     }
 
-    @DeleteMapping("/{id}/creditor/{creditorId}")
+    @DeleteMapping("/creditor/{creditorId}/debtcases/{id}")
     public ResponseEntity<String> deleteDebtCaseById(@Valid
                                                      @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
                                                      @PathVariable(name = "id") int id,

@@ -27,7 +27,7 @@ import java.util.List;
 @RestController
 @Validated
 @CrossOrigin
-@RequestMapping(value = "/api/creditors")
+@RequestMapping(value = "/api")
 @SecurityRequirement(name = "dmapi")
 public class CreditorController {
     private final CreditorService creditorService;
@@ -37,29 +37,30 @@ public class CreditorController {
         this.creditorService = creditorService;
     }
 
-    @GetMapping("")
+    @GetMapping("/creditors")
     public ResponseEntity<List<Creditor>> getAllCreditors() {
         List<Creditor> creditors = creditorService.getAllCreditors();
         return ResponseEntity.ok(creditors);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(value = {"/creditors/{id}", "/creditors/{username}"})
     public ResponseEntity<Creditor> getCreditorById(@Valid
                                                     @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
-                                                    @PathVariable(name = "id") int id) {
-        Creditor creditor = creditorService.getCreditorById(id);
+                                                    @PathVariable(name = "id", required = false) Integer id,
+                                                    @Valid @NotBlank
+                                                    @PathVariable(name = "username", required = false) String username) {
+        Creditor creditor = null;
+
+        if (id != null) {
+            creditor = creditorService.getCreditorById(id);
+        } else if (username != null) {
+            creditor = creditorService.getCreditorByUsername(username);
+        }
+
         return ResponseEntity.ok(creditor);
     }
 
-    @GetMapping("/profile/{username}")
-    public ResponseEntity<Creditor> getCreditorByUsername(@Valid
-                                                          @NotBlank
-                                                          @PathVariable(name = "username") String username) {
-        Creditor creditor = creditorService.getCreditorByUsername(username);
-        return ResponseEntity.ok(creditor);
-    }
-
-    @PutMapping("/{id}")
+    @PutMapping("/creditors/{id}")
     public ResponseEntity<Creditor> editCreditorById(@Valid @RequestBody CreditorDTO creditorDTO, BindingResult result,
                                                      @Valid
                                                      @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
@@ -69,13 +70,13 @@ public class CreditorController {
         return ResponseEntity.ok(creditor);
     }
 
-    @PostMapping
+    @PostMapping("/creditors")
     public ResponseEntity<Creditor> createCreditor(@Valid @RequestBody CreditorDTO creditorDTO, BindingResult result) {
         Creditor creditor = creditorService.createCreditor(creditorDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(creditor);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/creditors/{id}")
     public ResponseEntity<String> deleteCreditorById(@Valid
                                                      @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
                                                      @PathVariable(name = "id") int id) {
