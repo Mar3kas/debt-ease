@@ -87,7 +87,7 @@ public class DebtorController {
                                                    @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
                                                    @PathVariable(name = "creditorId", required = false) Integer creditorId) {
         if (debtcaseId != null && creditorId != null) {
-            if (Boolean.TRUE.equals(debtorService.deleteDebtorById(id))) {
+            if (Boolean.TRUE.equals(debtorService.deleteDebtorById(id, debtcaseId, creditorId))) {
                 return ResponseEntity.noContent().build();
             }
         } else if (Boolean.TRUE.equals(debtorService.deleteDebtorById(id))) {
