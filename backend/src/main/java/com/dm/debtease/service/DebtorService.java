@@ -17,4 +17,5 @@ public interface DebtorService {
     Debtor editDebtorById(DebtorDTO debtorDTO, int id);
 
     boolean deleteDebtorById(int id);
+    boolean deleteDebtorById(int id, int debtcaseId, int creditorId);
 }

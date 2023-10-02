@@ -10,6 +10,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,7 +34,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> authenticateUser(@Valid @RequestBody UserDTO userDTO) {
+    public ResponseEntity<String> authenticateUser(@Valid @RequestBody UserDTO userDTO, BindingResult result) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(userDTO.getUsername(),
                         userDTO.getPassword())

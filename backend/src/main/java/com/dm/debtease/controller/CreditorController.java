@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,7 +45,7 @@ public class CreditorController {
     @GetMapping("/{id}")
     public ResponseEntity<Creditor> getCreditorById(@Valid
                                                     @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
-                                                    @NotNull @PathVariable(name = "id") int id) {
+                                                    @PathVariable(name = "id") int id) {
         Creditor creditor = creditorService.getCreditorById(id);
         return ResponseEntity.ok(creditor);
     }
@@ -60,16 +59,17 @@ public class CreditorController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Creditor> editCreditorById(@Valid @RequestBody CreditorDTO creditorDTO,
+    public ResponseEntity<Creditor> editCreditorById(@RequestBody @Valid CreditorDTO creditorDTO,
                                                      @Valid
                                                      @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
-                                                     @NotNull @PathVariable(name = "id") int id) {
+                                                     @PathVariable(name = "id") int id) {
+
         Creditor creditor = creditorService.editCreditorById(creditorDTO, id);
         return ResponseEntity.ok(creditor);
     }
 
     @PostMapping
-    public ResponseEntity<Creditor> createCreditor(@Valid @RequestBody CreditorDTO creditorDTO) {
+    public ResponseEntity<Creditor> createCreditor(@RequestBody @Valid CreditorDTO creditorDTO) {
         Creditor creditor = creditorService.createCreditor(creditorDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(creditor);
     }
@@ -77,7 +77,7 @@ public class CreditorController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteCreditorById(@Valid
                                                      @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
-                                                     @NotNull @PathVariable(name = "id") int id) {
+                                                     @PathVariable(name = "id") int id) {
         if (Boolean.TRUE.equals(creditorService.deleteCreditorById(id))) {
             return ResponseEntity.noContent().build();
         }

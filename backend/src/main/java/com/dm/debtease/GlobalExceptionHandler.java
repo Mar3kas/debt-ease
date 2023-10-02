@@ -3,6 +3,7 @@ package com.dm.debtease;
 import com.dm.debtease.exception.InvalidFileFormatException;
 import com.dm.debtease.model.APIError;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -83,13 +84,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler({InvalidFileFormatException.class})
+    @ExceptionHandler({InvalidFileFormatException.class, ConstraintViolationException.class})
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     public ResponseEntity<APIError> handleInvalidFileFormatError(Exception ex) {
         APIError error = APIError.builder()
                 .statusCode(HttpStatus.UNPROCESSABLE_ENTITY.value())
                 .time(LocalDateTime.now())
-                .message("Invalid File Format")
+                .message("Unprocessable Entity")
                 .description(ex.getMessage())
                 .build();
 

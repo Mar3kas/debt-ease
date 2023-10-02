@@ -100,4 +100,16 @@ public class DebtorServiceImpl implements DebtorService {
 
         throw new EntityNotFoundException("Debtor not found with id " + id);
     }
+
+    @Override
+    public boolean deleteDebtorById(int id, int debtcaseId, int creditorId) {
+        Optional<Debtor> optionalDebtor = debtorRepository.findByIdAndDebtCase_IdAndDebtCase_Creditor_Id(id, debtcaseId, creditorId);
+        if (optionalDebtor.isPresent()) {
+            debtorRepository.deleteById(id);
+
+            return true;
+        }
+
+        throw new EntityNotFoundException("Debtor not found with id " + id);
+    }
 }
