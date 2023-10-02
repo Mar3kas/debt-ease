@@ -5,7 +5,10 @@ import com.dm.debtease.model.APIError;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -32,7 +35,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler({Unauthorized.class})
+    @ExceptionHandler({Unauthorized.class, AuthenticationException.class})
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseEntity<APIError> handleUnauthorizedException(Exception ex) {
         APIError error = APIError.builder()
@@ -84,9 +87,10 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler({InvalidFileFormatException.class, ConstraintViolationException.class})
+    @ExceptionHandler({InvalidFileFormatException.class, ConstraintViolationException.class,
+            InvalidMediaTypeException.class, HttpMessageNotReadableException.class})
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-    public ResponseEntity<APIError> handleInvalidFileFormatError(Exception ex) {
+    public ResponseEntity<APIError> handleInvalidFormatError(Exception ex) {
         APIError error = APIError.builder()
                 .statusCode(HttpStatus.UNPROCESSABLE_ENTITY.value())
                 .time(LocalDateTime.now())

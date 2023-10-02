@@ -10,6 +10,7 @@ import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,7 +27,7 @@ import java.util.List;
 @RestController
 @Validated
 @CrossOrigin
-@RequestMapping(value = "/api/creditor")
+@RequestMapping(value = "/api/creditors")
 @SecurityRequirement(name = "dmapi")
 public class CreditorController {
     private final CreditorService creditorService;
@@ -36,7 +37,7 @@ public class CreditorController {
         this.creditorService = creditorService;
     }
 
-    @GetMapping("/all")
+    @GetMapping("")
     public ResponseEntity<List<Creditor>> getAllCreditors() {
         List<Creditor> creditors = creditorService.getAllCreditors();
         return ResponseEntity.ok(creditors);
@@ -50,7 +51,7 @@ public class CreditorController {
         return ResponseEntity.ok(creditor);
     }
 
-    @GetMapping("/username/{username}")
+    @GetMapping("/profile/{username}")
     public ResponseEntity<Creditor> getCreditorByUsername(@Valid
                                                           @NotBlank
                                                           @PathVariable(name = "username") String username) {
@@ -59,7 +60,7 @@ public class CreditorController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Creditor> editCreditorById(@RequestBody @Valid CreditorDTO creditorDTO,
+    public ResponseEntity<Creditor> editCreditorById(@Valid @RequestBody CreditorDTO creditorDTO, BindingResult result,
                                                      @Valid
                                                      @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
                                                      @PathVariable(name = "id") int id) {
@@ -69,7 +70,7 @@ public class CreditorController {
     }
 
     @PostMapping
-    public ResponseEntity<Creditor> createCreditor(@RequestBody @Valid CreditorDTO creditorDTO) {
+    public ResponseEntity<Creditor> createCreditor(@Valid @RequestBody CreditorDTO creditorDTO, BindingResult result) {
         Creditor creditor = creditorService.createCreditor(creditorDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(creditor);
     }

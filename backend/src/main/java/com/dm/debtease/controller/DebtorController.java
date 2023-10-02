@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,7 +25,7 @@ import java.util.List;
 @RestController
 @Validated
 @CrossOrigin
-@RequestMapping(value = "/api/debtor")
+@RequestMapping(value = "/api/debtors")
 @SecurityRequirement(name = "dmapi")
 public class DebtorController {
     private final DebtorService debtorService;
@@ -34,7 +35,7 @@ public class DebtorController {
         this.debtorService = debtorService;
     }
 
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<List<Debtor>> getAllDebtors() {
         List<Debtor> debtors = debtorService.getAllDebtors();
         return ResponseEntity.ok(debtors);
@@ -48,7 +49,7 @@ public class DebtorController {
         return ResponseEntity.ok(debtor);
     }
 
-    @GetMapping("/username/{username}")
+    @GetMapping("/profile/{username}")
     public ResponseEntity<Debtor> getDebtorByUsername(@Valid
                                                       @NotBlank
                                                       @PathVariable(name = "username") String username) {
@@ -57,7 +58,7 @@ public class DebtorController {
     }
 
     @PutMapping(value = {"/{id}", "/{id}/debtcase/{debtcaseId}/creditor/{creditorId}"})
-    public ResponseEntity<Debtor> editDebtorById(@RequestBody @Valid DebtorDTO debtorDTO,
+    public ResponseEntity<Debtor> editDebtorById(@Valid @RequestBody DebtorDTO debtorDTO, BindingResult result,
                                                  @Valid
                                                  @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
                                                  @PathVariable(name = "id") int id,

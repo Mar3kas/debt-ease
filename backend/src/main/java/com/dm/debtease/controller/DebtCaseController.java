@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,7 +32,7 @@ import java.util.List;
 @RestController
 @Validated
 @CrossOrigin
-@RequestMapping(value = "/api/debtcase")
+@RequestMapping(value = "/api/debtcases")
 @SecurityRequirement(name = "dmapi")
 public class DebtCaseController {
     private final DebtCaseService debtCaseService;
@@ -41,7 +42,7 @@ public class DebtCaseController {
         this.debtCaseService = debtCaseService;
     }
 
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<List<DebtCase>> getAllDebtCases() {
         List<DebtCase> debtCases = debtCaseService.getAllDebtCases();
         return ResponseEntity.ok(debtCases);
@@ -64,7 +65,7 @@ public class DebtCaseController {
     }
 
     @PutMapping("/{id}/creditor/{creditorId}")
-    public ResponseEntity<DebtCase> editDebtCaseById(@RequestBody @Valid DebtCaseDTO debtCaseDTO,
+    public ResponseEntity<DebtCase> editDebtCaseById(@Valid @RequestBody DebtCaseDTO debtCaseDTO, BindingResult result,
                                                      @Valid
                                                      @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
                                                      @PathVariable(name = "id") int id,
