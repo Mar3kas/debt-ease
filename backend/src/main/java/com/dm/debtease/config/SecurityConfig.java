@@ -30,7 +30,8 @@ public class SecurityConfig implements WebMvcConfigurer {
             "/v3/api-docs/**",
             "/v3/api-docs.yaml",
             "/swagger-ui.html",
-            "/api/user/login"
+            "/api/users/login",
+            "/api/users/refresh/token"
     };
     private final BCryptPasswordEncoder bCryptEncoder;
     private final UserDetailsService userDetailsService;

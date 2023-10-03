@@ -1,6 +1,6 @@
 package com.dm.debtease;
 
-import com.dm.debtease.exception.InvalidFileFormatException;
+import com.dm.debtease.exception.*;
 import com.dm.debtease.model.APIError;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
@@ -22,6 +22,71 @@ import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler({JwtTokenParseException.class})
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseEntity<APIError> handleJwtTokenParseException(JwtTokenParseException ex) {
+        APIError error = APIError.builder()
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
+                .time(LocalDateTime.now())
+                .message("Unauthorized")
+                .description(ex.getMessage())
+                .build();
+
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler({InvalidRefreshTokenException.class})
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseEntity<APIError> handleInvalidRefreshTokenException(InvalidRefreshTokenException ex) {
+        APIError error = APIError.builder()
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
+                .time(LocalDateTime.now())
+                .message("Unauthorized")
+                .description(ex.getMessage())
+                .build();
+
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler({JwtTokenCreationException.class})
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseEntity<APIError> handleJwtTokenCreationException(JwtTokenCreationException ex) {
+        APIError error = APIError.builder()
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
+                .time(LocalDateTime.now())
+                .message("Unauthorized")
+                .description(ex.getMessage())
+                .build();
+
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler({TokenRefreshException.class})
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseEntity<APIError> handleTokenRefreshException(TokenRefreshException ex) {
+        APIError error = APIError.builder()
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
+                .time(LocalDateTime.now())
+                .message("Unauthorized")
+                .description(ex.getMessage())
+                .build();
+
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler({LogoutException.class})
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseEntity<APIError> handleLogoutException(LogoutException ex) {
+        APIError error = APIError.builder()
+                .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .time(LocalDateTime.now())
+                .message("Internal Server Error")
+                .description(ex.getMessage())
+                .build();
+
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     @ExceptionHandler({BadRequest.class, UsernameNotFoundException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<APIError> handleBadRequestException(Exception ex) {

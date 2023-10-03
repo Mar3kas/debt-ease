@@ -5,6 +5,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,12 +23,20 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     JwtTokenProvider jwtTokenProvider;
     UserDetailsService userDetailsService;
 
+    @SneakyThrows
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+
+        String requestUri = request.getRequestURI();
+        if (isRefreshTokenRequest(requestUri)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String token = jwtTokenProvider.resolveToken(request);
 
-        if (token != null && jwtTokenProvider.validateToken(token)) {
+        if (token != null && jwtTokenProvider.validateToken(token) && !jwtTokenProvider.isTokenRevoked(token)) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(jwtTokenProvider.getUsername(token));
 
             UsernamePasswordAuthenticationToken authenticationToken =
@@ -37,5 +47,9 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private boolean isRefreshTokenRequest(String requestUri) {
+        return requestUri.endsWith("/refresh/token");
     }
 }
