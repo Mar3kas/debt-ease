@@ -4,6 +4,7 @@ import com.dm.debtease.config.JwtTokenProvider;
 import com.dm.debtease.exception.InvalidRefreshTokenException;
 import com.dm.debtease.exception.InvalidTokenException;
 import com.dm.debtease.exception.JwtTokenCreationException;
+import com.dm.debtease.exception.LoginException;
 import com.dm.debtease.exception.LogoutException;
 import com.dm.debtease.model.RefreshToken;
 import com.dm.debtease.model.RefreshTokenRequest;
@@ -53,7 +54,13 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> authenticateUser(@RequestBody @Valid UserDTO userDTO, BindingResult result) throws JwtTokenCreationException {
+    public ResponseEntity<Map<String, String>> authenticateUser(@RequestBody @Valid UserDTO userDTO, BindingResult result) throws JwtTokenCreationException, LoginException {
+        Authentication existingAuthentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (existingAuthentication != null && existingAuthentication.getName().equals(userDTO.getUsername())) {
+            throw new LoginException("User is already logged in");
+        }
+
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(userDTO.getUsername(), userDTO.getPassword())
         );

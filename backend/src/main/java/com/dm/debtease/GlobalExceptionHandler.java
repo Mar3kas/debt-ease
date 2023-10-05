@@ -1,6 +1,12 @@
 package com.dm.debtease;
 
-import com.dm.debtease.exception.*;
+import com.dm.debtease.exception.InvalidFileFormatException;
+import com.dm.debtease.exception.InvalidRefreshTokenException;
+import com.dm.debtease.exception.JwtTokenCreationException;
+import com.dm.debtease.exception.JwtTokenParseException;
+import com.dm.debtease.exception.LoginException;
+import com.dm.debtease.exception.LogoutException;
+import com.dm.debtease.exception.TokenRefreshException;
 import com.dm.debtease.model.APIError;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
@@ -22,6 +28,19 @@ import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler({LoginException.class})
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ResponseEntity<APIError> handleLoginException(LoginException ex) {
+        APIError error = APIError.builder()
+                .statusCode(HttpStatus.CONFLICT.value())
+                .time(LocalDateTime.now())
+                .message("Conflict error")
+                .description(ex.getMessage())
+                .build();
+
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler({JwtTokenParseException.class})
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseEntity<APIError> handleJwtTokenParseException(JwtTokenParseException ex) {

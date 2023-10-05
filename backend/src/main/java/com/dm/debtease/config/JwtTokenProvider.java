@@ -105,7 +105,7 @@ public class JwtTokenProvider {
         if (token.getExpirationDate().compareTo(Instant.now()) < 0) {
             refreshTokenRepository.deleteByToken(token.getToken());
 
-            throw new TokenRefreshException(token.getToken(), "Refresh token was expired. Please make a new login request");
+            throw new TokenRefreshException(token.getToken(), "Refresh token is expired. Please make a new login request");
         }
 
         return true;
