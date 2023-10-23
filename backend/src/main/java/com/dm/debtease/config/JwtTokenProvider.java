@@ -1,6 +1,5 @@
 package com.dm.debtease.config;
 
-import com.dm.debtease.exception.JwtTokenParseException;
 import com.dm.debtease.exception.TokenRefreshException;
 import com.dm.debtease.model.RefreshToken;
 import com.dm.debtease.repository.RefreshTokenRepository;
@@ -8,7 +7,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,12 +14,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.security.Key;
 import java.time.Instant;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 @Component
 @Log4j2
@@ -79,39 +80,27 @@ public class JwtTokenProvider {
         return token;
     }
 
-    public String getUsername(String token) throws JwtTokenParseException {
+    public String getUsername(String token) {
         Claims claims = parseClaims(token);
 
         return claims != null ? claims.getSubject() : null;
     }
 
-    public boolean validateToken(String token) throws JwtTokenParseException {
+    public boolean validateToken(String token) {
         Claims claims = parseClaims(token);
 
         return claims != null;
     }
 
-    @Transactional
-    public void deleteRefreshToken(String token) {
-        Optional<RefreshToken> optionalRefreshToken = refreshTokenRepository.findByToken(token);
-        if (optionalRefreshToken.isPresent()) {
-            refreshTokenRepository.deleteByToken(token);
-        } else {
-            throw new EntityNotFoundException("Refresh token not found with this token: " + token);
-        }
-    }
-
     public boolean validateRefreshToken(RefreshToken token) {
         if (token.getExpirationDate().compareTo(Instant.now()) < 0) {
-            refreshTokenRepository.deleteByToken(token.getToken());
-
             throw new TokenRefreshException(token.getToken(), "Refresh token is expired. Please make a new login request");
         }
 
         return true;
     }
 
-    private Claims parseClaims(String token) throws JwtTokenParseException {
+    private Claims parseClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()

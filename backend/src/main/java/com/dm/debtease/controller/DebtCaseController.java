@@ -64,6 +64,13 @@ public class DebtCaseController {
         return ResponseEntity.ok(debtCases);
     }
 
+    @GetMapping("/creditor/debtcases/debtor/{username}")
+    public ResponseEntity<List<DebtCase>> getDebtCasesByDebtorUsername(@Valid
+                                                                         @PathVariable(name = "username") String username) {
+        List<DebtCase> debtCases = debtCaseService.getDebtCasesByDebtorUsername(username);
+        return ResponseEntity.ok(debtCases);
+    }
+
     @PutMapping("/creditor/{creditorId}/debtcases/{id}")
     public ResponseEntity<DebtCase> editDebtCaseById(@Valid @RequestBody DebtCaseDTO debtCaseDTO, BindingResult result,
                                                      @Valid

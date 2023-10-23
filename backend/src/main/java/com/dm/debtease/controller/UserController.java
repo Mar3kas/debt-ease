@@ -3,7 +3,6 @@ package com.dm.debtease.controller;
 import com.dm.debtease.config.JwtTokenProvider;
 import com.dm.debtease.exception.InvalidRefreshTokenException;
 import com.dm.debtease.exception.InvalidTokenException;
-import com.dm.debtease.exception.JwtTokenCreationException;
 import com.dm.debtease.exception.LoginException;
 import com.dm.debtease.exception.LogoutException;
 import com.dm.debtease.model.RefreshToken;
@@ -54,7 +53,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> authenticateUser(@RequestBody @Valid UserDTO userDTO, BindingResult result) throws JwtTokenCreationException, LoginException {
+    public ResponseEntity<Map<String, String>> authenticateUser(@RequestBody @Valid UserDTO userDTO, BindingResult result) {
         Authentication existingAuthentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (existingAuthentication != null && existingAuthentication.getName().equals(userDTO.getUsername())) {
@@ -78,17 +77,15 @@ public class UserController {
 
     @PostMapping("/refresh/token")
     public ResponseEntity<Map<String, String>> refreshAccessToken(@RequestBody @Valid RefreshTokenRequest request,
-                                                                  BindingResult result) throws InvalidRefreshTokenException, JwtTokenCreationException {
+                                                                  BindingResult result) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(request.getRefreshToken())
                 .orElseThrow(() -> new InvalidRefreshTokenException(String.format("Refresh token not found by this token %s", request.getRefreshToken())));
 
         if (jwtTokenProvider.validateRefreshToken(refreshToken)) {
-            String token = refreshToken.getToken();
             UserDetails user = userDetailsService.loadUserByUsername(refreshToken.getUsername());
 
             Authentication authentication = new UsernamePasswordAuthenticationToken(user, null);
 
-            jwtTokenProvider.deleteRefreshToken(token);
             String accessToken = jwtTokenProvider.createToken(authentication);
 
             Map<String, String> tokenMap = new HashMap<>();
@@ -102,13 +99,12 @@ public class UserController {
 
     @PostMapping("/logout")
     @Transactional
-    public ResponseEntity<String> logout(HttpServletRequest request) throws LogoutException {
+    public ResponseEntity<String> logout(HttpServletRequest request) {
         try {
             String accessToken = jwtTokenProvider.resolveToken(request);
 
-            if (accessToken != null && jwtTokenProvider.validateToken(accessToken)) {
-                String username = jwtTokenProvider.getUsername(accessToken);
-                refreshTokenRepository.deleteByUsername(username);
+            if (accessToken != null) {
+                refreshTokenRepository.deleteByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
                 SecurityContextHolder.clearContext();
 
                 jwtTokenProvider.addToRevokedTokens(accessToken);
@@ -117,7 +113,7 @@ public class UserController {
             }
 
             throw new InvalidTokenException("Invalid access token");
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             throw new LogoutException("Error during logout");
         }
     }

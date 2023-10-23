@@ -1,8 +1,9 @@
 package com.dm.debtease.config;
 
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -15,6 +16,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -67,16 +69,33 @@ public class SecurityConfig implements WebMvcConfigurer {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors(Customizer.withDefaults())
                 .authorizeHttpRequests(authorize -> authorize.requestMatchers(AUTH_WHITELIST).permitAll()
-                        .anyRequest().authenticated())
+                        .requestMatchers(HttpMethod.GET, "/api/creditors/*").hasAnyAuthority("CREDITOR", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/creditors/profile/*").hasAnyAuthority("CREDITOR", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/debtcases/*").hasAnyAuthority("CREDITOR", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/debtcases").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/creditors").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/debtors").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/creditor/*/debtcases").hasAnyAuthority("CREDITOR", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/creditor/debtcases/debtor/*").hasAnyAuthority("DEBTOR", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/debtors/*").hasAnyAuthority("DEBTOR", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/debtors/profile/*").hasAnyAuthority("DEBTOR", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/creditors/*").hasAnyAuthority("CREDITOR", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/creditor/*/debtcases/*").hasAnyAuthority("CREDITOR", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/creditor/*/debtcase/*/debtors/*").hasAnyAuthority("CREDITOR", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/debtors/*").hasAnyAuthority("DEBTOR", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/creditor/*/debtcases/file").hasAnyAuthority("CREDITOR", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/creditors/").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/creditor/*/debtcases/*").hasAnyAuthority("CREDITOR", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/creditor/*/debtcase/*/debtors/*").hasAnyAuthority("CREDITOR", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/creditors/*").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/debtors/*").hasAuthority("ADMIN")
+                        .anyRequest()
+                        .authenticated())
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling(exception -> exception.authenticationEntryPoint((request, response, authException)
-                        -> response.sendError(
-                        HttpServletResponse.SC_UNAUTHORIZED,
-                        authException.getLocalizedMessage()
-                )))
                 .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
 
         return http.build();
     }

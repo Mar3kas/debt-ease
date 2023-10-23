@@ -2,48 +2,36 @@ package com.dm.debtease;
 
 import com.dm.debtease.exception.InvalidFileFormatException;
 import com.dm.debtease.exception.InvalidRefreshTokenException;
-import com.dm.debtease.exception.JwtTokenCreationException;
-import com.dm.debtease.exception.JwtTokenParseException;
 import com.dm.debtease.exception.LoginException;
 import com.dm.debtease.exception.LogoutException;
 import com.dm.debtease.exception.TokenRefreshException;
 import com.dm.debtease.model.APIError;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException.BadRequest;
-import org.springframework.web.client.HttpClientErrorException.Forbidden;
-import org.springframework.web.client.HttpClientErrorException.Unauthorized;
 import org.springframework.web.client.HttpServerErrorException.InternalServerError;
 
 import java.time.LocalDateTime;
+import java.util.NoSuchElementException;
 
 @RestControllerAdvice
+@Component
 public class GlobalExceptionHandler {
-    @ExceptionHandler({LoginException.class})
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ResponseEntity<APIError> handleLoginException(LoginException ex) {
-        APIError error = APIError.builder()
-                .statusCode(HttpStatus.CONFLICT.value())
-                .time(LocalDateTime.now())
-                .message("Conflict error")
-                .description(ex.getMessage())
-                .build();
-
-        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler({JwtTokenParseException.class})
+    @ExceptionHandler(ExpiredJwtException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ResponseEntity<APIError> handleJwtTokenParseException(JwtTokenParseException ex) {
+    public ResponseEntity<APIError> handleExpiredJwtException(ExpiredJwtException ex) {
         APIError error = APIError.builder()
                 .statusCode(HttpStatus.UNAUTHORIZED.value())
                 .time(LocalDateTime.now())
@@ -54,7 +42,33 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler({InvalidRefreshTokenException.class})
+    @ExceptionHandler(UnsupportedJwtException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseEntity<APIError> handleUnsupportedJwtException(UnsupportedJwtException ex) {
+        APIError error = APIError.builder()
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
+                .time(LocalDateTime.now())
+                .message("Unauthorized")
+                .description(ex.getMessage())
+                .build();
+
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(SignatureException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseEntity<APIError> handleSignatureException(SignatureException ex) {
+        APIError error = APIError.builder()
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
+                .time(LocalDateTime.now())
+                .message("Unauthorized")
+                .description(ex.getMessage())
+                .build();
+
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(InvalidRefreshTokenException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseEntity<APIError> handleInvalidRefreshTokenException(InvalidRefreshTokenException ex) {
         APIError error = APIError.builder()
@@ -67,20 +81,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler({JwtTokenCreationException.class})
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ResponseEntity<APIError> handleJwtTokenCreationException(JwtTokenCreationException ex) {
-        APIError error = APIError.builder()
-                .statusCode(HttpStatus.UNAUTHORIZED.value())
-                .time(LocalDateTime.now())
-                .message("Unauthorized")
-                .description(ex.getMessage())
-                .build();
-
-        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
-    }
-
-    @ExceptionHandler({TokenRefreshException.class})
+    @ExceptionHandler(TokenRefreshException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseEntity<APIError> handleTokenRefreshException(TokenRefreshException ex) {
         APIError error = APIError.builder()
@@ -93,7 +94,20 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler({LogoutException.class})
+    @ExceptionHandler(LoginException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ResponseEntity<APIError> handleLoginException(LoginException ex) {
+        APIError error = APIError.builder()
+                .statusCode(HttpStatus.CONFLICT.value())
+                .time(LocalDateTime.now())
+                .message("Conflict error")
+                .description(ex.getMessage())
+                .build();
+
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(LogoutException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<APIError> handleLogoutException(LogoutException ex) {
         APIError error = APIError.builder()
@@ -106,7 +120,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler({BadRequest.class, UsernameNotFoundException.class})
+    @ExceptionHandler({BadRequest.class, UsernameNotFoundException.class, NoSuchElementException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<APIError> handleBadRequestException(Exception ex) {
         APIError error = APIError.builder()
@@ -119,35 +133,9 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler({Unauthorized.class, AuthenticationException.class})
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ResponseEntity<APIError> handleUnauthorizedException(Exception ex) {
-        APIError error = APIError.builder()
-                .statusCode(HttpStatus.UNAUTHORIZED.value())
-                .time(LocalDateTime.now())
-                .message("Unauthorized")
-                .description(ex.getMessage())
-                .build();
-
-        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
-    }
-
-    @ExceptionHandler({Forbidden.class})
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ResponseEntity<APIError> handleForbiddenException(Exception ex) {
-        APIError error = APIError.builder()
-                .statusCode(HttpStatus.FORBIDDEN.value())
-                .time(LocalDateTime.now())
-                .message("Forbidden")
-                .description(ex.getMessage())
-                .build();
-
-        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
-    }
-
-    @ExceptionHandler({EntityNotFoundException.class})
+    @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<APIError> handleNotFoundException(Exception ex) {
+    public ResponseEntity<APIError> handleNotFoundException(EntityNotFoundException ex) {
         APIError error = APIError.builder()
                 .statusCode(HttpStatus.NOT_FOUND.value())
                 .time(LocalDateTime.now())
@@ -158,9 +146,9 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler({InternalServerError.class})
+    @ExceptionHandler(InternalServerError.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<APIError> handleInternalServerError(Exception ex) {
+    public ResponseEntity<APIError> handleInternalServerError(InternalServerError ex) {
         APIError error = APIError.builder()
                 .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .time(LocalDateTime.now())

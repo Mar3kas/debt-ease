@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -50,6 +49,15 @@ public class DebtCaseServiceImpl implements DebtCaseService {
         List<DebtCase> debtCases = debtCaseRepository.findAll();
 
         return debtCases.stream().filter(debtCase -> debtCase.getCreditor().getId() == id).toList();
+    }
+
+    @Override
+    public List<DebtCase> getDebtCasesByDebtorUsername(String username) {
+        List<DebtCase> debtCases = debtCaseRepository.findAll();
+
+        return debtCases.stream()
+                .filter(debtCase -> debtCase.getDebtors().stream()
+                        .anyMatch(debtor -> Objects.equals(debtor.getUser().getUsername(), username))).toList();
     }
 
     @Override

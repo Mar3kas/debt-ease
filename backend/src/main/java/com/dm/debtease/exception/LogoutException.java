@@ -1,6 +1,6 @@
 package com.dm.debtease.exception;
 
-public class LogoutException extends Exception {
+public class LogoutException extends RuntimeException {
     public LogoutException(String message) {
         super(message);
     }
