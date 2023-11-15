@@ -8,7 +8,7 @@ import com.opencsv.exceptions.CsvValidationException;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -32,15 +32,11 @@ import java.util.List;
 @RestController
 @Validated
 @CrossOrigin
-@RequestMapping(value = "/api")
+@RequiredArgsConstructor
 @SecurityRequirement(name = "dmapi")
+@RequestMapping(value = "/api")
 public class DebtCaseController {
     private final DebtCaseService debtCaseService;
-
-    @Autowired
-    public DebtCaseController(DebtCaseService debtCaseService) {
-        this.debtCaseService = debtCaseService;
-    }
 
     @GetMapping("/debtcases")
     public ResponseEntity<List<DebtCase>> getAllDebtCases() {
@@ -66,7 +62,7 @@ public class DebtCaseController {
 
     @GetMapping("/creditor/debtcases/debtor/{username}")
     public ResponseEntity<List<DebtCase>> getDebtCasesByDebtorUsername(@Valid
-                                                                         @PathVariable(name = "username") String username) {
+                                                                       @PathVariable(name = "username") String username) {
         List<DebtCase> debtCases = debtCaseService.getDebtCasesByDebtorUsername(username);
         return ResponseEntity.ok(debtCases);
     }

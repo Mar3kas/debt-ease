@@ -11,7 +11,7 @@ import com.dm.debtease.repository.DebtCaseRepository;
 import com.dm.debtease.repository.RoleRepository;
 import com.dm.debtease.service.CreditorService;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+@RequiredArgsConstructor
 @Service
 public class CreditorServiceImpl implements CreditorService {
     private final CreditorRepository creditorRepository;
@@ -27,17 +28,6 @@ public class CreditorServiceImpl implements CreditorService {
     private final RoleRepository roleRepository;
     private final DebtCaseRepository debtCaseRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-
-    @Autowired
-    public CreditorServiceImpl(CreditorRepository creditorRepository, CustomUserRepository customUserRepository,
-                               RoleRepository roleRepository, DebtCaseRepository debtCaseRepository,
-                               BCryptPasswordEncoder bCryptPasswordEncoder) {
-        this.creditorRepository = creditorRepository;
-        this.customUserRepository = customUserRepository;
-        this.roleRepository = roleRepository;
-        this.debtCaseRepository = debtCaseRepository;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-    }
 
     @Override
     public List<Creditor> getAllCreditors() {

@@ -9,6 +9,8 @@ import java.util.Optional;
 @Repository
 public interface DebtorRepository extends JpaRepository<Debtor, Integer> {
     Optional<Debtor> findByNameAndSurname(String name, String surname);
+
     Optional<Debtor> findByUserUsername(String username);
+
     Optional<Debtor> findByIdAndDebtCase_IdAndDebtCase_Creditor_Id(int id, int debtcaseId, int creditorId);
 }

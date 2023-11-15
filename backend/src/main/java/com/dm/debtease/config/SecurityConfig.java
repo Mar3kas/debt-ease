@@ -1,9 +1,10 @@
 package com.dm.debtease.config;
 
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -16,7 +17,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -25,6 +25,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 @EnableWebMvc
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig implements WebMvcConfigurer {
     private static final String[] AUTH_WHITELIST = {
             "/api/v1/auth/**",
@@ -32,19 +33,11 @@ public class SecurityConfig implements WebMvcConfigurer {
             "/v3/api-docs/**",
             "/v3/api-docs.yaml",
             "/swagger-ui.html",
-            "/api/users/login",
-            "/api/users/refresh/token"
+            "/api/login"
     };
     private final BCryptPasswordEncoder bCryptEncoder;
     private final UserDetailsService userDetailsService;
     private final JwtTokenFilter jwtTokenFilter;
-
-    public SecurityConfig(BCryptPasswordEncoder bCryptEncoder, UserDetailsService userDetailsService,
-                          JwtTokenFilter jwtTokenFilter) {
-        this.bCryptEncoder = bCryptEncoder;
-        this.userDetailsService = userDetailsService;
-        this.jwtTokenFilter = jwtTokenFilter;
-    }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
@@ -85,6 +78,8 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .requestMatchers(HttpMethod.PUT, "/api/debtors/*").hasAnyAuthority("DEBTOR", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/creditor/*/debtcases/file").hasAnyAuthority("CREDITOR", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/creditors/").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/logout").hasAnyAuthority("ADMIN", "DEBTOR", "CREDITOR")
+                        .requestMatchers(HttpMethod.POST, "/api/refresh").hasAnyAuthority("ADMIN", "DEBTOR", "CREDITOR")
                         .requestMatchers(HttpMethod.DELETE, "/api/creditor/*/debtcases/*").hasAnyAuthority("CREDITOR", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/creditor/*/debtcase/*/debtors/*").hasAnyAuthority("CREDITOR", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/creditors/*").hasAuthority("ADMIN")
@@ -95,7 +90,12 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
+                .exceptionHandling(exception -> exception
+                        .accessDeniedHandler((request, response, accessDeniedException)
+                                -> response.setStatus(HttpServletResponse.SC_FORBIDDEN))
+                        .authenticationEntryPoint((request, response, authException)
+                                -> response.setStatus(HttpServletResponse.SC_UNAUTHORIZED))
+                );
 
         return http.build();
     }

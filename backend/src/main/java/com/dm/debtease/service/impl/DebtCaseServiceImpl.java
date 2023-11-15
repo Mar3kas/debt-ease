@@ -9,7 +9,7 @@ import com.dm.debtease.service.CsvService;
 import com.dm.debtease.service.DebtCaseService;
 import com.opencsv.exceptions.CsvValidationException;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,19 +18,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+@RequiredArgsConstructor
 @Service
 public class DebtCaseServiceImpl implements DebtCaseService {
     private final DebtCaseRepository debtCaseRepository;
     private final DebtCaseTypeRepository debtCaseTypeRepository;
     private final CsvService csvService;
-
-    @Autowired
-    public DebtCaseServiceImpl(DebtCaseRepository debtCaseRepository, DebtCaseTypeRepository debtCaseTypeRepository,
-                               CsvService csvService) {
-        this.debtCaseRepository = debtCaseRepository;
-        this.debtCaseTypeRepository = debtCaseTypeRepository;
-        this.csvService = csvService;
-    }
 
     @Override
     public List<DebtCase> getAllDebtCases() {
@@ -62,7 +55,6 @@ public class DebtCaseServiceImpl implements DebtCaseService {
 
     @Override
     public List<DebtCase> createDebtCase(MultipartFile file, int id) throws CsvValidationException, IOException, InvalidFileFormatException {
-
         return csvService.readCsvData(file, id);
     }
 

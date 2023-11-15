@@ -5,21 +5,17 @@ import com.dm.debtease.model.dto.DebtorDTO;
 import com.dm.debtease.repository.DebtorRepository;
 import com.dm.debtease.service.DebtorService;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+@RequiredArgsConstructor
 @Service
 public class DebtorServiceImpl implements DebtorService {
     private final DebtorRepository debtorRepository;
-
-    @Autowired
-    public DebtorServiceImpl(DebtorRepository debtorRepository) {
-        this.debtorRepository = debtorRepository;
-    }
 
     @Override
     public List<Debtor> getAllDebtors() {

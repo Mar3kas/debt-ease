@@ -17,8 +17,8 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvValidationException;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,8 +34,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-@Service
 @Log4j2
+@RequiredArgsConstructor
+@Service
 public class CsvServiceImpl implements CsvService {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final DebtCaseTypeRepository debtCaseTypeRepository;
@@ -43,18 +44,6 @@ public class CsvServiceImpl implements CsvService {
     private final DebtorRepository debtorRepository;
     private final DebtCaseStatusRepository debtCaseStatusRepository;
     private final CreditorService creditorService;
-
-    @Autowired
-    public CsvServiceImpl(DebtCaseTypeRepository debtCaseTypeRepository, DebtorRepository debtorRepository,
-                          DebtCaseStatusRepository debtCaseStatusRepository,
-                          CreditorService creditorService,
-                          DebtCaseRepository debtCaseRepository) {
-        this.debtCaseTypeRepository = debtCaseTypeRepository;
-        this.debtorRepository = debtorRepository;
-        this.debtCaseStatusRepository = debtCaseStatusRepository;
-        this.creditorService = creditorService;
-        this.debtCaseRepository = debtCaseRepository;
-    }
 
     @Override
     public List<DebtCase> readCsvData(MultipartFile file, int id) throws IOException, CsvValidationException, InvalidFileFormatException {
@@ -68,6 +57,7 @@ public class CsvServiceImpl implements CsvService {
         Creditor creditor = creditorService.getCreditorById(id);
         DebtCaseStatus debtCaseStatus = debtCaseStatusRepository.findById(1).orElseThrow(() -> new EntityNotFoundException("Debtcase status not found with id 1"));
         log.info("Reading csv file");
+
         try (CSVReader reader = new CSVReaderBuilder(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))
                 .withCSVParser(new CSVParserBuilder().withSeparator(';').build())
                 .build()) {

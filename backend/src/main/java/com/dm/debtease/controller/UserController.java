@@ -1,6 +1,5 @@
 package com.dm.debtease.controller;
 
-import com.dm.debtease.config.JwtTokenProvider;
 import com.dm.debtease.exception.InvalidRefreshTokenException;
 import com.dm.debtease.exception.InvalidTokenException;
 import com.dm.debtease.exception.LoginException;
@@ -9,10 +8,12 @@ import com.dm.debtease.model.RefreshToken;
 import com.dm.debtease.model.RefreshTokenRequest;
 import com.dm.debtease.model.dto.UserDTO;
 import com.dm.debtease.repository.RefreshTokenRepository;
+import com.dm.debtease.service.JwtService;
+import com.dm.debtease.service.RefreshTokenService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -35,22 +36,15 @@ import java.util.Map;
 @RestController
 @Validated
 @CrossOrigin
-@RequestMapping(value = "/api/users")
+@RequiredArgsConstructor
 @SecurityRequirement(name = "dmapi")
+@RequestMapping(value = "/api")
 public class UserController {
     private final AuthenticationManager authenticationManager;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtService jwtService;
+    private final RefreshTokenService refreshTokenService;
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserDetailsService userDetailsService;
-
-    @Autowired
-    public UserController(AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider,
-                          RefreshTokenRepository refreshTokenRepository, UserDetailsService userDetailsService) {
-        this.authenticationManager = authenticationManager;
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.refreshTokenRepository = refreshTokenRepository;
-        this.userDetailsService = userDetailsService;
-    }
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> authenticateUser(@RequestBody @Valid UserDTO userDTO, BindingResult result) {
@@ -65,8 +59,8 @@ public class UserController {
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String accessToken = jwtTokenProvider.createToken(authentication);
-        String refreshToken = jwtTokenProvider.createRefreshToken(userDTO.getUsername());
+        String accessToken = jwtService.createToken(authentication);
+        String refreshToken = refreshTokenService.createRefreshToken(userDTO.getUsername());
 
         Map<String, String> tokenMap = new HashMap<>();
         tokenMap.put("accessToken", accessToken);
@@ -75,18 +69,17 @@ public class UserController {
         return ResponseEntity.ok(tokenMap);
     }
 
-    @PostMapping("/refresh/token")
+    @PostMapping("/refresh")
     public ResponseEntity<Map<String, String>> refreshAccessToken(@RequestBody @Valid RefreshTokenRequest request,
                                                                   BindingResult result) {
-        RefreshToken refreshToken = refreshTokenRepository.findByToken(request.getRefreshToken())
-                .orElseThrow(() -> new InvalidRefreshTokenException(String.format("Refresh token not found by this token %s", request.getRefreshToken())));
+        RefreshToken refreshToken = refreshTokenService.findByToken(request.getRefreshToken());
 
-        if (jwtTokenProvider.validateRefreshToken(refreshToken)) {
+        if (refreshTokenService.validateRefreshToken(refreshToken)) {
             UserDetails user = userDetailsService.loadUserByUsername(refreshToken.getUsername());
 
             Authentication authentication = new UsernamePasswordAuthenticationToken(user, null);
 
-            String accessToken = jwtTokenProvider.createToken(authentication);
+            String accessToken = jwtService.createToken(authentication);
 
             Map<String, String> tokenMap = new HashMap<>();
             tokenMap.put("accessToken", accessToken);
@@ -101,13 +94,12 @@ public class UserController {
     @Transactional
     public ResponseEntity<String> logout(HttpServletRequest request) {
         try {
-            String accessToken = jwtTokenProvider.resolveToken(request);
+            String accessToken = jwtService.resolveToken(request);
 
             if (accessToken != null) {
-                refreshTokenRepository.deleteByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
                 SecurityContextHolder.clearContext();
 
-                jwtTokenProvider.addToRevokedTokens(accessToken);
+                jwtService.addToRevokedTokens(accessToken);
 
                 return ResponseEntity.ok("Logout successful");
             }

@@ -1,5 +1,6 @@
 package com.dm.debtease.config;
 
+import com.dm.debtease.service.JwtService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.SignatureException;
@@ -7,8 +8,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
-import lombok.SneakyThrows;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,10 +20,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class JwtTokenFilter extends OncePerRequestFilter {
-    JwtTokenProvider jwtTokenProvider;
-    UserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService;
+    private final JwtService jwtService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -35,12 +35,12 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             return;
         }
 
-        String token = jwtTokenProvider.resolveToken(request);
+        String token = jwtService.resolveToken(request);
 
         if (token != null) {
             try {
-                if (jwtTokenProvider.validateToken(token) && !jwtTokenProvider.isTokenRevoked(token)) {
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(jwtTokenProvider.getUsername(token));
+                if (jwtService.validateToken(token) && !jwtService.isTokenRevoked(token)) {
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(jwtService.getUsername(token));
 
                     UsernamePasswordAuthenticationToken authenticationToken =
                             new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

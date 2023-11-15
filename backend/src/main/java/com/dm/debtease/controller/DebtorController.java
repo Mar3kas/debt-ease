@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -25,15 +25,11 @@ import java.util.List;
 @RestController
 @Validated
 @CrossOrigin
-@RequestMapping(value = "/api")
+@RequiredArgsConstructor
 @SecurityRequirement(name = "dmapi")
+@RequestMapping(value = "/api")
 public class DebtorController {
     private final DebtorService debtorService;
-
-    @Autowired
-    public DebtorController(DebtorService debtorService) {
-        this.debtorService = debtorService;
-    }
 
     @GetMapping("/debtors")
     public ResponseEntity<List<Debtor>> getAllDebtors() {
@@ -44,7 +40,7 @@ public class DebtorController {
     @GetMapping("/debtors/{id}")
     public ResponseEntity<Debtor> getDebtorById(@Valid
                                                 @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
-                                                @PathVariable(name = "id", required = false) int id) {
+                                                @PathVariable(name = "id") int id) {
         Debtor debtor = debtorService.getDebtorById(id);
         return ResponseEntity.ok(debtor);
     }
@@ -52,7 +48,7 @@ public class DebtorController {
     @GetMapping("/debtors/profile/{username}")
     public ResponseEntity<Debtor> getDebtorByUsername(@Valid
                                                       @NotBlank
-                                                      @PathVariable(name = "username", required = false) String username) {
+                                                      @PathVariable(name = "username") String username) {
         Debtor debtor = debtorService.getDebtorByUsername(username);
         return ResponseEntity.ok(debtor);
     }

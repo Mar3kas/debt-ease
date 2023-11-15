@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -27,15 +27,11 @@ import java.util.List;
 @RestController
 @Validated
 @CrossOrigin
-@RequestMapping(value = "/api/creditors")
+@RequiredArgsConstructor
 @SecurityRequirement(name = "dmapi")
+@RequestMapping(value = "/api/creditors")
 public class CreditorController {
     private final CreditorService creditorService;
-
-    @Autowired
-    public CreditorController(CreditorService creditorService) {
-        this.creditorService = creditorService;
-    }
 
     @GetMapping()
     public ResponseEntity<List<Creditor>> getAllCreditors() {
@@ -53,8 +49,8 @@ public class CreditorController {
 
     @GetMapping("/profile/{username}")
     public ResponseEntity<Creditor> getCreditorByUsername(@Valid
-                                                        @NotBlank
-                                                        @PathVariable(name = "username") String username) {
+                                                          @NotBlank
+                                                          @PathVariable(name = "username") String username) {
         Creditor creditor = creditorService.getCreditorByUsername(username);
         return ResponseEntity.ok(creditor);
     }

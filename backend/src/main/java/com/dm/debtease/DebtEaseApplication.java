@@ -14,14 +14,14 @@ import java.util.TimeZone;
 @SpringBootApplication
 @EnableScheduling
 @OpenAPIDefinition(info = @Info(title = "Debt Management System API", version = "1.0",
-		description = "Debt Management System API"))
+        description = "Debt Management System API"))
 @SecurityScheme(name = "dmapi", scheme = "bearer", bearerFormat = "JWT", type = SecuritySchemeType.HTTP,
-		in = SecuritySchemeIn.HEADER, description = "JWT Authorization header using Bearer scheme")
+        in = SecuritySchemeIn.HEADER, description = "JWT Authorization header using Bearer scheme")
 public class DebtEaseApplication {
 
-	public static void main(String[] args) {
-		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-		SpringApplication.run(DebtEaseApplication.class, args);
-	}
+    public static void main(String[] args) {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+        SpringApplication.run(DebtEaseApplication.class, args);
+    }
 
 }
