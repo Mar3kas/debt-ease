@@ -1,0 +1,11 @@
+
+l
+java:S1192I"ODefine a constant instead of duplicating this literal "/api/debtors/*" 3 times.(Ê†ø¹8É‹Ù‘½1
+i
+java:S1192H"GDefine a constant instead of duplicating this literal "DEBTOR" 6 times.(êÌð…øÿÿÿÿ8Ê‹Ù‘½1
+l
+java:S1192A"JDefine a constant instead of duplicating this literal "CREDITOR" 12 times.(¥¦í«üÿÿÿÿ8Ê‹Ù‘½1
+i
+java:S1192A"GDefine a constant instead of duplicating this literal "ADMIN" 22 times.(¥¦í«üÿÿÿÿ8Ê‹Ù‘½1
+s
+java:S1192A"QDefine a constant instead of duplicating this literal "/api/creditors/*" 3 times.(¥¦í«üÿÿÿÿ8Ë‹Ù‘½1
