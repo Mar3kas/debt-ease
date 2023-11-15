@@ -45,7 +45,7 @@ public class DebtorController {
         return ResponseEntity.ok(debtor);
     }
 
-    @GetMapping("/debtors/profile/{username}")
+    @GetMapping("/debtors/{username}")
     public ResponseEntity<Debtor> getDebtorByUsername(@Valid
                                                       @NotBlank
                                                       @PathVariable(name = "username") String username) {
