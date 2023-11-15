@@ -64,7 +64,8 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors(Customizer.withDefaults())
-                .authorizeHttpRequests(authorize -> authorize.requestMatchers(AUTH_WHITELIST).permitAll()
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(AUTH_WHITELIST).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/creditors/*").hasAnyAuthority("CREDITOR", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/creditors/profile/*").hasAnyAuthority("CREDITOR", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/debtcases/*").hasAnyAuthority("CREDITOR", "ADMIN")

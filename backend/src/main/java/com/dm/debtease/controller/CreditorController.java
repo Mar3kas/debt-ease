@@ -47,7 +47,7 @@ public class CreditorController {
         return ResponseEntity.ok(creditor);
     }
 
-    @GetMapping("/{username}")
+    @GetMapping("/username/{username}")
     public ResponseEntity<Creditor> getCreditorByUsername(@Valid
                                                           @NotBlank
                                                           @PathVariable(name = "username") String username) {

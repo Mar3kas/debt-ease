@@ -45,7 +45,7 @@ public class DebtorController {
         return ResponseEntity.ok(debtor);
     }
 
-    @GetMapping("/debtors/{username}")
+    @GetMapping("/debtors/username/{username}")
     public ResponseEntity<Debtor> getDebtorByUsername(@Valid
                                                       @NotBlank
                                                       @PathVariable(name = "username") String username) {
@@ -73,7 +73,7 @@ public class DebtorController {
         return ResponseEntity.ok(debtor);
     }
 
-    @DeleteMapping(value = {"/{id}", "/creditor/{creditorId}/debtcase/{debtcaseId}/debtors/{id}"})
+    @DeleteMapping(value = {"/debtors/{id}", "/creditor/{creditorId}/debtcase/{debtcaseId}/debtors/{id}"})
     public ResponseEntity<String> deleteDebtorById(@Valid
                                                    @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
                                                    @PathVariable(name = "id") int id,

@@ -1,8 +1,24 @@
-import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import React from 'react';
+import { useGet } from './api-service';
+import { IDebtor } from './pages/debtor/interface';
 
 function App() {
+  const { data, loading, error } = useGet<IDebtor[]>('creditor/{id}/debtcases', { id: 1 });
+  //console.log(data);
+  {data && data.map(debtor => (
+    console.log(debtor)
+  ))}
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
+
   return (
     <div className="App">
       <header className="App-header">
