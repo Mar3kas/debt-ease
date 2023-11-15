@@ -7,7 +7,6 @@ import com.dm.debtease.exception.LogoutException;
 import com.dm.debtease.model.RefreshToken;
 import com.dm.debtease.model.RefreshTokenRequest;
 import com.dm.debtease.model.dto.UserDTO;
-import com.dm.debtease.repository.RefreshTokenRepository;
 import com.dm.debtease.service.JwtService;
 import com.dm.debtease.service.RefreshTokenService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -43,7 +42,6 @@ public class UserController {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
-    private final RefreshTokenRepository refreshTokenRepository;
     private final UserDetailsService userDetailsService;
 
     @PostMapping("/login")

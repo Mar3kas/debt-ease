@@ -58,6 +58,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     }
 
     private boolean isRefreshTokenRequest(String requestUri) {
-        return requestUri.endsWith("/refresh/token");
+        return requestUri.endsWith("/refresh");
     }
 }

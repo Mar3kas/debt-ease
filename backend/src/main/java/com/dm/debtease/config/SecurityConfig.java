@@ -33,8 +33,11 @@ public class SecurityConfig implements WebMvcConfigurer {
             "/v3/api-docs/**",
             "/v3/api-docs.yaml",
             "/swagger-ui.html",
-            "/api/login"
+            "/api/login",
+            "/api/refresh"
     };
+
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final BCryptPasswordEncoder bCryptEncoder;
     private final UserDetailsService userDetailsService;
     private final JwtTokenFilter jwtTokenFilter;
@@ -79,7 +82,6 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .requestMatchers(HttpMethod.POST, "/api/creditor/*/debtcases/file").hasAnyAuthority("CREDITOR", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/creditors/").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/logout").hasAnyAuthority("ADMIN", "DEBTOR", "CREDITOR")
-                        .requestMatchers(HttpMethod.POST, "/api/refresh").hasAnyAuthority("ADMIN", "DEBTOR", "CREDITOR")
                         .requestMatchers(HttpMethod.DELETE, "/api/creditor/*/debtcases/*").hasAnyAuthority("CREDITOR", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/creditor/*/debtcase/*/debtors/*").hasAnyAuthority("CREDITOR", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/creditors/*").hasAuthority("ADMIN")
@@ -93,8 +95,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .exceptionHandling(exception -> exception
                         .accessDeniedHandler((request, response, accessDeniedException)
                                 -> response.setStatus(HttpServletResponse.SC_FORBIDDEN))
-                        .authenticationEntryPoint((request, response, authException)
-                                -> response.setStatus(HttpServletResponse.SC_UNAUTHORIZED))
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
                 );
 
         return http.build();
