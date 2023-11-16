@@ -41,6 +41,7 @@ public class Debtor {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "debtcase_id", nullable = false)
+    @JsonIgnore
     DebtCase debtCase;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)

@@ -1,5 +1,5 @@
 import React from "react";
-import { IApiError } from "./models/apiError";
+import { IApiError } from "../shared/models/ApiError";
 
 const API_BASE_URL = "http://localhost:8080/api";
 

@@ -6,7 +6,6 @@ import com.dm.debtease.service.CreditorService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,14 +43,6 @@ public class CreditorController {
                                                     @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
                                                     @PathVariable(name = "id") int id) {
         Creditor creditor = creditorService.getCreditorById(id);
-        return ResponseEntity.ok(creditor);
-    }
-
-    @GetMapping("/username/{username}")
-    public ResponseEntity<Creditor> getCreditorByUsername(@Valid
-                                                          @NotBlank
-                                                          @PathVariable(name = "username") String username) {
-        Creditor creditor = creditorService.getCreditorByUsername(username);
         return ResponseEntity.ok(creditor);
     }
 

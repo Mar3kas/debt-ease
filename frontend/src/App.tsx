@@ -1,8 +1,8 @@
 import logo from './logo.svg';
 import './App.css';
 import React from 'react';
-import { useGet } from './api-service';
-import { IDebtor } from './pages/debtor/interface';
+import { useGet } from './services/api-service';
+import { IDebtor } from './shared/models/Debtor/interface';
 
 function App() {
   const { data, loading, error } = useGet<IDebtor[]>('creditor/{id}/debtcases', { id: 1 });

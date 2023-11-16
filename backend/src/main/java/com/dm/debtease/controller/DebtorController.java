@@ -6,7 +6,6 @@ import com.dm.debtease.service.DebtorService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -42,14 +41,6 @@ public class DebtorController {
                                                 @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
                                                 @PathVariable(name = "id") int id) {
         Debtor debtor = debtorService.getDebtorById(id);
-        return ResponseEntity.ok(debtor);
-    }
-
-    @GetMapping("/debtors/username/{username}")
-    public ResponseEntity<Debtor> getDebtorByUsername(@Valid
-                                                      @NotBlank
-                                                      @PathVariable(name = "username") String username) {
-        Debtor debtor = debtorService.getDebtorByUsername(username);
         return ResponseEntity.ok(debtor);
     }
 

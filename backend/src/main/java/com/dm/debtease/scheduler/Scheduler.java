@@ -47,7 +47,7 @@ public class Scheduler {
     private boolean debtCaseIsPending(DebtCase debtCase, LocalDateTime startTime, LocalDateTime endTime) {
         return debtCase.getDueDate().isAfter(startTime)
                 && debtCase.getDueDate().isBefore(endTime)
-                && "NEW" .equals(debtCase.getDebtCaseType().getType())
+                && "NEW".equals(debtCase.getDebtCaseType().getType())
                 && debtCase.getIsSent() != 1;
     }
 

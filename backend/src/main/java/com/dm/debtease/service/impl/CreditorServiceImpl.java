@@ -10,9 +10,9 @@ import com.dm.debtease.repository.CustomUserRepository;
 import com.dm.debtease.repository.DebtCaseRepository;
 import com.dm.debtease.repository.RoleRepository;
 import com.dm.debtease.service.CreditorService;
+import com.dm.debtease.service.PasswordGeneratorService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +28,7 @@ public class CreditorServiceImpl implements CreditorService {
     private final RoleRepository roleRepository;
     private final DebtCaseRepository debtCaseRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final PasswordGeneratorService passwordGeneratorService;
 
     @Override
     public List<Creditor> getAllCreditors() {
@@ -45,7 +46,7 @@ public class CreditorServiceImpl implements CreditorService {
     public Creditor getCreditorByUsername(String username) {
         Optional<Creditor> optionalCreditor = creditorRepository.findByUserUsername(username);
 
-        return optionalCreditor.orElseThrow(() -> new UsernameNotFoundException("Creditor not found with username " + username));
+        return optionalCreditor.orElse(null);
     }
 
     @Override
@@ -86,8 +87,8 @@ public class CreditorServiceImpl implements CreditorService {
 
         Role role = roleRepository.findById(3).orElseThrow(() -> new EntityNotFoundException("Role not found with id 3"));
         CustomUser customUser = new CustomUser();
-        customUser.setUsername(creditorDTO.getUserDTO().getUsername());
-        customUser.setPassword(bCryptPasswordEncoder.encode(creditorDTO.getUserDTO().getPassword()));
+        customUser.setUsername(creditorDTO.getUsername());
+        customUser.setPassword(bCryptPasswordEncoder.encode(passwordGeneratorService.generatePassword(8)));
         customUser.setRole(role);
         customUserRepository.save(customUser);
 

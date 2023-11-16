@@ -14,7 +14,7 @@ public interface DebtCaseService {
 
     DebtCase getDebtCaseById(int id);
 
-    List<DebtCase> getDebtCasesByCreditorId(int id);
+    List<DebtCase> getDebtCasesByCreditorUsername(String username);
 
     List<DebtCase> getDebtCasesByDebtorUsername(String username);
 

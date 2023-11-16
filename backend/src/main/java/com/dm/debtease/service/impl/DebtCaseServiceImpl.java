@@ -38,10 +38,13 @@ public class DebtCaseServiceImpl implements DebtCaseService {
     }
 
     @Override
-    public List<DebtCase> getDebtCasesByCreditorId(int id) {
+    public List<DebtCase> getDebtCasesByCreditorUsername(String username) {
         List<DebtCase> debtCases = debtCaseRepository.findAll();
 
-        return debtCases.stream().filter(debtCase -> debtCase.getCreditor().getId() == id).toList();
+        return debtCases.stream()
+                .filter(debtCase ->
+                        Objects.equals(debtCase.getCreditor().getUser().getUsername(), username))
+                .toList();
     }
 
     @Override
@@ -50,7 +53,8 @@ public class DebtCaseServiceImpl implements DebtCaseService {
 
         return debtCases.stream()
                 .filter(debtCase -> debtCase.getDebtors().stream()
-                        .anyMatch(debtor -> Objects.equals(debtor.getUser().getUsername(), username))).toList();
+                        .anyMatch(debtor -> Objects.equals(debtor.getUser().getUsername(), username)))
+                .toList();
     }
 
     @Override

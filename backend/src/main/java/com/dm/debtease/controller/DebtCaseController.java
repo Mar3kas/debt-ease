@@ -8,6 +8,7 @@ import com.opencsv.exceptions.CsvValidationException;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -52,11 +53,11 @@ public class DebtCaseController {
         return ResponseEntity.ok(debtCase);
     }
 
-    @GetMapping("/creditor/{id}/debtcases")
-    public ResponseEntity<List<DebtCase>> getDebtCasesByCreditorId(@Valid
-                                                                   @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
-                                                                   @PathVariable(name = "id") int id) {
-        List<DebtCase> debtCases = debtCaseService.getDebtCasesByCreditorId(id);
+    @GetMapping("/creditor/{username}/debtcases")
+    public ResponseEntity<List<DebtCase>> getDebtCasesByCreditorUsername(@Valid
+                                                                         @NotBlank
+                                                                         @PathVariable(name = "username") String username) {
+        List<DebtCase> debtCases = debtCaseService.getDebtCasesByCreditorUsername(username);
         return ResponseEntity.ok(debtCases);
     }
 

@@ -1,6 +1,5 @@
 package com.dm.debtease.model.dto;
 
-import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -21,6 +20,6 @@ public class CreditorDTO {
     String email;
     @NotBlank(message = "Account number is required")
     String accountNumber;
-    @Nullable
-    UserDTO userDTO;
+    @NotBlank(message = "Username is required")
+    String username;
 }

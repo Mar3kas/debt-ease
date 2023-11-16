@@ -23,5 +23,4 @@ public class DebtEaseApplication {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         SpringApplication.run(DebtEaseApplication.class, args);
     }
-
 }
