@@ -5,8 +5,7 @@ import { useGet } from './services/api-service';
 import { IDebtor } from './shared/models/Debtor/interface';
 
 function App() {
-  const { data, loading, error } = useGet<IDebtor[]>('creditor/{id}/debtcases', { id: 1 });
-  //console.log(data);
+  const { data, loading, error } = useGet<IDebtor[]>('creditor/{username}/debtcases', { username: "finserv" });
   {data && data.map(debtor => (
     console.log(debtor)
   ))}
