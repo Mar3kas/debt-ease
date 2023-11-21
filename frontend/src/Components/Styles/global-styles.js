@@ -1,8 +1,9 @@
-import { makeStyles } from '@material-ui/core/styles';
+// global-styles.js
+import { makeStyles } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
-  // Reset some default browser styles
   body: {
+    backgroundColor: "#8FBC8F",
     margin: 0,
     padding: 0,
     fontFamily: "'Open Sans', sans-serif",
@@ -11,9 +12,8 @@ const useStyles = makeStyles((theme) => ({
   
   // Header Styles
   header: {
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: "#ffffff",
     color: theme.palette.common.white,
-    padding: theme.spacing(2),
   },
   
   // Content Styles
@@ -31,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
   
   // Footer Styles
   footer: {
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: "#2E8B57",
     color: theme.palette.common.white,
     padding: theme.spacing(2),
     textAlign: 'center',

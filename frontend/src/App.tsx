@@ -1,19 +1,32 @@
-import './App.css';
-import logo from './logo.svg';
-import React from 'react';
-import { useGet } from './services/api-service';
-import { IDebtor } from './shared/models/Debtor/interface';
-import { HomePage } from './pages/Home';
-import { SnackbarType } from './Components/Snackbar';
+import React, { FC, useEffect } from "react";
+import "./App.css";
+import { useSnackbar } from "./Components";
+import { routes as appRoutes } from "./routes";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { CssBaseline } from "@mui/material";
 
-function App() {
-  const { data, loading, error } = useGet<IDebtor[]>('creditor/{username}/debtcases', { username: "finserv" });
+const App: FC = () => {
+  //const { data, loading, error } = useGet<IDebtor[]>('creditor/{username}/debtcases', { username: "finserv" });
+
+  const snackbar = useSnackbar();
+
   return (
     <div>
-      <HomePage openSnackbar={function (message: string, type: SnackbarType): void {
-      }} />
+      <CssBaseline />
+      <Router>
+        <Routes>
+          {appRoutes.map((route) => (
+            <Route
+              key={route.key}
+              path={route.path}
+              element={<route.component snackbar={snackbar} />}
+            />
+          ))}
+        </Routes>
+      </Router>
+      {snackbar.renderSnackbar()}
     </div>
   );
-}
+};
 
 export default App;
