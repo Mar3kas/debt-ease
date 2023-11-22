@@ -1,12 +1,5 @@
 import React, { FC, ReactElement, useState, useEffect } from "react";
-import {
-  Box,
-  Typography,
-  AppBar,
-  Toolbar,
-  Button,
-  IconButton,
-} from "@mui/material";
+import { Box, Typography, IconButton } from "@mui/material";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import HelpIcon from "@mui/icons-material/Help";
@@ -15,6 +8,8 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { useTransition, animated, useSpring } from "@react-spring/web";
 import useStyles from "../../Components/Styles/global-styles";
 import { useNavigate } from "react-router-dom";
+import Navbar from "../../Components/Navbar/navbar";
+import Footer from "../../Components/Footer/footer";
 
 const slides = [
   {
@@ -88,39 +83,7 @@ const HomePage: FC = (): ReactElement => {
         backgroundColor: "#8FBC8F",
       }}
     >
-      <AppBar
-        position="static"
-        component="header"
-        className={classes.header}
-        sx={{ backgroundColor: "#ffffff", color: "white" }}
-      >
-        <Toolbar>
-          <img
-            src={require("../../Images/debtease.png")}
-            alt="DebtEase Logo"
-            style={{ height: "80px" }}
-          />
-          <Typography
-            variant="h6"
-            component="div"
-            sx={{ flexGrow: 1, color: "black" }}
-          >
-            DebtEase
-          </Typography>
-          <Button
-            sx={{
-              color: "black",
-              backgroundColor: "white",
-              border: "3px solid #8FBC8F",
-            }}
-            onClick={() => {
-              navigate("/login");
-            }}
-          >
-            Login
-          </Button>
-        </Toolbar>
-      </AppBar>
+      <Navbar title="DebtEase" />
       <Box
         sx={{
           display: "flex",
@@ -132,11 +95,7 @@ const HomePage: FC = (): ReactElement => {
         }}
       >
         <animated.div style={sloganStyle}>
-          <Typography
-            variant="h4"
-            component="div"
-            sx={{ color: "black" }}
-          >
+          <Typography variant="h4" component="div" sx={{ color: "black" }}>
             Trust In Every Debt
           </Typography>
         </animated.div>
@@ -211,7 +170,7 @@ const HomePage: FC = (): ReactElement => {
               },
               color: "#654321",
             }}
-            onClick={() => {}}
+            onClick={() => { }}
           >
             <HelpIcon style={{ fontSize: 60 }} />
           </IconButton>
@@ -228,7 +187,7 @@ const HomePage: FC = (): ReactElement => {
               },
               color: "#654321",
             }}
-            onClick={() => {}}
+            onClick={() => { }}
           >
             <ContactSupportIcon style={{ fontSize: 60 }} />
           </IconButton>
@@ -253,22 +212,7 @@ const HomePage: FC = (): ReactElement => {
           </IconButton>
         </Box>
       </Box>
-      <Box
-        component="footer"
-        className={classes.footer}
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <Typography variant="body2" align="center" gutterBottom>
-          All rights are reserved.
-        </Typography>
-        <Typography variant="body2" align="center">
-          Created by Marijus Petkevičius
-        </Typography>
-      </Box>
+      <Footer />
     </Box>
   );
 };

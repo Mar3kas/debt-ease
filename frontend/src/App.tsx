@@ -19,12 +19,16 @@ const App: FC = () => {
             <Route
               key={route.key}
               path={route.path}
-              element={<route.component snackbar={snackbar} />}
+              element={
+                <route.component
+                  openSnackbar={snackbar.openSnackbar}
+                />
+              }
             />
           ))}
         </Routes>
+        {snackbar.renderSnackbar()}
       </Router>
-      {snackbar.renderSnackbar()}
     </div>
   );
 };

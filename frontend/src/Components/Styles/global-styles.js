@@ -46,7 +46,25 @@ const useStyles = makeStyles((theme) => ({
   menuItem: {
     marginRight: theme.spacing(2),
   },
-  
+
+    // TextField Styles
+    textField: {
+      '& .MuiOutlinedInput-root': {
+        '& fieldset': {
+          borderColor: 'black',
+        },
+        '&:hover fieldset': {
+          borderColor: 'rgba(152, 251, 152, 0.7)',
+        },
+        '&.Mui-focused fieldset': {
+          borderColor: 'rgba(152, 251, 152, 1)',
+        },
+      },
+      '& .Mui-focused': {
+        color: 'rgba(152, 251, 152, 1)',
+      },
+    },
+
   // Responsive Styles
   '@media only screen and (max-width: 768px)': {
     // Responsive Menu Styles

@@ -5,6 +5,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -13,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Collection;
 import java.util.Date;
@@ -21,18 +23,23 @@ import java.util.Set;
 
 @Service
 public class JwtServiceImpl implements JwtService {
-    private final Key key;
+    private Key key;
     private final Set<String> revokedTokens;
     @Value("${spring.jwt.accessTokenExpirationInMs}")
     private long accessTokenExpiration;
+    @Value("${spring.jwt.secretKey}")
+    private String secretKey;
 
     public JwtServiceImpl() {
-        this.key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
         this.revokedTokens = new HashSet<>();
     }
 
     @Override
     public String createToken(Authentication authentication) {
+        if (this.key == null) {
+            this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+        }
+
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         Collection<? extends GrantedAuthority> roles = userDetails.getAuthorities();
         String role = roles.iterator().next().getAuthority();
