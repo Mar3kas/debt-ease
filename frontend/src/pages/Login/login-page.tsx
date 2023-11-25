@@ -9,6 +9,7 @@ import { IUserDTO } from "../../shared/dtos/UserDTO";
 import { IAccessMap } from "../../shared/models/AccessMap";
 import Footer from "../../Components/Footer/footer";
 import Navbar from "../../Components/Navbar/navbar";
+import AuthService from "../../services/jwt-service";
 
 const LoginPage: FC<IPage> = (props): ReactElement => {
     const { openSnackbar } = props;
@@ -32,8 +33,18 @@ const LoginPage: FC<IPage> = (props): ReactElement => {
         if (data !== null) {
             localStorage.setItem("token", data.accessToken);
             localStorage.setItem("refreshToken", data.refreshToken);
-            openSnackbar("Welcome!", "success");
-            navigate("/");
+            const authService = AuthService.getInstance();
+            openSnackbar('Welcome!', 'success');
+            const decodedToken = authService.decodeToken();
+
+            if (decodedToken) {
+                const expirationString = decodedToken.exp.toString();
+                localStorage.setItem('username', decodedToken.sub);
+                localStorage.setItem('role', decodedToken.role);
+                localStorage.setItem('exp', expirationString);
+            }
+
+            navigate('/');
         }
 
         if (error !== null) {
@@ -89,19 +100,10 @@ const LoginPage: FC<IPage> = (props): ReactElement => {
             }}
         >
             <Navbar title="DebtEase" />
-            <Paper elevation={16} square={true} sx={{ width: '50%', margin: 'auto' }}>
-                <Box
-                    sx={{
-                        flexGrow: 1,
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        padding: "16px",
-                    }}
-                >
+            <Paper elevation={16} square={true} className={classes.paper}>
+                <Box className={classes.form}>
                     <Typography variant="h4">Login</Typography>
-                    {error !== null && error.statusCode === 401 && (
+                    {error !== null && error.statusCode !== 422 && (
                         <Box
                             sx={{
                                 flexGrow: 1,
@@ -116,7 +118,6 @@ const LoginPage: FC<IPage> = (props): ReactElement => {
                         </Box>
                     )}
                     <TextField
-                        className={classes.textField}
                         id="username"
                         label="Username"
                         name="username"
@@ -128,12 +129,8 @@ const LoginPage: FC<IPage> = (props): ReactElement => {
                         size="small"
                         margin="normal"
                         required
-                        sx={{
-                            width: "400px",
-                        }}
                     />
                     <TextField
-                        className={classes.textField}
                         id="password"
                         label="Password"
                         name="password"
@@ -145,9 +142,6 @@ const LoginPage: FC<IPage> = (props): ReactElement => {
                         size="small"
                         margin="normal"
                         required
-                        sx={{
-                            width: "400px",
-                        }}
                     />
                     <Box
                         sx={{

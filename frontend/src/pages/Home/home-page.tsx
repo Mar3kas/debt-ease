@@ -4,7 +4,6 @@ import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import HelpIcon from "@mui/icons-material/Help";
 import ContactSupportIcon from "@mui/icons-material/ContactSupport";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { useTransition, animated, useSpring } from "@react-spring/web";
 import useStyles from "../../Components/Styles/global-styles";
 import { useNavigate } from "react-router-dom";
@@ -190,25 +189,6 @@ const HomePage: FC = (): ReactElement => {
             onClick={() => { }}
           >
             <ContactSupportIcon style={{ fontSize: 60 }} />
-          </IconButton>
-          <IconButton
-            color="inherit"
-            sx={{
-              borderRadius: "50%",
-              margin: "0 5px",
-              padding: 3,
-              backgroundColor: "#F8DE7E",
-              "&:hover": {
-                color: "#8B7255",
-                backgroundColor: "#F8DE7E",
-              },
-              color: "#654321",
-            }}
-            onClick={() => {
-              navigate("/login");
-            }}
-          >
-            <AccountCircleIcon style={{ fontSize: 60 }} />
           </IconButton>
         </Box>
       </Box>

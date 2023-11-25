@@ -1,8 +1,11 @@
+import { IUser } from "../User";
+
 export interface ICreditor {
     id: number;
     name: string;
     address: string;
-    phone: string;
+    phoneNumber: string;
     email: string;
     accountNumber: string;
+    user: IUser;
 }

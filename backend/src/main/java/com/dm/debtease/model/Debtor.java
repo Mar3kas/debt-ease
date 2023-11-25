@@ -46,6 +46,5 @@ public class Debtor {
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_id", unique = true)
-    @JsonIgnore
     CustomUser user;
 }

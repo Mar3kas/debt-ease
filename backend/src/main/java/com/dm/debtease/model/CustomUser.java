@@ -1,5 +1,6 @@
 package com.dm.debtease.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -23,12 +24,14 @@ import lombok.Setter;
 public class CustomUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonIgnore
     int id;
 
     @Column(name = "username", nullable = false, unique = true)
     String username;
 
     @Column(name = "password", nullable = false)
+    @JsonIgnore
     String password;
 
     @ManyToOne(fetch = FetchType.EAGER)

@@ -13,7 +13,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Collection;
 import java.util.Date;
@@ -22,23 +21,18 @@ import java.util.Set;
 
 @Service
 public class JwtServiceImpl implements JwtService {
-    private Key key;
+    private final Key key;
     private final Set<String> revokedTokens;
     @Value("${spring.jwt.accessTokenExpirationInMs}")
     private long accessTokenExpiration;
-    @Value("${spring.jwt.secretKey}")
-    private String secretKey;
 
     public JwtServiceImpl() {
+        this.key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
         this.revokedTokens = new HashSet<>();
     }
 
     @Override
     public String createToken(Authentication authentication) {
-        if (this.key == null) {
-            this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
-        }
-
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         Collection<? extends GrantedAuthority> roles = userDetails.getAuthorities();
         String role = roles.iterator().next().getAuthority();
@@ -52,7 +46,7 @@ public class JwtServiceImpl implements JwtService {
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + accessTokenExpiration))
-                .signWith(key, SignatureAlgorithm.HS512)
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
