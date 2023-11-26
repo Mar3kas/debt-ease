@@ -12,7 +12,7 @@ public class CreditorDTO {
     @NotBlank(message = "Address is required")
     String address;
     @Pattern(
-            regexp = "^(\\+\\d{1,2}\\s?)?\\(?\\d{2,3}\\)?[\\s.-]?\\d{3}[\\s.-]?\\d{3,4}$",
+            regexp = "^(\\+\\d{1,2}[-\\s]?)?\\(?\\d{2,3}\\)?[-\\s]?\\d{3}[-\\s]?\\d{4}$",
             message = "Phone number should be a valid format"
     )
     String phoneNumber;
@@ -20,6 +20,5 @@ public class CreditorDTO {
     String email;
     @NotBlank(message = "Account number is required")
     String accountNumber;
-    @NotBlank(message = "Username is required")
     String username;
 }

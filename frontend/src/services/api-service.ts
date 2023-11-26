@@ -29,7 +29,7 @@ async function handleResponse<T>(response: Response): Promise<T> {
 
 const buildUrl = (
   endpoint: string,
-  pathVariables: Record<string, string | number> = {}
+  pathVariables: Record<string, string | number | undefined> = {}
 ) => {
   let url = `${API_BASE_URL}/${endpoint}`;
 
@@ -106,7 +106,7 @@ export const usePost = <T>(
 
 export const useEdit = <T>(
   endpoint: string,
-  pathVariables: Record<string, string | number> = {}
+  pathVariables: Record<string, string | number | undefined> = {}
 ) => {
   const [data, setData] = React.useState<T | null>(null);
   const [loading, setLoading] = React.useState(false);
