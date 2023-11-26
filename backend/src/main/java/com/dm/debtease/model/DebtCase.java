@@ -1,7 +1,6 @@
 package com.dm.debtease.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -53,7 +52,6 @@ public class DebtCase {
     Creditor creditor;
 
     @OneToMany(mappedBy = "debtCase")
-    @JsonIgnore
     List<Debtor> debtors;
 
     @Column(name = "email_sent", nullable = false)

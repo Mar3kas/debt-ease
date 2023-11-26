@@ -54,6 +54,19 @@ public class DebtCaseServiceImpl implements DebtCaseService {
         return debtCases.stream()
                 .filter(debtCase -> debtCase.getDebtors().stream()
                         .anyMatch(debtor -> Objects.equals(debtor.getUser().getUsername(), username)))
+                .map(debtCase -> {
+                            DebtCase copy = new DebtCase();
+                            copy.setId(debtCase.getId());
+                            copy.setAmountOwed(debtCase.getAmountOwed());
+                            copy.setDueDate(debtCase.getDueDate());
+                            copy.setDebtCaseType(debtCase.getDebtCaseType());
+                            copy.setDebtCaseStatus(debtCase.getDebtCaseStatus());
+                            copy.setCreditor(debtCase.getCreditor());
+                            copy.getCreditor().setUser(null);
+                            copy.setIsSent(debtCase.getIsSent());
+                            return copy;
+                        }
+                )
                 .toList();
     }
 

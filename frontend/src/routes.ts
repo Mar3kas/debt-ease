@@ -1,5 +1,5 @@
 import { type FC } from "react";
-import { HomePage, LoginPage, UserProfilePage } from "./pages";
+import { HomePage, LoginPage, UserProfilePage, DebtcaseListPage } from "./pages";
 
 interface Route {
   key: string;
@@ -30,5 +30,12 @@ export const routes: Route[] = [
     path: "/profile",
     enabled: true,
     component: UserProfilePage,
+  },
+  {
+    key: "debtcase-list-page-route",
+    title: "DebtCases",
+    path: "/debtcases",
+    enabled: true,
+    component: DebtcaseListPage,
   },
 ];

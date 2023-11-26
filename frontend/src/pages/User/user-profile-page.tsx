@@ -11,6 +11,7 @@ import {
     Box,
     IconButton,
     Divider,
+    Button,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -19,51 +20,70 @@ import PersonIcon from '@mui/icons-material/Person';
 import Navbar from '../../Components/Navbar/navbar';
 import Footer from '../../Components/Footer/footer';
 import EditIcon from '@mui/icons-material/Edit';
-import SaveIcon from '@mui/icons-material/Save';
 import { IPage } from '../../shared/models/Page';
 import { IDebtorDTO } from '../../shared/dtos/DebtorDTO';
 import { ICreditorDTO } from '../../shared/dtos/CreditorDTO';
+import useErrorHandling from '../../services/handle-responses';
 
 const UserProfilePage: FC<IPage> = (props): ReactElement => {
     const username = localStorage.getItem('username');
-    const role = localStorage.getItem('role');
+    const classes = useStyles('light');
+    const navigate = useNavigate();
+    const { openSnackbar } = props;
+    const [shouldRefetch, setShouldRefetch] = useState(false);
+    const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
+    const [editMode, setEditMode] = useState(false);
+    const [editedData, setEditedData] = useState<ICreditor | IDebtor | null>(null);
+    const [editCompleted, setEditCompleted] = useState(false);
+    const { handleErrorResponse } = useErrorHandling();
 
     const { data, loading, error } = useGet<ICreditor | IDebtor | IAdmin>(
         'users/{username}',
-        username ? { username: username } : {}
+        username ? { username: username } : {},
+        shouldRefetch
     );
 
-    const roleSpecificEndpoint = data?.user.role.name === 'CREDITOR' ? 'creditors/{id}' :
-        data?.user.role.name === 'DEBTOR' ? 'debtors/{id}' : '';
+    useEffect(() => {
+        if (error && (error.statusCode === 404 || error?.statusCode === 403)) {
+            handleErrorResponse(error.statusCode);
+            openSnackbar(error.message, 'error');
+        }
+    }, [error, openSnackbar]);
 
-    const { editData: editDataRequest, loading: editLoading, error: editError } = useEdit<ICreditorDTO | IDebtorDTO>(
-        roleSpecificEndpoint,
-        { id: data?.id }
-    );
+    const canEditProfile = data?.user?.role.name !== 'ADMIN';
 
-    const classes = useStyles('light');
-    const navigate = useNavigate();
+    const roleSpecificEndpoint =
+        data?.user?.role.name === 'CREDITOR'
+            ? 'creditors/{id}'
+            : data?.user?.role.name === 'DEBTOR'
+                ? 'debtors/{id}'
+                : '';
 
-    const [editMode, setEditMode] = useState(false);
-    const [editedData, setEditedData] = useState<ICreditor | IDebtor | null>(null);
+    const {
+        editData: editDataRequest,
+        loading: editLoading,
+        error: editError,
+    } = useEdit<ICreditorDTO | IDebtorDTO>(roleSpecificEndpoint, { id: data?.id });
+
 
     const handleEditModeToggle = () => {
-        if (editMode) {
-            setEditedData(data ? { ...data } : null);
-        }
-        setEditMode((prevEditMode) => !prevEditMode);
+        setEditMode((prevEditMode) => {
+            if (prevEditMode) {
+                setEditedData(data ? { ...data } : null);
+            }
+            return !prevEditMode;
+        });
     };
 
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
         field: string
     ) => {
+        setFieldErrors((prevErrors) => ({ ...prevErrors, [field]: '' }));
+
         setEditedData((prevData) => {
             if (prevData) {
-                return {
-                    ...prevData,
-                    [field]: e.target.value,
-                };
+                return { ...prevData, [field]: e.target.value };
             }
             return prevData;
         });
@@ -73,7 +93,46 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
         setEditedData(data ? { ...data } : null);
     }, [data]);
 
-    const handleSaveChanges = () => {
+    useEffect(() => {
+        if (editError !== null && editError.statusCode === 422) {
+            const fieldErrors = JSON.parse(editError.description);
+            setFieldErrors(fieldErrors);
+            setEditedData((prevData) => {
+                if (prevData && typeof prevData === 'object') {
+                    let updatedData = { ...prevData };
+
+                    Object.keys(fieldErrors).forEach((field) => {
+                        const key = field as keyof typeof updatedData;
+
+                        if (updatedData[key]) {
+                            updatedData = {
+                                ...updatedData,
+                                [key]: {
+                                    ...(updatedData[key] as Object),
+                                    errorMessage: fieldErrors[field],
+                                },
+                            };
+                        }
+                    });
+
+                    return updatedData;
+                }
+
+                return prevData;
+            });
+        } else if (editError && (editError.statusCode === 404 || editError?.statusCode === 403)) {
+            handleErrorResponse(editError.statusCode);
+            openSnackbar(editError.message, 'error');
+        }
+        else if (editCompleted) {
+            setFieldErrors({});
+            setEditMode(false);
+            setShouldRefetch((prev) => !prev);
+            openSnackbar('Profile edited successfully', 'success');
+        }
+    }, [editError, editCompleted, openSnackbar]);
+
+    const handleSaveChanges = async () => {
         if (!editedData) {
             return;
         }
@@ -81,7 +140,7 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
         let editData: ICreditorDTO | IDebtorDTO;
 
         if ('accountNumber' in editedData) {
-            let data = editedData as ICreditor;
+            const data = editedData as ICreditor;
             editData = {
                 name: data.name,
                 address: data.address,
@@ -90,7 +149,7 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
                 accountNumber: data.accountNumber,
             };
         } else {
-            let data = editedData as IDebtor;
+            const data = editedData as IDebtor;
             editData = {
                 name: data.name,
                 surname: data.surname,
@@ -99,76 +158,39 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
             };
         }
 
-        editDataRequest(editData);
+        await editDataRequest(editData);
 
-        window.location.reload();
+        setEditCompleted(true);
+
+        setTimeout(() => setEditCompleted(false), 1000);
     };
 
-    const renderFields = () => {
-        if (!editedData) {
-            return null;
-        }
-
-        return (
-            <>
-                {renderAdditionalFields()}
-            </>
-        );
-    };
-
+    const renderFields = () => (editedData ? <>{renderAdditionalFields()}</> : null);
 
     const renderAdditionalFields = () => {
         if (data && editedData) {
             let additionalFields;
 
-            if (data.user.username === username) {
-                if (data.user.role.name === 'CREDITOR') {
+            if (data.user?.username === username) {
+                if (data.user?.role.name === 'CREDITOR') {
                     const editedData = data as ICreditor;
                     additionalFields = (
                         <>
                             <Typography>
                                 Address:{' '}
-                                {editMode ? (
-                                    <input
-                                        defaultValue={editedData?.address}
-                                        onChange={(e) => handleInputChange(e, 'address')}
-                                    />
-                                ) : (
-                                    editedData?.address
-                                )}
+                                {renderField('address', 'address', editedData?.address)}
                             </Typography>
                             <Typography>
                                 Phone:{' '}
-                                {editMode ? (
-                                    <input
-                                        defaultValue={editedData?.phoneNumber}
-                                        onChange={(e) => handleInputChange(e, 'phoneNumber')}
-                                    />
-                                ) : (
-                                    editedData?.phoneNumber
-                                )}
+                                {renderField('phoneNumber', 'phoneNumber', editedData?.phoneNumber)}
                             </Typography>
                             <Typography>
                                 Email:{' '}
-                                {editMode ? (
-                                    <input
-                                        defaultValue={editedData?.email}
-                                        onChange={(e) => handleInputChange(e, 'email')}
-                                    />
-                                ) : (
-                                    editedData?.email
-                                )}
+                                {renderField('email', 'email', editedData?.email)}
                             </Typography>
                             <Typography>
                                 Account Number:{' '}
-                                {editMode ? (
-                                    <input
-                                        defaultValue={editedData?.accountNumber}
-                                        onChange={(e) => handleInputChange(e, 'accountNumber')}
-                                    />
-                                ) : (
-                                    editedData?.accountNumber
-                                )}
+                                {renderField('acountNumber', 'accountNumber', editedData?.accountNumber)}
                             </Typography>
                         </>
                     );
@@ -178,36 +200,15 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
                         <>
                             <Typography>
                                 Surname:{' '}
-                                {editMode ? (
-                                    <input
-                                        defaultValue={editedData?.surname}
-                                        onChange={(e) => handleInputChange(e, 'surname')}
-                                    />
-                                ) : (
-                                    editedData?.surname
-                                )}
+                                {renderField('surname', 'surname', editedData?.surname)}
                             </Typography>
                             <Typography>
                                 Email:{' '}
-                                {editMode ? (
-                                    <input
-                                        defaultValue={editedData?.email}
-                                        onChange={(e) => handleInputChange(e, 'email')}
-                                    />
-                                ) : (
-                                    editedData?.email
-                                )}
+                                {renderField('email', 'email', editedData?.email)}
                             </Typography>
                             <Typography>
                                 Phone:{' '}
-                                {editMode ? (
-                                    <input
-                                        defaultValue={editedData?.phoneNumber}
-                                        onChange={(e) => handleInputChange(e, 'phoneNumber')}
-                                    />
-                                ) : (
-                                    editedData?.phoneNumber
-                                )}
+                                {renderField('phoneNumber', 'phoneNumber', editedData?.phoneNumber)}
                             </Typography>
                         </>
                     );
@@ -220,6 +221,18 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
         return null;
     };
 
+    const renderField = (label: string, field: string, value: string | undefined) => (
+        <>
+            {editMode ? (
+                <>
+                    <input defaultValue={value} onChange={(e) => handleInputChange(e, field)} />
+                    <span style={{ color: 'red' }}>{fieldErrors[field]}</span>
+                </>
+            ) : (
+                value
+            )}
+        </>
+    );
 
     const renderUserProfile = () => {
         if (data) {
@@ -227,8 +240,8 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
             let title;
             let additionalContent;
 
-            if (data.user.username === username) {
-                if (data.user.role.name === 'CREDITOR') {
+            if (data.user?.username === username) {
+                if (data.user?.role.name === 'CREDITOR') {
                     const creditorData = data as ICreditor;
                     icon = <BusinessIcon fontSize="large" />;
                     title = 'Creditor';
@@ -240,7 +253,7 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
                             <Typography>Account Number: {creditorData.accountNumber}</Typography>
                         </>
                     );
-                } else if (data.user.role.name === 'DEBTOR') {
+                } else if (data.user?.role.name === 'DEBTOR') {
                     const debtorData = data as IDebtor;
                     icon = <PersonIcon fontSize="large" />;
                     title = 'Debtor';
@@ -251,7 +264,7 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
                             <Typography>Phone Number: {debtorData.phoneNumber}</Typography>
                         </>
                     );
-                } else if (data.user.role.name === 'ADMIN') {
+                } else if (data.user?.role.name === 'ADMIN') {
                     const adminData = data as IAdmin;
                     icon = <AccountCircleIcon fontSize="large" />;
                     title = 'Admin';
@@ -271,15 +284,44 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
                                 <ArrowBackIcon />
                             </IconButton>
                             {icon} {title}
-                            <IconButton onClick={editMode ? handleSaveChanges : handleEditModeToggle}>
-                                {editMode ? <SaveIcon /> : <EditIcon />}
-                            </IconButton>
+                            {canEditProfile && !editMode && (
+                                <IconButton onClick={handleEditModeToggle} aria-label="Edit">
+                                    <EditIcon sx={{ color: '#8FBC8F' }} />
+                                </IconButton>
+                            )}
                         </Box>
                     </Typography>
                     <Divider sx={{ marginBottom: 2 }} />
-                    <Typography>Name: {editMode ? <input value={editedData?.name} onChange={(e) => handleInputChange(e, 'name')} /> : editedData?.name}</Typography>
+                    <Typography>
+                        Name: {renderField('name', 'name', editedData?.name)}
+                    </Typography>
                     {editMode && renderFields()}
                     {!editMode && additionalContent}
+                    {editMode && (
+                        <Box sx={{ marginTop: 1 }}>
+                            <Button
+                                sx={{
+                                    color: 'black',
+                                    backgroundColor: 'white',
+                                    border: '3px solid #8FBC8F',
+                                    marginRight: 2,
+                                }}
+                                onClick={handleSaveChanges}
+                            >
+                                Save
+                            </Button>
+                            <Button
+                                sx={{
+                                    color: 'black',
+                                    backgroundColor: 'white',
+                                    border: '3px solid #8FBC8F',
+                                }}
+                                onClick={handleEditModeToggle}
+                            >
+                                Cancel
+                            </Button>
+                        </Box>
+                    )}
                 </Box>
             );
         }
@@ -303,7 +345,7 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
         >
             <Navbar title="DebtEase" />
             <Paper className={classes.paper} elevation={16} square={true}>
-                {loading &&
+                {loading && (
                     <Box
                         sx={{
                             flexGrow: 1,
@@ -313,8 +355,11 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
                             height: '200px',
                             marginTop: 3,
                         }}
-                    >Loading...</Box>}
-                {error !== null && (
+                    >
+                        Loading...
+                    </Box>
+                )}
+                {error !== null && error.statusCode !== 422 && (
                     <Box
                         sx={{
                             flexGrow: 1,
@@ -330,7 +375,15 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
                         </Typography>
                     </Box>
                 )}
-                <Box sx={{ padding: 2 }}>{renderUserProfile()}</Box>
+                {error && (error.statusCode === 404 || error?.statusCode === 403) && (
+                    <>
+                        {handleErrorResponse(error.statusCode)}
+                        {openSnackbar(error.message, 'error')}
+                    </>
+                )}
+                <Box sx={{ padding: 2 }}>
+                    {renderUserProfile()}
+                </Box>
             </Paper>
             <Footer />
         </Box>

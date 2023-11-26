@@ -6,8 +6,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { CssBaseline } from "@mui/material";
 
 const App: FC = () => {
-  //const { data, loading, error } = useGet<IDebtor[]>('creditor/{username}/debtcases', { username: "finserv" });
-
   const snackbar = useSnackbar();
 
   return (

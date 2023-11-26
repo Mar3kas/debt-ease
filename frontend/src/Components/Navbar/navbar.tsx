@@ -56,6 +56,20 @@ const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
           </>
         ) : (
           <>
+            {currentPageUrl !== "/debtcases" && (
+              <Button
+                sx={{
+                  color: "black",
+                  backgroundColor: "white",
+                  border: "3px solid #8FBC8F",
+                }}
+                onClick={() => {
+                  navigate("/debtcases");
+                }}
+              >
+                DebtCases
+              </Button>
+            )}
             {currentPageUrl !== "/profile" && (
               <IconButton
                 color="inherit"

@@ -18,6 +18,13 @@ async function handleResponse<T>(response: Response): Promise<T> {
       error.description = JSON.stringify(Object.fromEntries(messages));
 
       throw error;
+    } else if (response.status === 404 || response.status === 403) {
+      const mappedError = {
+        statusCode: response.status,
+        message: response.status === 404 ? "Unauthorized" : "Forbidden",
+      };
+
+      throw mappedError;
     }
 
     const error = (await response.json()) as IApiError;
@@ -43,7 +50,8 @@ const buildUrl = (
 
 export const useGet = <T>(
   endpoint: string,
-  pathVariables: Record<string, string | number> = {}
+  pathVariables: Record<string, string | number | undefined> = {},
+  shouldRefetch: boolean = false
 ) => {
   const [data, setData] = React.useState<T | null>(null);
   const [loading, setLoading] = React.useState(true);
@@ -66,7 +74,7 @@ export const useGet = <T>(
     };
 
     fetchData();
-  }, [endpoint]);
+  }, [endpoint, shouldRefetch, ...Object.values(pathVariables)]);
 
   return { data, loading, error };
 };
