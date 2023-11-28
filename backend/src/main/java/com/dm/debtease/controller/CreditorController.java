@@ -70,6 +70,6 @@ public class CreditorController {
             return ResponseEntity.noContent().build();
         }
 
-        return ResponseEntity.badRequest().body("Remove creditor from debtcases!");
+        return ResponseEntity.badRequest().body("Creditor has active debt cases!");
     }
 }

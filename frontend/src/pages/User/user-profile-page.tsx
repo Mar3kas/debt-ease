@@ -250,7 +250,7 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
                             <Typography>Address: {creditorData.address}</Typography>
                             <Typography>Phone: {creditorData.phoneNumber}</Typography>
                             <Typography>Email: {creditorData.email}</Typography>
-                            <Typography>Account Number: {creditorData.accountNumber}</Typography>
+                            <Typography>Bank Account Number: {creditorData.accountNumber}</Typography>
                         </>
                     );
                 } else if (data.user?.role.name === 'DEBTOR') {

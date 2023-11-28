@@ -105,7 +105,7 @@ public class CreditorServiceImpl implements CreditorService {
                     .stream()
                     .filter(debtCase -> debtCase.getCreditor().getId() == id).toList();
 
-            if (debtCases.isEmpty()) {
+            if (!debtCases.isEmpty()) {
                 return false;
             }
 

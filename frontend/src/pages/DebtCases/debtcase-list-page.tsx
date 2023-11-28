@@ -26,13 +26,11 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
   const classes = useStyles("light");
   const navigate = useNavigate();
   const role = localStorage.getItem("role");
-
+  const username = localStorage.getItem("username");
   const [shouldRefetch, setShouldRefetch] = useState(false);
   const [confirmationDialogOpen, setConfirmationDialogOpen] = useState(false);
   const [debtCaseToDelete, setDebtCaseToDelete] = useState<{ creditorId: number, id: number } | null>(null);
-
   const { handleErrorResponse } = useErrorHandling();
-  const username = localStorage.getItem("username");
   const { openSnackbar } = props;
 
   const roleSpecificEndpoint = (() => {
@@ -126,7 +124,7 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
 
   const renderAccordionSection = (title: string, cases: IDebtCase[], status: string) => (
     <div>
-      <Typography variant="h6" gutterBottom>
+      <Typography sx={{ marginTop: "10px" }} variant="h6" gutterBottom>
         {title}
       </Typography>
       {cases.map((debtCase: IDebtCase, index: number) => (
@@ -135,8 +133,6 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
           sx={{
             background: "white",
             boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-            borderRadius: "8px",
-            marginBottom: "16px",
             "&:hover": {
               boxShadow: "0px 8px 16px rgba(0, 0, 0, 0.2)",
             },
