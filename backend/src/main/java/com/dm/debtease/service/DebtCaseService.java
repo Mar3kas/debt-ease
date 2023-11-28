@@ -22,7 +22,7 @@ public interface DebtCaseService {
 
     DebtCase editDebtCaseById(DebtCaseDTO debtCaseDTO, int id, int creditorId);
 
-    boolean deleteDebtCaseById(int id, int creditorId);
+    boolean deleteDebtCaseById(int creditorId, int id);
 
     void markDebtCaseEmailAsSentById(int id);
 }

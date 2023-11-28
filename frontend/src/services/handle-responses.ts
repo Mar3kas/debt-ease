@@ -5,7 +5,7 @@ const useErrorHandling = () => {
 
   const handleErrorResponse = (statusCode: number) => {
     switch (statusCode) {
-      case 404:
+      case 401:
         localStorage.clear();
         navigate("/");
         break;

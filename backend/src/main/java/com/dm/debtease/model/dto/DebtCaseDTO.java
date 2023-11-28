@@ -14,4 +14,6 @@ public class DebtCaseDTO {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime dueDate;
     int typeId;
+
+    DebtorDTO debtorDTO;
 }

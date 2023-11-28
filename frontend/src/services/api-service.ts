@@ -3,25 +3,31 @@ import { IApiError } from "../shared/models/ApiError";
 
 const API_BASE_URL = "http://localhost:8080/api";
 
-async function handleResponse<T>(response: Response): Promise<T> {
+const token = localStorage.getItem("token");
+
+async function handleResponse<T>(response: Response): Promise<T | null> {
   if (!response.ok) {
     if (response.status === 422) {
       const error = (await response.json()) as IApiError;
-      const regex = /(\w+)\.(\w+): (.*?)(,|$)/g;
-      let match;
-      let messages = new Map<string, string>();
+      if (error.description.includes("JSON")) {
+        throw error;
+      } else {
+        const regex = /(\w+)\.(\w+): (.*?)(,|$)/g;
+        let match;
+        let messages = new Map<string, string>();
 
-      while ((match = regex.exec(error.description)) !== null) {
-        messages.set(match[2], match[3]);
+        while ((match = regex.exec(error.description)) !== null) {
+          messages.set(match[2], match[3]);
+        }
+
+        error.description = JSON.stringify(Object.fromEntries(messages));
+
+        throw error;
       }
-
-      error.description = JSON.stringify(Object.fromEntries(messages));
-
-      throw error;
-    } else if (response.status === 404 || response.status === 403) {
+    } else if (response.status === 401 || response.status === 403) {
       const mappedError = {
         statusCode: response.status,
-        message: response.status === 404 ? "Unauthorized" : "Forbidden",
+        message: response.status === 401 ? "Unauthorized" : "Forbidden",
       };
 
       throw mappedError;
@@ -29,6 +35,15 @@ async function handleResponse<T>(response: Response): Promise<T> {
 
     const error = (await response.json()) as IApiError;
     throw error;
+  } else if (response.status === 204) {
+    const noContentError: IApiError = {
+      statusCode: 204,
+      time: new Date(),
+      message: "No Content",
+      description: "Deleted sucessfully",
+    };
+
+    throw noContentError;
   }
 
   return response.json();
@@ -63,7 +78,12 @@ export const useGet = <T>(
         setLoading(true);
         setError(null);
         const url = buildUrl(endpoint, pathVariables);
-        const response = await fetch(url);
+        const response = await fetch(url, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token ?? ""}`,
+          },
+        });
         const result = await handleResponse<T>(response);
         setData(result);
       } catch (error: any) {
@@ -87,16 +107,17 @@ export const usePost = <T>(
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<IApiError | null>(null);
 
-  const postData = async (postData: Record<string, any>) => {
+  const postData = async (postData?: Record<string, any>) => {
     try {
       setLoading(true);
       setError(null);
       const url = buildUrl(endpoint, pathVariables);
       const response = await fetch(url, {
         method: "POST",
-        body: JSON.stringify(postData),
+        body: postData ? JSON.stringify(postData) : undefined,
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token ?? ""}`,
         },
       });
 
@@ -130,6 +151,7 @@ export const useEdit = <T>(
         body: JSON.stringify(postData),
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token ?? ""}`,
         },
       });
 
@@ -147,7 +169,7 @@ export const useEdit = <T>(
 
 export const useDelete = (
   endpoint: string,
-  pathVariables: Record<string, string | number> = {}
+  pathVariables: Record<string, string | number | undefined> = {}
 ) => {
   const [data, setData] = React.useState<boolean | null>(null);
   const [loading, setLoading] = React.useState(false);
@@ -162,6 +184,7 @@ export const useDelete = (
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token ?? ""}`,
         },
       });
 

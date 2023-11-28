@@ -4,15 +4,25 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { useNavigate } from "react-router-dom";
 import { NavbarProps } from "./interface";
 import useStyles from "../Styles/global-styles";
+import { usePost } from "../../services/api-service";
 
 const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
   const classes = useStyles("light");
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
+  const role = localStorage.getItem("role");
   const currentPageUrl = window.location.pathname;
+
+  const { postData, data, loading, error } = usePost<null>("logout");
 
   const handleLogoClick = () => {
     navigate("/");
+  };
+
+  const handleLogout = () => {
+    postData();
+    navigate("/");
+    localStorage.clear();
   };
 
   return (
@@ -56,12 +66,41 @@ const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
           </>
         ) : (
           <>
+            {currentPageUrl !== "/logout" && (
+              <Button
+                sx={{
+                  color: "black",
+                  backgroundColor: "white",
+                  border: "3px solid #8FBC8F",
+                  marginRight: 2,
+                }}
+                onClick={handleLogout}
+              >
+                Logout
+              </Button>
+            )}
+            {currentPageUrl !== "/users" && role === "ADMIN" && (
+              <Button
+                sx={{
+                  color: "black",
+                  backgroundColor: "white",
+                  border: "3px solid #8FBC8F",
+                  marginRight: 2,
+                }}
+                onClick={() => {
+                  navigate("/users");
+                }}
+              >
+                Users
+              </Button>
+            )}
             {currentPageUrl !== "/debtcases" && (
               <Button
                 sx={{
                   color: "black",
                   backgroundColor: "white",
                   border: "3px solid #8FBC8F",
+                  marginRight: 1,
                 }}
                 onClick={() => {
                   navigate("/debtcases");

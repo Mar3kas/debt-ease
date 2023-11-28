@@ -100,12 +100,16 @@ public class DebtCaseServiceImpl implements DebtCaseService {
     }
 
     @Override
-    public boolean deleteDebtCaseById(int id, int creditorId) {
+    public boolean deleteDebtCaseById(int creditorId, int id) {
         Optional<DebtCase> optionalDebtCase = debtCaseRepository.findById(id);
-        if (optionalDebtCase.isPresent() && optionalDebtCase.get().getCreditor().getId() == creditorId) {
-            debtCaseRepository.deleteById(id);
+        if (optionalDebtCase.isPresent()) {
+            if (optionalDebtCase.get().getCreditor().getId() == creditorId) {
+                debtCaseRepository.deleteById(id);
 
-            return true;
+                return true;
+            }
+
+            throw new EntityNotFoundException("Creditor not found with id " + creditorId);
         }
 
         throw new EntityNotFoundException("Debtcase not found with id " + id);

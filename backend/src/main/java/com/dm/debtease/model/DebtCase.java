@@ -47,11 +47,11 @@ public class DebtCase {
     @JoinColumn(name = "status_id", nullable = false)
     DebtCaseStatus debtCaseStatus;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "creditor_id", nullable = false)
     Creditor creditor;
 
-    @OneToMany(mappedBy = "debtCase")
+    @OneToMany(mappedBy = "debtCase", cascade = CascadeType.REMOVE)
     List<Debtor> debtors;
 
     @Column(name = "email_sent", nullable = false)

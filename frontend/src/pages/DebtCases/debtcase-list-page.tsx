@@ -7,6 +7,10 @@ import {
   Button,
   Typography,
   Grid,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import useStyles from "../../Components/Styles/global-styles";
@@ -15,16 +19,20 @@ import Navbar from "../../Components/Navbar/navbar";
 import Footer from "../../Components/Footer/footer";
 import { IPage } from "../../shared/models/Page";
 import { IDebtCase } from "../../shared/models/Debtcases";
-import { useGet } from "../../services/api-service";
+import { useDelete, useGet } from "../../services/api-service";
 import useErrorHandling from "../../services/handle-responses";
 
 const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
   const classes = useStyles("light");
   const navigate = useNavigate();
-  const username = localStorage.getItem("username");
   const role = localStorage.getItem("role");
+
   const [shouldRefetch, setShouldRefetch] = useState(false);
+  const [confirmationDialogOpen, setConfirmationDialogOpen] = useState(false);
+  const [debtCaseToDelete, setDebtCaseToDelete] = useState<{ creditorId: number, id: number } | null>(null);
+
   const { handleErrorResponse } = useErrorHandling();
+  const username = localStorage.getItem("username");
   const { openSnackbar } = props;
 
   const roleSpecificEndpoint = (() => {
@@ -46,39 +54,68 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
     shouldRefetch
   );
 
+  const { data: deletedData, loading: deleteLoading, error: deleteError, deleteData } = useDelete("creditor/{creditorId}/debtcases/{id}", { creditorId: debtCaseToDelete?.creditorId, id: debtCaseToDelete?.id });
+
   useEffect(() => {
-    if (error && (error.statusCode === 404 || error?.statusCode === 403)) {
+    if (error && (error.statusCode === 401 || error?.statusCode === 403)) {
       handleErrorResponse(error.statusCode);
       openSnackbar(error.message, 'error');
     }
   }, [error, openSnackbar]);
 
-  const handleEdit = (id: number) => {
+  const handleEdit = (creditorId: number, id: number) => {
     // Implement edit functionality
   };
 
-  const handleDelete = (id: number) => {
-    // Implement delete functionality
+  const handleDelete = (creditorId: number, id: number) => {
+    setDebtCaseToDelete({ creditorId, id });
+    setConfirmationDialogOpen(true);
   };
 
-const renderActionButtons = (id: number) => (
-  <Grid container spacing={1} justifyContent="flex-end">
-    {["Edit", "Delete"].map((action) => (
-      <Grid item key={`${action}-${id}`}>
-        <Button
-          sx={{
-            color: "black",
-            backgroundColor: "white",
-            border: "3px solid #8FBC8F",
-          }}
-          onClick={() => (action === "Edit" ? handleEdit(id) : handleDelete(id))}
-        >
-          {action}
-        </Button>
-      </Grid>
-    ))}
-  </Grid>
-);
+  const handleDeleteConfirmed = async () => {
+    deleteData();
+  };
+
+  const handleDeleteCancelled = () => {
+    setConfirmationDialogOpen(false);
+    setDebtCaseToDelete(null);
+  };
+
+  useEffect(() => {
+    if (deleteError && deleteError.statusCode === 204 && deleteError.description.includes("Deleted sucessfully")) {
+      setShouldRefetch(true);
+      setConfirmationDialogOpen(false);
+      openSnackbar("Debt Case deleted successfully", 'success');
+    } else if (deleteError && deleteError.statusCode !== 204) {
+      setConfirmationDialogOpen(false);
+      openSnackbar(deleteError.description, 'error');
+    }
+
+    if (shouldRefetch) {
+      setShouldRefetch(false);
+    }
+
+    setDebtCaseToDelete(null);
+  }, [deleteError, openSnackbar, setShouldRefetch]);
+
+  const renderActionButtons = (creditorId: number, id: number) => (
+    <Grid container spacing={1} justifyContent="flex-end">
+      {["Edit", role === "ADMIN" && "Delete"].filter(Boolean).map((action) => (
+        <Grid item key={`${action}-${id}`}>
+          <Button
+            sx={{
+              color: "black",
+              backgroundColor: "white",
+              border: "3px solid #8FBC8F",
+            }}
+            onClick={() => (action === "Edit" ? handleEdit(creditorId, id) : handleDelete(creditorId, id))}
+          >
+            {action}
+          </Button>
+        </Grid>
+      ))}
+    </Grid>
+  );
 
   const groupedDebtCases = data?.reduce((acc, debtCase) => {
     const status = debtCase.debtCaseStatus.status.toLowerCase();
@@ -94,7 +131,7 @@ const renderActionButtons = (id: number) => (
       </Typography>
       {cases.map((debtCase: IDebtCase, index: number) => (
         <Accordion
-        key={`${status}-${index}`}
+          key={`${status}-${index}`}
           sx={{
             background: "white",
             boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
@@ -116,8 +153,9 @@ const renderActionButtons = (id: number) => (
             <Typography>Due Date: {debtCase.dueDate}</Typography>
             <Typography>Amount Owed: {debtCase.amountOwed}€</Typography>
             <Typography>Is Notification Sent? {debtCase.isSent ? "No" : "Yes"}</Typography>
-            {(role === "CREDITOR" || role === "ADMIN") && debtCase.debtors?.map(renderDebtorDetails)}
-            {renderActionButtons(debtCase.id)}
+            {(role === "CREDITOR" || role === "ADMIN")
+              && debtCase.debtors?.map(renderDebtorDetails)
+              && renderActionButtons(debtCase.creditor.id, debtCase.id)}
           </AccordionDetails>
         </Accordion>
       ))}
@@ -165,6 +203,35 @@ const renderActionButtons = (id: number) => (
                 renderAccordionSection(status === 'unpaid' ? 'Unpaid Debt Cases' : status.charAt(0).toUpperCase() + status.slice(1) + ' Debt Cases', cases, status)
               ))}
             </Box>
+          )}
+          {debtCaseToDelete && (
+            <Dialog open={confirmationDialogOpen} onClose={handleDeleteCancelled}>
+              <DialogTitle>Confirm Deletion</DialogTitle>
+              <DialogContent>
+                <Typography>
+                  Are you sure you want to delete this debt case?
+                </Typography>
+              </DialogContent>
+              <DialogActions>
+                <Button sx={{
+                  color: "black",
+                  backgroundColor: "white",
+                  border: "3px solid #8FBC8F",
+                  marginRight: 2,
+                }}
+                  onClick={handleDeleteCancelled}>Cancel</Button>
+                <Button
+                  sx={{
+                    color: "red",
+                    backgroundColor: "white",
+                    border: "3px solid #8FBC8F",
+                    marginRight: 2,
+                  }}
+                  onClick={handleDeleteConfirmed}>
+                  Confirm
+                </Button>
+              </DialogActions>
+            </Dialog>
           )}
         </Box>
         <Footer />

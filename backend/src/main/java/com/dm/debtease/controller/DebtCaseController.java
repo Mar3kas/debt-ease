@@ -92,11 +92,11 @@ public class DebtCaseController {
     @DeleteMapping("/creditor/{creditorId}/debtcases/{id}")
     public ResponseEntity<String> deleteDebtCaseById(@Valid
                                                      @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
-                                                     @PathVariable(name = "id") int id,
+                                                     @PathVariable(name = "creditorId") int creditorId,
                                                      @Valid
                                                      @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
-                                                     @PathVariable(name = "creditorId") int creditorId) {
-        if (Boolean.TRUE.equals(debtCaseService.deleteDebtCaseById(id, creditorId))) {
+                                                     @PathVariable(name = "id") int id) {
+        if (Boolean.TRUE.equals(debtCaseService.deleteDebtCaseById(creditorId, id))) {
             return ResponseEntity.noContent().build();
         }
 
