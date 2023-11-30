@@ -131,7 +131,7 @@ const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
               </IconButton>
             )}
           </>
-        )};
+        )}
       </Toolbar>
     </AppBar>
   );
