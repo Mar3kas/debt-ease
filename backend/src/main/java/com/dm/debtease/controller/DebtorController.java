@@ -19,7 +19,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Validated
@@ -65,13 +67,13 @@ public class DebtorController {
     }
 
     @DeleteMapping(value = {"/debtors/{id}", "/creditor/{creditorId}/debtcase/{debtcaseId}/debtors/{id}"})
-    public ResponseEntity<String> deleteDebtorById(@Valid
+    public ResponseEntity<Map<String, String>> deleteDebtorById(@Valid
                                                    @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
                                                    @PathVariable(name = "id") int id,
-                                                   @Valid
+                                                                @Valid
                                                    @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
                                                    @PathVariable(name = "debtcaseId", required = false) Integer debtcaseId,
-                                                   @Valid
+                                                                @Valid
                                                    @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
                                                    @PathVariable(name = "creditorId", required = false) Integer creditorId) {
         if (debtcaseId != null && creditorId != null) {
@@ -82,6 +84,9 @@ public class DebtorController {
             return ResponseEntity.noContent().build();
         }
 
-        return ResponseEntity.badRequest().body("Error");
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Error deleting debtor!");
+
+        return ResponseEntity.badRequest().body(response);
     }
 }

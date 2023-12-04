@@ -8,6 +8,10 @@ import {
     AccordionSummary,
     AccordionDetails,
     TextField,
+    Dialog,
+    DialogTitle,
+    DialogActions,
+    DialogContent,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import useStyles from "../../Components/Styles/global-styles";
@@ -15,7 +19,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../../Components/Navbar/navbar";
 import Footer from "../../Components/Footer/footer";
 import { IPage } from "../../shared/models/Page";
-import { useGet } from "../../services/api-service";
+import { useDelete, useGet } from "../../services/api-service";
 import useErrorHandling from "../../services/handle-responses";
 import { ICreditor } from "../../shared/models/Creditor";
 import { IDebtor } from "../../shared/models/Debtor";
@@ -25,7 +29,7 @@ const UserListPage: FC<IPage> = (props): ReactElement => {
     const classes = useStyles('light');
     const [shouldRefetch, setShouldRefetch] = useState(false);
     const [confirmationDialogOpen, setConfirmationDialogOpen] = useState(false);
-    const [userToDelete, setuserToDelete] = useState<{ id: number } | null>(null);
+    const [userToDelete, setUserToDelete] = useState<{ id: number, type: string } | null>(null);
     const [showMoreCreditor, setShowMoreCreditor] = useState(3);
     const [showMoreDebtor, setShowMoreDebtor] = useState(3);
     const [creditorSearchQuery, setCreditorSearchQuery] = useState("");
@@ -38,12 +42,25 @@ const UserListPage: FC<IPage> = (props): ReactElement => {
         loading: creditorLoading,
         error: creditorError,
     } = useGet<ICreditor[]>("creditors", {}, shouldRefetch);
-    
+
     const {
         data: debtorData,
         loading: debtorLoading,
         error: debtorError,
     } = useGet<IDebtor[]>("debtors", {}, shouldRefetch);
+
+    const useDeleteCreditor = (id: number) => {
+        const { data, loading, error, deleteData } = useDelete<any>("creditors/{id}", { id: id });
+        return { data, loading, error, deleteCreditor: deleteData };
+    };
+
+    const useDeleteDebtor = (id: number) => {
+        const { data, loading, error, deleteData } = useDelete<any>("debtors/{id}", { id: id });
+        return { data, loading, error, deleteDebtor: deleteData };
+    };
+
+    const { data: deletedDataCreditor, loading: deleteLoadingCreditor, error: deleteErrorCreditor, deleteCreditor } = useDeleteCreditor(userToDelete?.id || 0);
+    const { data: deletedDataDebtor, loading: deleteLoadingDebtor, error: deleteErrorDebtor, deleteDebtor } = useDeleteDebtor(userToDelete?.id || 0);
 
     const filteredCreditors = creditorData
         ? creditorData.filter(
@@ -74,22 +91,63 @@ const UserListPage: FC<IPage> = (props): ReactElement => {
         handleAPIError(debtorError, openSnackbar);
     }, [debtorError, openSnackbar]);
 
+    useEffect(() => {
+        handleAPIError(deleteErrorCreditor, openSnackbar);
+    }, [deleteErrorCreditor, openSnackbar]);
+
+    useEffect(() => {
+        handleAPIError(deleteErrorDebtor, openSnackbar);
+    }, [deleteErrorDebtor, openSnackbar]);
+
+    useEffect(() => {
+        handleAPIError(deletedDataCreditor, openSnackbar);
+    }, [deletedDataCreditor, openSnackbar]);
+
+    useEffect(() => {
+        handleAPIError(deletedDataDebtor, openSnackbar);
+    }, [deletedDataDebtor, openSnackbar]);
+
     const handleAPIError = (error: any, snackbar: any) => {
         if (error && (error.statusCode === 401 || error.statusCode === 403)) {
             handleErrorResponse(error.statusCode);
             snackbar(error.message, "error");
+        } else if (error && error.statusCode === 204) {
+            setShouldRefetch(true);
+            setConfirmationDialogOpen(false);
+            openSnackbar("User deleted successfully", 'success');
+        } else if (error) {
+            setConfirmationDialogOpen(false);
+            snackbar(error.message, "error");
         }
     };
 
-    const handleEdit = (id: number) => {
-        // Implement edit functionality
+    const handleEdit = (id: number, type: string) => {
+        if (type === 'creditor') {
+        } else if (type === 'debtor') {
+        }
     };
 
-    const handleDelete = (id: number) => {
-        // Implement delete functionality
+    const handleDelete = (id: number, type: string) => {
+        setUserToDelete({ id, type });
+        setConfirmationDialogOpen(true);
     };
 
-    const renderActionButtons = (id: number) => (
+    const handleDeleteConfirmed = async () => {
+        if (userToDelete) {
+            if (userToDelete.type === 'creditor') {
+                await deleteCreditor();
+            } else if (userToDelete.type === 'debtor') {
+                await deleteDebtor();
+            }
+        }
+    }
+
+    const handleDeleteCancelled = () => {
+        setConfirmationDialogOpen(false);
+        setUserToDelete(null);
+    };
+
+    const renderActionButtons = (id: number, type: string) => (
         <Grid container spacing={1} justifyContent="flex-end">
             {["Edit", "Delete"].map((action) => (
                 <Grid item key={`${action}-${id}`}>
@@ -100,7 +158,7 @@ const UserListPage: FC<IPage> = (props): ReactElement => {
                             border: "3px solid #8FBC8F",
                         }}
                         onClick={() =>
-                            action === "Edit" ? handleEdit(id) : handleDelete(id)
+                            action === "Edit" ? handleEdit(id, type) : handleDelete(id, type)
                         }
                     >
                         {action}
@@ -199,7 +257,7 @@ const UserListPage: FC<IPage> = (props): ReactElement => {
                                             <Typography>{`Email: ${creditor.email}`}</Typography>
                                             <Typography>{`Bank Account Number: ${creditor.accountNumber}`}</Typography>
                                             <Typography>{`Username: ${creditor.user?.username}`}</Typography>
-                                            {renderActionButtons(creditor.id)}
+                                            {renderActionButtons(creditor.id, "creditor")}
                                         </Box>
                                     </AccordionDetails>
                                 </Accordion>
@@ -233,12 +291,41 @@ const UserListPage: FC<IPage> = (props): ReactElement => {
                                             <Typography>{`Email: ${debtor.email}`}</Typography>
                                             <Typography>{`Phone Number: ${debtor.phoneNumber}`}</Typography>
                                             <Typography>{`Username: ${debtor.user?.username}`}</Typography>
-                                            {renderActionButtons(debtor.id)}
+                                            {renderActionButtons(debtor.id, "debtor")}
                                         </Box>
                                     </AccordionDetails>
                                 </Accordion>
                             ))}
                         </Box>
+                    )}
+                    {userToDelete && (
+                        <Dialog open={confirmationDialogOpen} onClose={handleDeleteCancelled}>
+                            <DialogTitle>Confirm Deletion</DialogTitle>
+                            <DialogContent>
+                                <Typography>
+                                    Are you sure you want to delete this user?
+                                </Typography>
+                            </DialogContent>
+                            <DialogActions>
+                                <Button sx={{
+                                    color: "black",
+                                    backgroundColor: "white",
+                                    border: "3px solid #8FBC8F",
+                                    marginRight: 2,
+                                }}
+                                    onClick={handleDeleteCancelled}>Cancel</Button>
+                                <Button
+                                    sx={{
+                                        color: "red",
+                                        backgroundColor: "white",
+                                        border: "3px solid #8FBC8F",
+                                        marginRight: 2,
+                                    }}
+                                    onClick={handleDeleteConfirmed}>
+                                    Confirm
+                                </Button>
+                            </DialogActions>
+                        </Dialog>
                     )}
                 </Box>
                 <Footer />

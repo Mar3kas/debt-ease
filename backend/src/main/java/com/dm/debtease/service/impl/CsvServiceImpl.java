@@ -2,16 +2,21 @@ package com.dm.debtease.service.impl;
 
 import com.dm.debtease.exception.InvalidFileFormatException;
 import com.dm.debtease.model.Creditor;
+import com.dm.debtease.model.CustomUser;
 import com.dm.debtease.model.DebtCase;
 import com.dm.debtease.model.DebtCaseStatus;
 import com.dm.debtease.model.DebtCaseType;
 import com.dm.debtease.model.Debtor;
+import com.dm.debtease.model.Role;
+import com.dm.debtease.repository.CustomUserRepository;
 import com.dm.debtease.repository.DebtCaseRepository;
 import com.dm.debtease.repository.DebtCaseStatusRepository;
 import com.dm.debtease.repository.DebtCaseTypeRepository;
 import com.dm.debtease.repository.DebtorRepository;
+import com.dm.debtease.repository.RoleRepository;
 import com.dm.debtease.service.CreditorService;
 import com.dm.debtease.service.CsvService;
+import com.dm.debtease.service.PasswordGeneratorService;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
@@ -19,6 +24,7 @@ import com.opencsv.exceptions.CsvValidationException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,7 +49,11 @@ public class CsvServiceImpl implements CsvService {
     private final DebtCaseRepository debtCaseRepository;
     private final DebtorRepository debtorRepository;
     private final DebtCaseStatusRepository debtCaseStatusRepository;
+    private final RoleRepository roleRepository;
+    private final CustomUserRepository customUserRepository;
     private final CreditorService creditorService;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final PasswordGeneratorService passwordGeneratorService;
 
     @Override
     public List<DebtCase> readCsvData(MultipartFile file, int id) throws IOException, CsvValidationException, InvalidFileFormatException {
@@ -56,6 +66,8 @@ public class CsvServiceImpl implements CsvService {
         List<DebtCaseType> debtCaseTypes = debtCaseTypeRepository.findAll();
         Creditor creditor = creditorService.getCreditorById(id);
         DebtCaseStatus debtCaseStatus = debtCaseStatusRepository.findById(1).orElseThrow(() -> new EntityNotFoundException("Debtcase status not found with id 1"));
+        Role role = roleRepository.findById(2).orElseThrow(() -> new EntityNotFoundException("Role not found with id 3"));
+
         log.info("Reading csv file");
 
         try (CSVReader reader = new CSVReaderBuilder(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))
@@ -71,6 +83,16 @@ public class CsvServiceImpl implements CsvService {
                 debtor.setSurname(line[1]);
                 debtor.setEmail(line[2]);
                 debtor.setPhoneNumber(line[3]);
+
+                if (Objects.isNull(debtor.getUser())) {
+                    CustomUser customUser = new CustomUser();
+                    customUser.setUsername(debtor.getName());
+                    customUser.setPassword(bCryptPasswordEncoder.encode(passwordGeneratorService.generatePassword(8)));
+                    customUser.setRole(role);
+                    customUserRepository.save(customUser);
+
+                    debtor.setUser(customUser);
+                }
 
                 String typeToMatch = line[4].toUpperCase();
 

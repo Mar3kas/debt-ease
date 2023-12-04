@@ -19,8 +19,9 @@ import Navbar from "../../Components/Navbar/navbar";
 import Footer from "../../Components/Footer/footer";
 import { IPage } from "../../shared/models/Page";
 import { IDebtCase } from "../../shared/models/Debtcases";
-import { useDelete, useGet } from "../../services/api-service";
+import { useDelete, useGet, usePost } from "../../services/api-service";
 import useErrorHandling from "../../services/handle-responses";
+import { IApiError } from "../../shared/models/ApiError";
 
 const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
   const classes = useStyles("light");
@@ -30,6 +31,8 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
   const [shouldRefetch, setShouldRefetch] = useState(false);
   const [confirmationDialogOpen, setConfirmationDialogOpen] = useState(false);
   const [debtCaseToDelete, setDebtCaseToDelete] = useState<{ creditorId: number, id: number } | null>(null);
+  const [creditorId, setCreditorId] = useState<number | undefined>(undefined);
+  const [fileFormData, setFileFormData] = useState<FormData | null>(null);
   const { handleErrorResponse } = useErrorHandling();
   const { openSnackbar } = props;
 
@@ -52,7 +55,8 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
     shouldRefetch
   );
 
-  const { data: deletedData, loading: deleteLoading, error: deleteError, deleteData } = useDelete("creditor/{creditorId}/debtcases/{id}", { creditorId: debtCaseToDelete?.creditorId, id: debtCaseToDelete?.id });
+  const { data: deletedData, loading: deleteLoading, error: deleteError, deleteData } = useDelete<any>("creditor/{creditorId}/debtcases/{id}", { creditorId: debtCaseToDelete?.creditorId, id: debtCaseToDelete?.id });
+  const { data: fileData, loading: fileLoading, error: fileError, postData } = usePost<FormData>("creditor/{id}/debtcases/file", { id: creditorId });
 
   useEffect(() => {
     if (error && (error.statusCode === 401 || error?.statusCode === 403)) {
@@ -70,6 +74,35 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
     setConfirmationDialogOpen(true);
   };
 
+  const handleFileUpload = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const newCreditorId = data?.[0]?.creditor?.id;
+
+    if (newCreditorId !== undefined) {
+      setCreditorId(newCreditorId);
+
+      const file = event.target.files?.[0];
+
+      if (file) {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        setFileFormData(formData);
+      }
+    } else {
+      setCreditorId(undefined);
+    }
+  };
+
+  useEffect(() => {
+    if (creditorId !== null && fileFormData !== null) {
+      postData(fileFormData, true);
+      setCreditorId(undefined);
+      setFileFormData(null);
+    }
+  }, [creditorId, fileFormData, postData]);
+
   const handleDeleteConfirmed = async () => {
     deleteData();
   };
@@ -80,13 +113,18 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
   };
 
   useEffect(() => {
-    if (deleteError && deleteError.statusCode === 204 && deleteError.description.includes("Deleted sucessfully")) {
+    if (deletedData as IApiError && deletedData.statusCode === 204 && deletedData.description.includes("Deleted successfully")) {
       setShouldRefetch(true);
       setConfirmationDialogOpen(false);
       openSnackbar("Debt Case deleted successfully", 'success');
     } else if (deleteError && deleteError.statusCode !== 204) {
       setConfirmationDialogOpen(false);
       openSnackbar(deleteError.description, 'error');
+    } else if (fileError === null && fileData) {
+      setShouldRefetch(true);
+      openSnackbar("File uploaded successfully", 'success');
+    } else if (fileError) {
+      openSnackbar(fileError.description, 'error');
     }
 
     if (shouldRefetch) {
@@ -94,7 +132,7 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
     }
 
     setDebtCaseToDelete(null);
-  }, [deleteError, openSnackbar, setShouldRefetch]);
+  }, [deleteError, fileError, fileData, deletedData, openSnackbar, setShouldRefetch]);
 
   const renderActionButtons = (creditorId: number, id: number) => (
     <Grid container spacing={1} justifyContent="flex-end">
@@ -176,21 +214,51 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
       <Box className={classes.body} sx={{ flexGrow: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: "100vh", height: "100%", overflow: "hidden" }}>
         <Navbar title="DebtEase" />
         <Box sx={{ padding: "16px" }}>
-          <Button
-            sx={{
-              color: "black",
-              backgroundColor: "white",
-              border: "2px solid",
-              marginRight: "10px",
-              "&:hover": {
-                color: "black",
-                backgroundColor: "#F8DE7E",
-              },
-            }}
-            onClick={() => navigate(-1)}
-          >
-            Back
-          </Button>
+          <Grid container spacing={1} justifyContent="space-between">
+            <Grid item>
+              <Button
+                sx={{
+                  color: "black",
+                  backgroundColor: "white",
+                  border: "2px solid",
+                  marginRight: "10px",
+                  "&:hover": {
+                    color: "black",
+                    backgroundColor: "#F8DE7E",
+                  },
+                }}
+                onClick={() => navigate(-1)}
+              >
+                Back
+              </Button>
+            </Grid>
+            {role === "CREDITOR" && (
+              <Grid item>
+                <label htmlFor="file-upload">
+                  <Button
+                    component="span"
+                    sx={{
+                      color: "black",
+                      backgroundColor: "white",
+                      border: "2px solid",
+                      "&:hover": {
+                        color: "black",
+                        backgroundColor: "#F8DE7E",
+                      },
+                    }}
+                  >
+                    Upload
+                  </Button>
+                </label>
+                <input
+                  id="file-upload"
+                  type="file"
+                  style={{ display: "none" }}
+                  onChange={(event) => handleFileUpload(event)}
+                />
+              </Grid>
+            )}
+          </Grid>
           {loading ? (
             <Typography>Loading...</Typography>
           ) : (

@@ -1,53 +1,72 @@
 import React from "react";
 import { IApiError } from "../shared/models/ApiError";
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 
 const API_BASE_URL = "http://localhost:8080/api";
 
-const token = localStorage.getItem("token");
+async function handleResponse<T>(
+  response: AxiosResponse<T>
+): Promise<T | IApiError | null> {
+  if (!response.status) {
+    const responseJson: IApiError = JSON.parse(response.request.response);
 
-async function handleResponse<T>(response: Response): Promise<T | null> {
-  if (!response.ok) {
-    if (response.status === 422) {
-      const error = (await response.json()) as IApiError;
-      if (error.description.includes("JSON")) {
-        throw error;
+    if (responseJson.statusCode === 422) {
+      if (
+        responseJson.description.includes("JSON") ||
+        responseJson.description.includes("CSV")
+      ) {
+        return responseJson;
       } else {
         const regex = /(\w+)\.(\w+): (.*?)(,|$)/g;
         let match;
         let messages = new Map<string, string>();
 
-        while ((match = regex.exec(error.description)) !== null) {
+        while ((match = regex.exec(responseJson.description)) !== null) {
           messages.set(match[2], match[3]);
         }
 
-        error.description = JSON.stringify(Object.fromEntries(messages));
+        responseJson.description = JSON.stringify(Object.fromEntries(messages));
 
-        throw error;
+        return responseJson;
       }
-    } else if (response.status === 401 || response.status === 403) {
+    } else if (
+      responseJson.statusCode === 401 ||
+      responseJson.statusCode === 403
+    ) {
       const mappedError = {
-        statusCode: response.status,
-        message: response.status === 401 ? "Unauthorized" : "Forbidden",
+        statusCode: responseJson.statusCode,
+        time: new Date(),
+        message: responseJson.statusCode === 401 ? "Unauthorized" : "Forbidden",
+        description:
+          responseJson.statusCode === 401 ? "Unauthorized" : "Forbidden",
       };
 
-      throw mappedError;
+      return mappedError;
     }
 
-    const error = (await response.json()) as IApiError;
-    throw error;
+    return responseJson;
   } else if (response.status === 204) {
     const noContentError: IApiError = {
       statusCode: 204,
       time: new Date(),
       message: "No Content",
-      description: "Deleted sucessfully",
+      description: "Deleted successfully",
     };
 
-    throw noContentError;
+    return noContentError;
+  } else if (response.data) {
+    return response.data;
   }
 
-  return response.json();
+  return JSON.parse(response.request.response);
 }
+
+const axiosConfig: AxiosRequestConfig = {
+  baseURL: API_BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+};
 
 const buildUrl = (
   endpoint: string,
@@ -75,19 +94,22 @@ export const useGet = <T>(
   React.useEffect(() => {
     const fetchData = async () => {
       try {
+        const token = localStorage.getItem("token");
         setLoading(true);
         setError(null);
         const url = buildUrl(endpoint, pathVariables);
-        const response = await fetch(url, {
-          method: "GET",
+        const response = await axios.get(url, {
+          ...axiosConfig,
           headers: {
+            ...axiosConfig.headers,
             Authorization: `Bearer ${token ?? ""}`,
           },
         });
         const result = await handleResponse<T>(response);
-        setData(result);
+        setData(result as T);
       } catch (error: any) {
-        setError(error as IApiError);
+        const errorResult = await handleResponse<T>(error);
+        setError(errorResult as IApiError);
       } finally {
         setLoading(false);
       }
@@ -101,30 +123,43 @@ export const useGet = <T>(
 
 export const usePost = <T>(
   endpoint: string,
-  pathVariables: Record<string, string | number> = {}
+  pathVariables: Record<string, string | number | undefined> = {}
 ) => {
   const [data, setData] = React.useState<T | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<IApiError | null>(null);
 
-  const postData = async (postData?: Record<string, any>) => {
+  const postData = async <D>(postData?: D, isFormData = false) => {
     try {
+      const token = localStorage.getItem("token");
       setLoading(true);
       setError(null);
       const url = buildUrl(endpoint, pathVariables);
-      const response = await fetch(url, {
-        method: "POST",
-        body: postData ? JSON.stringify(postData) : undefined,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token ?? ""}`,
-        },
+
+      const headers: AxiosRequestConfig["headers"] = {
+        ...axiosConfig.headers,
+        Authorization: `Bearer ${token ?? ""}`,
+      };
+
+      let requestBody: any = postData;
+
+      if (postData instanceof FormData) {
+        delete headers["Content-Type"];
+      } else {
+        requestBody = postData ? JSON.stringify(postData) : undefined;
+        headers["Content-Type"] = "application/json";
+      }
+
+      const response = await axios.post(url, requestBody, {
+        ...axiosConfig,
+        headers,
       });
 
       const result = await handleResponse<T>(response);
-      setData(result);
+      setData(result as T);
     } catch (error: any) {
-      setError(error as IApiError);
+      const errorResult = await handleResponse<T>(error);
+      setError(errorResult as IApiError);
     } finally {
       setLoading(false);
     }
@@ -143,22 +178,22 @@ export const useEdit = <T>(
 
   const editData = async (postData: Record<string, any>) => {
     try {
+      const token = localStorage.getItem("token");
       setLoading(true);
       setError(null);
       const url = buildUrl(endpoint, pathVariables);
-      const response = await fetch(url, {
-        method: "PUT",
-        body: JSON.stringify(postData),
+      const response = await axios.put(url, {
+        ...axiosConfig,
         headers: {
-          "Content-Type": "application/json",
+          ...axiosConfig.headers,
           Authorization: `Bearer ${token ?? ""}`,
         },
       });
-
       const result = await handleResponse<T>(response);
-      setData(result);
+      setData(result as T);
     } catch (error: any) {
-      setError(error as IApiError);
+      const errorResult = await handleResponse<T>(error);
+      setError(errorResult as IApiError);
     } finally {
       setLoading(false);
     }
@@ -167,31 +202,32 @@ export const useEdit = <T>(
   return { data, loading, error, editData };
 };
 
-export const useDelete = (
+export const useDelete = <T>(
   endpoint: string,
   pathVariables: Record<string, string | number | undefined> = {}
 ) => {
-  const [data, setData] = React.useState<boolean | null>(null);
+  const [data, setData] = React.useState<T | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<IApiError | null>(null);
 
   const deleteData = async () => {
     try {
+      const token = localStorage.getItem("token");
       setLoading(true);
       setError(null);
       const url = buildUrl(endpoint, pathVariables);
-      const response = await fetch(url, {
-        method: "DELETE",
+      const response = await axios.delete(url, {
+        ...axiosConfig,
         headers: {
-          "Content-Type": "application/json",
+          ...axiosConfig.headers,
           Authorization: `Bearer ${token ?? ""}`,
         },
       });
-
-      const result = await handleResponse<boolean>(response);
-      setData(result);
+      const result = await handleResponse<T>(response);
+      setData(result as T);
     } catch (error: any) {
-      setError(error as IApiError);
+      const errorResult = await handleResponse<T>(error);
+      setError(errorResult as IApiError);
     } finally {
       setLoading(false);
     }

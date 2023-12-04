@@ -1,7 +1,6 @@
 package com.dm.debtease.controller;
 
 import com.dm.debtease.exception.InvalidRefreshTokenException;
-import com.dm.debtease.exception.InvalidTokenException;
 import com.dm.debtease.exception.LoginException;
 import com.dm.debtease.exception.LogoutException;
 import com.dm.debtease.model.Admin;
@@ -123,21 +122,20 @@ public class UserController {
 
     @PostMapping("/logout")
     @Transactional
-    public ResponseEntity<String> logout(HttpServletRequest request) {
-        try {
-            String accessToken = jwtService.resolveToken(request);
+    public ResponseEntity<Map<String, String>> logout(HttpServletRequest request) {
+        String accessToken = jwtService.resolveToken(request);
 
-            if (accessToken != null) {
-                SecurityContextHolder.clearContext();
+        if (accessToken != null && !jwtService.isTokenRevoked(accessToken)) {
+            SecurityContextHolder.clearContext();
 
-                jwtService.addToRevokedTokens(accessToken);
+            jwtService.addToRevokedTokens(accessToken);
 
-                return ResponseEntity.ok("Logout successful");
-            }
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Logout successful");
 
-            throw new InvalidTokenException("Invalid access token");
-        } catch (RuntimeException e) {
-            throw new LogoutException("Error during logout");
+            return ResponseEntity.ok(response);
         }
+
+        throw new LogoutException("Error during logout");
     }
 }

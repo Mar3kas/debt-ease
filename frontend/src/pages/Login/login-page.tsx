@@ -45,9 +45,7 @@ const LoginPage: FC<IPage> = (props): ReactElement => {
             }
 
             navigate('/');
-        }
-
-        if (error !== null) {
+        } else if (error !== null) {
             if (error.statusCode === 422) {
                 const updatedForm = { ...form };
                 const fieldErrors = JSON.parse(error.description);
@@ -113,7 +111,7 @@ const LoginPage: FC<IPage> = (props): ReactElement => {
                             }}
                         >
                             <Typography variant="body1" color="red">
-                                {error.description}
+                                {error.statusCode === 401 ? "Bad Credentials" : error.description}
                             </Typography>
                         </Box>
                     )}

@@ -12,6 +12,7 @@ import {
     IconButton,
     Divider,
     Button,
+    Grid,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -44,7 +45,7 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
     );
 
     useEffect(() => {
-        if (error && (error.statusCode === 404 || error?.statusCode === 403)) {
+        if (error && (error.statusCode === 401 || error?.statusCode === 403)) {
             handleErrorResponse(error.statusCode);
             openSnackbar(error.message, 'error');
         }
@@ -243,7 +244,7 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
             if (data.user?.username === username) {
                 if (data.user?.role.name === 'CREDITOR') {
                     const creditorData = data as ICreditor;
-                    icon = <BusinessIcon fontSize="large" />;
+                    icon = <BusinessIcon sx={{ fontSize: { xs: '1.5rem', md: '2rem', lg: '2.5rem' } }} />;
                     title = 'Creditor';
                     additionalContent = (
                         <>
@@ -255,7 +256,7 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
                     );
                 } else if (data.user?.role.name === 'DEBTOR') {
                     const debtorData = data as IDebtor;
-                    icon = <PersonIcon fontSize="large" />;
+                    icon = <PersonIcon sx={{ fontSize: { xs: '1.5rem', md: '2rem', lg: '2.5rem' } }} />;
                     title = 'Debtor';
                     additionalContent = (
                         <>
@@ -266,7 +267,7 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
                     );
                 } else if (data.user?.role.name === 'ADMIN') {
                     const adminData = data as IAdmin;
-                    icon = <AccountCircleIcon fontSize="large" />;
+                    icon = <AccountCircleIcon sx={{ fontSize: { xs: '1.5rem', md: '2rem', lg: '2.5rem' } }} />;
                     title = 'Admin';
                     additionalContent = (
                         <>
@@ -278,19 +279,23 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
 
             return (
                 <Box>
-                    <Typography variant="h4">
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Grid container spacing={2} alignItems="center">
+                        <Grid item xs={2} md={1}>
                             <IconButton onClick={() => navigate(-1)} aria-label="Back">
                                 <ArrowBackIcon />
                             </IconButton>
-                            {icon} {title}
-                            {canEditProfile && !editMode && (
-                                <IconButton onClick={handleEditModeToggle} aria-label="Edit">
-                                    <EditIcon sx={{ color: '#8FBC8F' }} />
-                                </IconButton>
-                            )}
-                        </Box>
-                    </Typography>
+                        </Grid>
+                        <Grid item xs={10} md={7} lg={6}>
+                            <Typography variant="h4" sx={{ fontSize: { xs: '1.5rem', md: '2rem', lg: '2.5rem' } }}>
+                                {icon} {title}
+                                {canEditProfile && !editMode && (
+                                    <IconButton onClick={handleEditModeToggle} aria-label="Edit">
+                                        <EditIcon sx={{ color: '#8FBC8F' }} />
+                                    </IconButton>
+                                )}
+                            </Typography>
+                        </Grid>
+                    </Grid>
                     <Divider sx={{ marginBottom: 2 }} />
                     <Typography>
                         Name: {renderField('name', 'name', editedData?.name)}

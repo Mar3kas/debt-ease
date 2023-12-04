@@ -7,5 +7,5 @@ export interface ICreditor {
     phoneNumber: string;
     email: string;
     accountNumber: string;
-    user?: IUser;
+    user: IUser;
 }

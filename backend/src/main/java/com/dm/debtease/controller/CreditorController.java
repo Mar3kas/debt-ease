@@ -21,7 +21,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Validated
@@ -63,13 +65,16 @@ public class CreditorController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteCreditorById(@Valid
+    public ResponseEntity<Map<String, String>> deleteCreditorById(@Valid
                                                      @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
                                                      @PathVariable(name = "id") int id) {
         if (Boolean.TRUE.equals(creditorService.deleteCreditorById(id))) {
             return ResponseEntity.noContent().build();
         }
 
-        return ResponseEntity.badRequest().body("Creditor has active debt cases!");
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Creditor has active debt cases!");
+
+        return ResponseEntity.badRequest().body(response);
     }
 }
