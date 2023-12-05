@@ -7,6 +7,7 @@ import {
   UserListPage,
   DebtorFormPage,
   CreditorFormPage,
+  CreditorCreationFormPage,
 } from "./pages";
 
 interface Route {
@@ -67,4 +68,11 @@ export const routes: Route[] = [
     enabled: true,
     component: CreditorFormPage,
   },
+  {
+    key: "creditor-create-form-page-route",
+    title: "Creditor Creation",
+    path: "/users/new",
+    enabled: true,
+    component: CreditorCreationFormPage,
+  }
 ];

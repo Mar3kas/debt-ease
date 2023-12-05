@@ -22,5 +22,6 @@ public class CreditorDTO {
     String email;
     @NotBlank(message = "Account number is required")
     String accountNumber;
+    @NotBlank(message = "Username for creditor is required")
     String username;
 }
