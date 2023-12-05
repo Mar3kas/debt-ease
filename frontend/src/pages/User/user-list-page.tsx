@@ -59,8 +59,8 @@ const UserListPage: FC<IPage> = (props): ReactElement => {
         return { data, loading, error, deleteDebtor: deleteData };
     };
 
-    const { data: deletedDataCreditor, loading: deleteLoadingCreditor, error: deleteErrorCreditor, deleteCreditor } = useDeleteCreditor(userToDelete?.id || 0);
-    const { data: deletedDataDebtor, loading: deleteLoadingDebtor, error: deleteErrorDebtor, deleteDebtor } = useDeleteDebtor(userToDelete?.id || 0);
+    const { data: deletedDataCreditor, error: deleteErrorCreditor, deleteCreditor } = useDeleteCreditor(userToDelete?.id || 0);
+    const { data: deletedDataDebtor, error: deleteErrorDebtor, deleteDebtor } = useDeleteDebtor(userToDelete?.id || 0);
 
     const filteredCreditors = creditorData
         ? creditorData.filter(
@@ -123,7 +123,9 @@ const UserListPage: FC<IPage> = (props): ReactElement => {
 
     const handleEdit = (id: number, type: string) => {
         if (type === 'creditor') {
+            navigate(`/creditors/${id}`);
         } else if (type === 'debtor') {
+            navigate(`/debtors/${id}`);
         }
     };
 

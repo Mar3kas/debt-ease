@@ -15,7 +15,7 @@ const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
   const role = localStorage.getItem("role");
   const currentPageUrl = window.location.pathname;
 
-  const { postData, data, loading, error } = usePost<any>("logout");
+  const { postData, data, error } = usePost<any>("logout");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -160,8 +160,6 @@ const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
               <MenuIcon />
             </IconButton>
           )}
-
-          {/* Mobile Menu Drawer */}
           <Drawer
             anchor="right"
             open={mobileMenuOpen}

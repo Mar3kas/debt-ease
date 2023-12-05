@@ -1,5 +1,13 @@
 import { type FC } from "react";
-import { HomePage, LoginPage, UserProfilePage, DebtcaseListPage, UserListPage } from "./pages";
+import {
+  HomePage,
+  LoginPage,
+  UserProfilePage,
+  DebtcaseListPage,
+  UserListPage,
+  DebtorFormPage,
+  CreditorFormPage,
+} from "./pages";
 
 interface Route {
   key: string;
@@ -44,5 +52,19 @@ export const routes: Route[] = [
     path: "/users",
     enabled: true,
     component: UserListPage,
-  }
+  },
+  {
+    key: "debtor-form-page-route",
+    title: "Debtor Edit",
+    path: "/debtors/:id?",
+    enabled: true,
+    component: DebtorFormPage,
+  },
+  {
+    key: "creditor-form-page-route",
+    title: "Creditor Edit",
+    path: "/creditors/:id?",
+    enabled: true,
+    component: CreditorFormPage,
+  },
 ];

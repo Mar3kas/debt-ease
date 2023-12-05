@@ -13,7 +13,7 @@ import AuthService from "../../services/jwt-service";
 
 const LoginPage: FC<IPage> = (props): ReactElement => {
     const { openSnackbar } = props;
-    const { postData, data, loading, error } = usePost<IAccessMap>("login");
+    const { data, error, postData } = usePost<IAccessMap>("login");
 
     const classes = useStyles("light");
     const navigate = useNavigate();

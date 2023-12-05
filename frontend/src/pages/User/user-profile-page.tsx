@@ -64,6 +64,7 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
         editData: editDataRequest,
         loading: editLoading,
         error: editError,
+        editData
     } = useEdit<ICreditorDTO | IDebtorDTO>(roleSpecificEndpoint, { id: data?.id });
 
 
@@ -98,29 +99,6 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
         if (editError !== null && editError.statusCode === 422) {
             const fieldErrors = JSON.parse(editError.description);
             setFieldErrors(fieldErrors);
-            setEditedData((prevData) => {
-                if (prevData && typeof prevData === 'object') {
-                    let updatedData = { ...prevData };
-
-                    Object.keys(fieldErrors).forEach((field) => {
-                        const key = field as keyof typeof updatedData;
-
-                        if (updatedData[key]) {
-                            updatedData = {
-                                ...updatedData,
-                                [key]: {
-                                    ...(updatedData[key] as Object),
-                                    errorMessage: fieldErrors[field],
-                                },
-                            };
-                        }
-                    });
-
-                    return updatedData;
-                }
-
-                return prevData;
-            });
         } else if (editError && (editError.statusCode === 404 || editError?.statusCode === 403)) {
             handleErrorResponse(editError.statusCode);
             openSnackbar(editError.message, 'error');
@@ -138,11 +116,11 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
             return;
         }
 
-        let editData: ICreditorDTO | IDebtorDTO;
+        let userEditedData: ICreditorDTO | IDebtorDTO;
 
         if ('accountNumber' in editedData) {
             const data = editedData as ICreditor;
-            editData = {
+            userEditedData = {
                 name: data.name,
                 address: data.address,
                 phoneNumber: data.phoneNumber,
@@ -151,7 +129,7 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
             };
         } else {
             const data = editedData as IDebtor;
-            editData = {
+            userEditedData = {
                 name: data.name,
                 surname: data.surname,
                 email: data.email,
@@ -159,7 +137,7 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
             };
         }
 
-        await editDataRequest(editData);
+        await editData(userEditedData);
 
         setEditCompleted(true);
 
@@ -226,7 +204,7 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
         <>
             {editMode ? (
                 <>
-                    <input defaultValue={value} onChange={(e) => handleInputChange(e, field)} />
+                    <input style={{ width: '30%' }} defaultValue={value} onChange={(e) => handleInputChange(e, field)} />
                     <span style={{ color: 'red' }}>{fieldErrors[field]}</span>
                 </>
             ) : (
@@ -303,7 +281,7 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
                     {editMode && renderFields()}
                     {!editMode && additionalContent}
                     {editMode && (
-                        <Box sx={{ marginTop: 1 }}>
+                        <Box sx={{ marginTop: 1, display: 'flex', justifyContent: 'flex-end' }}>
                             <Button
                                 sx={{
                                     color: 'black',

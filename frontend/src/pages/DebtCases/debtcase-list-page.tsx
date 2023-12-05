@@ -55,8 +55,8 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
     shouldRefetch
   );
 
-  const { data: deletedData, loading: deleteLoading, error: deleteError, deleteData } = useDelete<any>("creditor/{creditorId}/debtcases/{id}", { creditorId: debtCaseToDelete?.creditorId, id: debtCaseToDelete?.id });
-  const { data: fileData, loading: fileLoading, error: fileError, postData } = usePost<FormData>("creditor/{id}/debtcases/file", { id: creditorId });
+  const { data: deletedData, error: deleteError, deleteData } = useDelete<any>("creditor/{creditorId}/debtcases/{id}", { creditorId: debtCaseToDelete?.creditorId, id: debtCaseToDelete?.id });
+  const { data: fileData, error: fileError, postData } = usePost<FormData>("creditor/{id}/debtcases/file", { id: creditorId });
 
   useEffect(() => {
     if (error && (error.statusCode === 401 || error?.statusCode === 403)) {

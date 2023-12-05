@@ -9,7 +9,6 @@ async function handleResponse<T>(
 ): Promise<T | IApiError | null> {
   if (!response.status) {
     const responseJson: IApiError = JSON.parse(response.request.response);
-
     if (responseJson.statusCode === 422) {
       if (
         responseJson.description.includes("JSON") ||
@@ -182,7 +181,7 @@ export const useEdit = <T>(
       setLoading(true);
       setError(null);
       const url = buildUrl(endpoint, pathVariables);
-      const response = await axios.put(url, {
+      const response = await axios.put(url, postData, {
         ...axiosConfig,
         headers: {
           ...axiosConfig.headers,

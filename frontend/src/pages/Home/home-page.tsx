@@ -6,7 +6,6 @@ import HelpIcon from "@mui/icons-material/Help";
 import ContactSupportIcon from "@mui/icons-material/ContactSupport";
 import { useTransition, animated, useSpring } from "@react-spring/web";
 import useStyles from "../../Components/Styles/global-styles";
-import { useNavigate } from "react-router-dom";
 import Navbar from "../../Components/Navbar/navbar";
 import Footer from "../../Components/Footer/footer";
 
@@ -33,7 +32,6 @@ const slides = [
 
 const HomePage: FC = (): ReactElement => {
   const classes = useStyles("light");
-  const navigate = useNavigate();
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
