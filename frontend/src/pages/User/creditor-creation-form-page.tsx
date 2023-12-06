@@ -49,6 +49,9 @@ const CreditorCreationFormPage: FC<IPage> = ({ openSnackbar }): ReactElement => 
         if (error && [401, 403].includes(error.statusCode)) {
             handleErrorResponse(error.statusCode);
             snackbar(error.message, 'error');
+        } else if (error?.description.includes("Refresh Token")) {
+            navigate("/login");
+            openSnackbar("You need to login again", 'warning');
         } else if (error && error.statusCode === 422) {
             const updatedForm = { ...form };
             const fieldErrors = JSON.parse(error.description);
@@ -130,7 +133,10 @@ const CreditorCreationFormPage: FC<IPage> = ({ openSnackbar }): ReactElement => 
                         <TextField
                             key={key}
                             id={key}
-                            label={key}
+                            label={key
+                                .split(/(?=[A-Z])/)
+                                .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                                .join(' ')}
                             name={key}
                             type={key}
                             value={value}
@@ -167,7 +173,7 @@ const CreditorCreationFormPage: FC<IPage> = ({ openSnackbar }): ReactElement => 
                             color="inherit"
                             variant="outlined"
                             onClick={(): void => {
-                                navigate('/');
+                                navigate(-1);
                             }}
                         >
                             Cancel

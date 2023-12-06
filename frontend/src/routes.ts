@@ -8,6 +8,7 @@ import {
   DebtorFormPage,
   CreditorFormPage,
   CreditorCreationFormPage,
+  DebtCaseFormPage,
 } from "./pages";
 
 interface Route {
@@ -74,5 +75,12 @@ export const routes: Route[] = [
     path: "/users/new",
     enabled: true,
     component: CreditorCreationFormPage,
+  },
+  {
+    key: "debtcase-form-page-route",
+    title: "DebtCase Edit",
+    path: "/creditor/:creditorId?/debtcases/:debtcaseId?",
+    enabled: true,
+    component: DebtCaseFormPage,
   }
 ];

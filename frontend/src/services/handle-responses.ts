@@ -10,7 +10,7 @@ const useErrorHandling = () => {
         navigate("/");
         break;
       case 403:
-        navigate("/");
+        navigate(-1);
         break;
       default:
         break;

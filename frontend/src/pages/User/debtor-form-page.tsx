@@ -16,6 +16,7 @@ import { IDebtorDTO } from '../../shared/dtos/DebtorDTO';
 import { useNavigate, useParams } from 'react-router-dom';
 import useErrorHandling from '../../services/handle-responses';
 import { IDebtor } from '../../shared/models/Debtor';
+import { IApiError } from '../../shared/models/ApiError';
 
 const DebtorFormPage: FC<IPage> = (props): ReactElement => {
     const classes = useStyles('light');
@@ -51,9 +52,12 @@ const DebtorFormPage: FC<IPage> = (props): ReactElement => {
     }, [debtorData]);
 
     const handleAPIError = (error: any, snackbar: any, editCompleted: boolean | null) => {
-        if (error && (error.statusCode === 401 || error.statusCode === 403)) {
+        if (error && [401, 403].includes(error.statusCode)) {
             handleErrorResponse(error.statusCode);
             snackbar(error.message, "error");
+        } else if (error?.description.includes("Refresh Token")) {
+            navigate("/login");
+            openSnackbar("You need to login again", 'warning');
         } else if (error && (error.statusCode === 422)) {
             const fieldErrors = JSON.parse(error.description);
             setFieldErrors(fieldErrors);
@@ -141,7 +145,7 @@ const DebtorFormPage: FC<IPage> = (props): ReactElement => {
                         {['name', 'surname', 'email', 'phoneNumber'].map((field) => (
                             <Grid item xs={12} key={field}>
                                 <div>
-                                    <label style={{ color: 'black' }}>{field.charAt(0).toUpperCase() + field.slice(1)}</label>
+                                    <label style={{ color: 'black', marginRight: "5px" }}>{field.charAt(0).toUpperCase() + field.slice(1)}</label>
                                     <input
                                         type="text"
                                         value={(editedData as any)?.[field] || ''}

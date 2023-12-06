@@ -87,7 +87,7 @@ public class CreditorServiceImpl implements CreditorService {
 
         Role role = roleRepository.findById(3).orElseThrow(() -> new EntityNotFoundException("Role not found with id 3"));
         CustomUser customUser = new CustomUser();
-        customUser.setUsername(creditorDTO.getUsername());
+        customUser.setUsername(!creditorDTO.getUsername().isEmpty() ? creditorDTO.getUsername() : creditor.getName());
         customUser.setPassword(bCryptPasswordEncoder.encode(passwordGeneratorService.generatePassword(8)));
         customUser.setRole(role);
         customUserRepository.save(customUser);

@@ -23,6 +23,7 @@ import { useDelete, useGet } from "../../services/api-service";
 import useErrorHandling from "../../services/handle-responses";
 import { ICreditor } from "../../shared/models/Creditor";
 import { IDebtor } from "../../shared/models/Debtor";
+import { IApiError } from "../../shared/models/ApiError";
 
 const UserListPage: FC<IPage> = (props): ReactElement => {
     const navigate = useNavigate();
@@ -108,7 +109,7 @@ const UserListPage: FC<IPage> = (props): ReactElement => {
     }, [deletedDataDebtor, openSnackbar]);
 
     const handleAPIError = (error: any, snackbar: any) => {
-        if (error && (error.statusCode === 401 || error.statusCode === 403)) {
+        if (error && [401, 403].includes(error.statusCode)) {
             handleErrorResponse(error.statusCode);
             snackbar(error.message, "error");
         } else if (error && error.statusCode === 204) {
@@ -118,7 +119,10 @@ const UserListPage: FC<IPage> = (props): ReactElement => {
         } else if (error) {
             setConfirmationDialogOpen(false);
             snackbar(error.message, "error");
-        }
+        } else if (error?.description.includes("Refresh Token")) {
+            navigate("/login");
+            openSnackbar("You need to login again", 'warning');
+        } 
     };
 
     const handleEdit = (id: number, type: string) => {
@@ -243,6 +247,22 @@ const UserListPage: FC<IPage> = (props): ReactElement => {
                                 </Box>
                             </Typography>
                             {renderExpandButton(showMoreCreditor, setShowMoreCreditor, creditorData || [], "Creditors")}
+                            <Button
+                                sx={{
+                                    color: "black",
+                                    backgroundColor: "white",
+                                    border: "2px solid",
+                                    marginBottom: "5px",
+                                    marginLeft: "5px",
+                                    "&:hover": {
+                                        color: "black",
+                                        backgroundColor: "#F8DE7E",
+                                    }
+                                }}
+                                onClick={() => navigate("/users/new")}
+                            >
+                                Create Creditor
+                            </Button>
                             {filteredCreditors?.slice(0, showMoreCreditor).map((creditor) => (
                                 <Accordion key={creditor.id}>
                                     <AccordionSummary

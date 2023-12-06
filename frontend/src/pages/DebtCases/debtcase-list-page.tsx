@@ -21,7 +21,7 @@ import { IPage } from "../../shared/models/Page";
 import { IDebtCase } from "../../shared/models/Debtcases";
 import { useDelete, useGet, usePost } from "../../services/api-service";
 import useErrorHandling from "../../services/handle-responses";
-import { IApiError } from "../../shared/models/ApiError";
+import { ICreditor } from "../../shared/models/Creditor";
 
 const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
   const classes = useStyles("light");
@@ -32,7 +32,6 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
   const [confirmationDialogOpen, setConfirmationDialogOpen] = useState(false);
   const [debtCaseToDelete, setDebtCaseToDelete] = useState<{ creditorId: number, id: number } | null>(null);
   const [creditorId, setCreditorId] = useState<number | undefined>(undefined);
-  const [fileFormData, setFileFormData] = useState<FormData | null>(null);
   const { handleErrorResponse } = useErrorHandling();
   const { openSnackbar } = props;
 
@@ -49,24 +48,42 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
     }
   })();
 
-  const { data, loading, error } = useGet<IDebtCase[]>(
+  const { data: deletedData, error: deleteError, deleteData } = useDelete<any>("creditor/{creditorId}/debtcases/{id}", { creditorId: debtCaseToDelete?.creditorId, id: debtCaseToDelete?.id });
+  const { data: fileData, error: fileError, postData } = usePost<FormData>("creditor/{id}/debtcases/file", { id: creditorId });
+  const { data: debtCaseData, loading: debtCaseLoading, error } = useGet<IDebtCase[]>(
     roleSpecificEndpoint,
     role === "ADMIN" ? {} : username ? { username } : {},
     shouldRefetch
   );
 
-  const { data: deletedData, error: deleteError, deleteData } = useDelete<any>("creditor/{creditorId}/debtcases/{id}", { creditorId: debtCaseToDelete?.creditorId, id: debtCaseToDelete?.id });
-  const { data: fileData, error: fileError, postData } = usePost<FormData>("creditor/{id}/debtcases/file", { id: creditorId });
-
   useEffect(() => {
-    if (error && (error.statusCode === 401 || error?.statusCode === 403)) {
+    if (error && [401, 403].includes(error.statusCode)) {
       handleErrorResponse(error.statusCode);
       openSnackbar(error.message, 'error');
-    }
+    } else if (error?.description.includes("Refresh Token")) {
+      navigate("/login");
+      openSnackbar("You need to login again", 'warning');
+  } 
   }, [error, openSnackbar]);
 
+  useEffect(() => {
+    if (!debtCaseLoading) {
+      setShouldRefetch(false);
+    }
+  }, [debtCaseLoading]);
+
+  useEffect(() => {
+    if (debtCaseData && creditorId === undefined && role === "CREDITOR") {
+      const userWithSameUsername = debtCaseData.find(debtCase => debtCase.creditor.user.username === username);
+
+      if (userWithSameUsername) {
+        setCreditorId(userWithSameUsername.creditor.id);
+      }
+    }
+  }, [debtCaseData]);
+
   const handleEdit = (creditorId: number, id: number) => {
-    // Implement edit functionality
+    navigate(`/creditor/${creditorId}/debtcases/${id}`);
   };
 
   const handleDelete = (creditorId: number, id: number) => {
@@ -77,31 +94,24 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
   const handleFileUpload = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const newCreditorId = data?.[0]?.creditor?.id;
+    const file = event.target.files?.[0];
 
-    if (newCreditorId !== undefined) {
-      setCreditorId(newCreditorId);
-
-      const file = event.target.files?.[0];
-
-      if (file) {
-        const formData = new FormData();
-        formData.append("file", file);
-
-        setFileFormData(formData);
-      }
-    } else {
-      setCreditorId(undefined);
+    if (file) {
+      const formData = new FormData();
+      formData.append("file", file);
+      postData(formData, true);
     }
   };
 
   useEffect(() => {
-    if (creditorId !== null && fileFormData !== null) {
-      postData(fileFormData, true);
+    if (fileData) {
+      openSnackbar("File uploaded successfully", 'success');
+      setShouldRefetch(true);
       setCreditorId(undefined);
-      setFileFormData(null);
+    } else if (fileError) {
+      openSnackbar(fileError.description, 'error');
     }
-  }, [creditorId, fileFormData, postData]);
+  }, [fileData, fileError, openSnackbar]);
 
   const handleDeleteConfirmed = async () => {
     deleteData();
@@ -113,26 +123,16 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
   };
 
   useEffect(() => {
-    if (deletedData as IApiError && deletedData.statusCode === 204 && deletedData.description.includes("Deleted successfully")) {
-      setShouldRefetch(true);
-      setConfirmationDialogOpen(false);
+    if (deletedData && deletedData.statusCode === 204 && deletedData.description.includes("Deleted successfully")) {
       openSnackbar("Debt Case deleted successfully", 'success');
-    } else if (deleteError && deleteError.statusCode !== 204) {
-      setConfirmationDialogOpen(false);
-      openSnackbar(deleteError.description, 'error');
-    } else if (fileError === null && fileData) {
       setShouldRefetch(true);
-      openSnackbar("File uploaded successfully", 'success');
-    } else if (fileError) {
-      openSnackbar(fileError.description, 'error');
-    }
-
-    if (shouldRefetch) {
-      setShouldRefetch(false);
+      setConfirmationDialogOpen(false);
+    } else if (deleteError && deleteError.statusCode !== 204) {
+      openSnackbar(deleteError.description, 'error');
     }
 
     setDebtCaseToDelete(null);
-  }, [deleteError, fileError, fileData, deletedData, openSnackbar, setShouldRefetch]);
+  }, [deleteError, deletedData, openSnackbar]);
 
   const renderActionButtons = (creditorId: number, id: number) => (
     <Grid container spacing={1} justifyContent="flex-end">
@@ -153,7 +153,7 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
     </Grid>
   );
 
-  const groupedDebtCases = data?.reduce((acc, debtCase) => {
+  const groupedDebtCases = debtCaseData?.reduce((acc, debtCase) => {
     const status = debtCase.debtCaseStatus.status.toLowerCase();
     acc[status] = acc[status] || [];
     acc[status].push(debtCase);
@@ -259,7 +259,7 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
               </Grid>
             )}
           </Grid>
-          {loading ? (
+          {debtCaseLoading ? (
             <Typography>Loading...</Typography>
           ) : (
             <Box>

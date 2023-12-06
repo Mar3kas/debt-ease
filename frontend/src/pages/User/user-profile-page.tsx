@@ -45,10 +45,13 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
     );
 
     useEffect(() => {
-        if (error && (error.statusCode === 401 || error?.statusCode === 403)) {
+        if (error && [401, 403].includes(error.statusCode)) {
             handleErrorResponse(error.statusCode);
             openSnackbar(error.message, 'error');
-        }
+        } else if (error?.description.includes("Refresh Token")) {
+            navigate("/login");
+            openSnackbar("You need to login again", 'warning');
+        } 
     }, [error, openSnackbar]);
 
     const canEditProfile = data?.user?.role.name !== 'ADMIN';
@@ -61,8 +64,6 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
                 : '';
 
     const {
-        editData: editDataRequest,
-        loading: editLoading,
         error: editError,
         editData
     } = useEdit<ICreditorDTO | IDebtorDTO>(roleSpecificEndpoint, { id: data?.id });
@@ -99,7 +100,7 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
         if (editError !== null && editError.statusCode === 422) {
             const fieldErrors = JSON.parse(editError.description);
             setFieldErrors(fieldErrors);
-        } else if (editError && (editError.statusCode === 404 || editError?.statusCode === 403)) {
+        } else if (editError && [401, 403].includes(editError.statusCode)) {
             handleErrorResponse(editError.statusCode);
             openSnackbar(editError.message, 'error');
         }

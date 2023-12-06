@@ -1,5 +1,5 @@
 export interface IDebtCaseDTO {
     amountOwed: number;
-    dueDate: Date;
+    dueDate: string;
     typeId: number;
 }

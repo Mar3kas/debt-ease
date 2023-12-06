@@ -84,7 +84,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .requestMatchers(HttpMethod.POST, "/api/creditors/").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/logout").hasAnyAuthority("ADMIN", "DEBTOR", "CREDITOR")
                         .requestMatchers(HttpMethod.DELETE, "/api/creditor/*/debtcases/*").hasAnyAuthority("CREDITOR", "ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/creditor/*/debtcase/*/debtors/*").hasAnyAuthority("CREDITOR", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/creditor/*/debtcase/*/debtors/*").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/creditors/*").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/debtors/*").hasAuthority("ADMIN")
                         .anyRequest()

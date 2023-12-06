@@ -16,6 +16,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import useErrorHandling from '../../services/handle-responses';
 import { ICreditor } from '../../shared/models/Creditor';
 import { ICreditorDTO } from '../../shared/dtos/CreditorDTO';
+import { IApiError } from '../../shared/models/ApiError';
 
 const CreditorFormPage: FC<IPage> = (props): ReactElement => {
     const classes = useStyles('light');
@@ -27,7 +28,7 @@ const CreditorFormPage: FC<IPage> = (props): ReactElement => {
     const [editCompleted, setEditCompleted] = useState(false);
     const [editedData, setEditedData] = useState<ICreditor | null>(null);
 
-    const { error: editError, editData } = useEdit<ICreditorDTO>(`creditors/${id}`, { id: Number(id) });
+    const { data: creditorEditData, error: editError, editData } = useEdit<ICreditorDTO>(`creditors/${id}`, { id: Number(id) });
 
     const {
         data: creditorData,
@@ -39,32 +40,40 @@ const CreditorFormPage: FC<IPage> = (props): ReactElement => {
     }, [creditorError, openSnackbar]);
 
     useEffect(() => {
-        handleAPIError(editError, openSnackbar, null);
-    }, [editError, openSnackbar]);
-
-    useEffect(() => {
-        handleAPIError(null, openSnackbar, editCompleted);
-    }, [editCompleted, openSnackbar]);
+        handleAPIError(editError, openSnackbar, editCompleted);
+    }, [editCompleted, editError, openSnackbar]);
 
     useEffect(() => {
         setEditedData(creditorData ? { ...creditorData } : null);
     }, [creditorData]);
 
     const handleAPIError = (error: any, snackbar: any, editCompleted: boolean | null) => {
-        if (error && (error.statusCode === 401 || error.statusCode === 403)) {
+        if (error && [401, 403].includes(error.statusCode)) {
             handleErrorResponse(error.statusCode);
             snackbar(error.message, "error");
+        } else if (error?.description.includes("Refresh Token")) {
+            navigate("/login");
+            openSnackbar("You need to login again", 'warning');
         } else if (error && (error.statusCode === 422)) {
             const fieldErrors = JSON.parse(error.description);
             setFieldErrors(fieldErrors);
         } else if (error) {
             snackbar(error.message, "error");
-        } else if (editCompleted) {
-            setFieldErrors({});
-            navigate(-1);
+        } else if (Object.keys(fieldErrors).length === 0 && editCompleted) {
+            navigate("/users");
             openSnackbar('Profile edited successfully', 'success');
         }
     };
+
+    useEffect(() => {
+        if (creditorEditData !== null) {
+            setEditCompleted(true);
+            setFieldErrors({});
+            const timeoutId = setTimeout(() => setEditCompleted(false), 1000);
+
+            return () => clearTimeout(timeoutId);
+        }
+    }, [creditorEditData]);
 
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -94,10 +103,6 @@ const CreditorFormPage: FC<IPage> = (props): ReactElement => {
         };
 
         await editData(creditorEditedData);
-
-        setEditCompleted(true);
-
-        setTimeout(() => setEditCompleted(false), 1000);
     };
 
     return (
@@ -143,7 +148,7 @@ const CreditorFormPage: FC<IPage> = (props): ReactElement => {
                         {['name', 'address', 'phoneNumber', 'email', 'accountNumber'].map((field) => (
                             <Grid item xs={12} key={field}>
                                 <div>
-                                    <label style={{ color: 'black' }}>{field.charAt(0).toUpperCase() + field.slice(1)}</label>
+                                    <label style={{ color: 'black', marginRight: "5px" }}>{field.charAt(0).toUpperCase() + field.slice(1)}</label>
                                     <input
                                         type="text"
                                         value={(editedData as any)?.[field] || ''}
