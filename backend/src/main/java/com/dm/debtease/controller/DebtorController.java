@@ -6,6 +6,7 @@ import com.dm.debtease.service.DebtorService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -28,17 +29,17 @@ import java.util.Map;
 @CrossOrigin
 @RequiredArgsConstructor
 @SecurityRequirement(name = "dmapi")
-@RequestMapping(value = "/api")
+@RequestMapping(value = "/api/debtors")
 public class DebtorController {
     private final DebtorService debtorService;
 
-    @GetMapping("/debtors")
+    @GetMapping()
     public ResponseEntity<List<Debtor>> getAllDebtors() {
         List<Debtor> debtors = debtorService.getAllDebtors();
         return ResponseEntity.ok(debtors);
     }
 
-    @GetMapping("/debtors/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Debtor> getDebtorById(@Valid
                                                 @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
                                                 @PathVariable(name = "id") int id) {
@@ -46,41 +47,28 @@ public class DebtorController {
         return ResponseEntity.ok(debtor);
     }
 
-    @PutMapping(value = {"/debtors/{id}", "/creditor/{creditorId}/debtcase/{debtcaseId}/debtors/{id}"})
-    public ResponseEntity<Debtor> editDebtorById(@Valid @RequestBody DebtorDTO debtorDTO, BindingResult result,
-                                                 @Valid
-                                                 @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
-                                                 @PathVariable(name = "id") int id,
-                                                 @Valid
-                                                 @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
-                                                 @PathVariable(name = "debtcaseId", required = false) Integer debtcaseId,
-                                                 @Valid
-                                                 @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
-                                                 @PathVariable(name = "creditorId", required = false) Integer creditorId) {
-        Debtor debtor;
-        if (debtcaseId != null && creditorId != null) {
-            debtor = debtorService.editDebtorById(debtorDTO, id, debtcaseId, creditorId);
-        } else {
-            debtor = debtorService.editDebtorById(debtorDTO, id);
-        }
+    @GetMapping("/{username}")
+    public ResponseEntity<Object> getDebtorByUsername(@Valid
+                                                      @NotBlank
+                                                      @PathVariable(name = "username") String username) {
+        Debtor debtor = debtorService.getDebtorByUsername(username);
         return ResponseEntity.ok(debtor);
     }
 
-    @DeleteMapping(value = {"/debtors/{id}", "/creditor/{creditorId}/debtcase/{debtcaseId}/debtors/{id}"})
+    @PutMapping("/debtors/{id}")
+    public ResponseEntity<Debtor> editDebtorById(@Valid @RequestBody DebtorDTO debtorDTO, BindingResult result,
+                                                 @Valid
+                                                 @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
+                                                 @PathVariable(name = "id") int id) {
+        Debtor debtor = debtorService.editDebtorById(debtorDTO, id);
+        return ResponseEntity.ok(debtor);
+    }
+
+    @DeleteMapping("/debtors/{id}")
     public ResponseEntity<Map<String, String>> deleteDebtorById(@Valid
-                                                   @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
-                                                   @PathVariable(name = "id") int id,
-                                                                @Valid
-                                                   @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
-                                                   @PathVariable(name = "debtcaseId", required = false) Integer debtcaseId,
-                                                                @Valid
-                                                   @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
-                                                   @PathVariable(name = "creditorId", required = false) Integer creditorId) {
-        if (debtcaseId != null && creditorId != null) {
-            if (Boolean.TRUE.equals(debtorService.deleteDebtorById(id, debtcaseId, creditorId))) {
-                return ResponseEntity.noContent().build();
-            }
-        } else if (Boolean.TRUE.equals(debtorService.deleteDebtorById(id))) {
+                                                                @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
+                                                                @PathVariable(name = "id") int id) {
+        if (Boolean.TRUE.equals(debtorService.deleteDebtorById(id))) {
             return ResponseEntity.noContent().build();
         }
 

@@ -6,6 +6,7 @@ import com.dm.debtease.service.CreditorService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,6 +49,14 @@ public class CreditorController {
         return ResponseEntity.ok(creditor);
     }
 
+    @GetMapping("/{username}")
+    public ResponseEntity<Object> getUserByUsername(@Valid
+                                                    @NotBlank
+                                                    @PathVariable(name = "username") String username) {
+        Creditor creditor = creditorService.getCreditorByUsername(username);
+        return ResponseEntity.ok(creditor);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<Creditor> editCreditorById(@Valid @RequestBody CreditorDTO creditorDTO, BindingResult result,
                                                      @Valid
@@ -66,8 +75,8 @@ public class CreditorController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteCreditorById(@Valid
-                                                     @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
-                                                     @PathVariable(name = "id") int id) {
+                                                                  @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
+                                                                  @PathVariable(name = "id") int id) {
         if (Boolean.TRUE.equals(creditorService.deleteCreditorById(id))) {
             return ResponseEntity.noContent().build();
         }

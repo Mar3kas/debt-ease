@@ -3,7 +3,6 @@ package com.dm.debtease.scheduler;
 import com.dm.debtease.model.DebtCase;
 import com.dm.debtease.model.Debtor;
 import com.dm.debtease.service.DebtCaseService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
@@ -54,10 +53,8 @@ public class Scheduler {
     private void sendNotificationEmail(DebtCase debtCase) {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setFrom("marijuspet@gmail.com");
-        Debtor debtor = debtCase.getDebtors().stream().
-                filter(debtor1 -> debtor1.getDebtCase().getId() == debtCase.getId())
-                .findFirst()
-                .orElseThrow(() -> new EntityNotFoundException("Debtor not found that has this debtcase with this id " + debtCase.getId()));
+
+        Debtor debtor = debtCase.getDebtor();
 
         mailMessage.setTo(debtor.getEmail());
         mailMessage.setSubject("Pending debt until " + debtCase.getDueDate());

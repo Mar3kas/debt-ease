@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 public interface DebtCaseService {
     List<DebtCase> getAllDebtCases();
@@ -18,11 +19,13 @@ public interface DebtCaseService {
 
     List<DebtCase> getDebtCasesByDebtorUsername(String username);
 
-    List<DebtCase> createDebtCase(MultipartFile file, int id) throws CsvValidationException, IOException, InvalidFileFormatException;
+    List<DebtCase> createDebtCase(MultipartFile file, String username) throws CsvValidationException, IOException, InvalidFileFormatException;
 
-    DebtCase editDebtCaseById(DebtCaseDTO debtCaseDTO, int id, int creditorId);
+    DebtCase editDebtCaseById(DebtCaseDTO debtCaseDTO, int id);
 
-    boolean deleteDebtCaseById(int creditorId, int id);
+    boolean deleteDebtCaseById(int id);
 
     void markDebtCaseEmailAsSentById(int id);
+
+    Optional<DebtCase> findExistingDebtCase(String username, String... indicator);
 }

@@ -1,7 +1,9 @@
 package com.dm.debtease.service;
 
 import com.dm.debtease.model.Debtor;
+import com.dm.debtease.model.Role;
 import com.dm.debtease.model.dto.DebtorDTO;
+import com.dm.debtease.model.dto.UserDTO;
 
 import java.util.List;
 
@@ -12,11 +14,11 @@ public interface DebtorService {
 
     Debtor getDebtorByUsername(String username);
 
-    Debtor editDebtorById(DebtorDTO debtorDTO, int id, int debtcaseId, int creditorId);
+    Debtor getDebtorByNameAndSurname(String name, String surname);
 
     Debtor editDebtorById(DebtorDTO debtorDTO, int id);
 
-    boolean deleteDebtorById(int id);
+    Debtor createDebtor(DebtorDTO debtorDTO, UserDTO userDTO, Role role);
 
-    boolean deleteDebtorById(int id, int debtcaseId, int creditorId);
+    boolean deleteDebtorById(int id);
 }

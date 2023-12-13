@@ -18,11 +18,11 @@ import java.util.List;
 @CrossOrigin
 @RequiredArgsConstructor
 @SecurityRequirement(name = "dmapi")
-@RequestMapping(value = "/api/debtcase")
+@RequestMapping(value = "/api/debtcase/types")
 public class DebtCaseTypeController {
     private final DebtCaseTypeService debtCaseTypeService;
 
-    @GetMapping("/types")
+    @GetMapping()
     public ResponseEntity<List<DebtCaseType>> getAllDebtCaseTypes() {
         List<DebtCaseType> debtCaseTypes = debtCaseTypeService.getAllDebtCaseTypes();
         return ResponseEntity.ok(debtCaseTypes);

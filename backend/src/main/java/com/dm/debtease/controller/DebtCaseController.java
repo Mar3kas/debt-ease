@@ -35,17 +35,17 @@ import java.util.List;
 @CrossOrigin
 @RequiredArgsConstructor
 @SecurityRequirement(name = "dmapi")
-@RequestMapping(value = "/api")
+@RequestMapping(value = "/api/debtcases")
 public class DebtCaseController {
     private final DebtCaseService debtCaseService;
 
-    @GetMapping("/debtcases")
+    @GetMapping()
     public ResponseEntity<List<DebtCase>> getAllDebtCases() {
         List<DebtCase> debtCases = debtCaseService.getAllDebtCases();
         return ResponseEntity.ok(debtCases);
     }
 
-    @GetMapping("/debtcases/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<DebtCase> getDebtCaseById(@Valid
                                                     @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
                                                     @PathVariable(name = "id") int id) {
@@ -53,7 +53,7 @@ public class DebtCaseController {
         return ResponseEntity.ok(debtCase);
     }
 
-    @GetMapping("/creditor/{username}/debtcases")
+    @GetMapping("/creditor/{username}")
     public ResponseEntity<List<DebtCase>> getDebtCasesByCreditorUsername(@Valid
                                                                          @NotBlank
                                                                          @PathVariable(name = "username") String username) {
@@ -61,42 +61,36 @@ public class DebtCaseController {
         return ResponseEntity.ok(debtCases);
     }
 
-    @GetMapping("/creditor/debtcases/debtor/{username}")
+    @GetMapping("/debtor/{username}")
     public ResponseEntity<List<DebtCase>> getDebtCasesByDebtorUsername(@Valid
                                                                        @PathVariable(name = "username") String username) {
         List<DebtCase> debtCases = debtCaseService.getDebtCasesByDebtorUsername(username);
         return ResponseEntity.ok(debtCases);
     }
 
-    @PutMapping("/creditor/{creditorId}/debtcases/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<DebtCase> editDebtCaseById(@Valid @RequestBody DebtCaseDTO debtCaseDTO, BindingResult result,
                                                      @Valid
                                                      @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
-                                                     @PathVariable(name = "id") int id,
-                                                     @Valid
-                                                     @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
-                                                     @PathVariable(name = "creditorId") int creditorId) {
-        DebtCase debtCase = debtCaseService.editDebtCaseById(debtCaseDTO, id, creditorId);
+                                                     @PathVariable(name = "id") int id) {
+        DebtCase debtCase = debtCaseService.editDebtCaseById(debtCaseDTO, id);
         return ResponseEntity.ok(debtCase);
     }
 
-    @PostMapping(value = "/creditor/{id}/debtcases/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/creditor/{username}/debtcases/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<List<DebtCase>> createDebtCase(@Valid
-                                                         @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
-                                                         @PathVariable(name = "id") int id,
+                                                         @NotBlank
+                                                         @PathVariable(name = "username") String username,
                                                          @RequestParam(name = "file") MultipartFile file) throws CsvValidationException, IOException, InvalidFileFormatException {
-        List<DebtCase> debtCases = debtCaseService.createDebtCase(file, id);
+        List<DebtCase> debtCases = debtCaseService.createDebtCase(file, username);
         return ResponseEntity.status(HttpStatus.CREATED).body(debtCases);
     }
 
-    @DeleteMapping("/creditor/{creditorId}/debtcases/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteDebtCaseById(@Valid
                                                      @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
-                                                     @PathVariable(name = "creditorId") int creditorId,
-                                                     @Valid
-                                                     @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
                                                      @PathVariable(name = "id") int id) {
-        if (Boolean.TRUE.equals(debtCaseService.deleteDebtCaseById(creditorId, id))) {
+        if (Boolean.TRUE.equals(debtCaseService.deleteDebtCaseById(id))) {
             return ResponseEntity.noContent().build();
         }
 

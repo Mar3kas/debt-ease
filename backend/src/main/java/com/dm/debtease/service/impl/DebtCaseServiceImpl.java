@@ -14,6 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -21,6 +24,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Service
 public class DebtCaseServiceImpl implements DebtCaseService {
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     private final DebtCaseRepository debtCaseRepository;
     private final DebtCaseTypeRepository debtCaseTypeRepository;
     private final CsvService csvService;
@@ -52,64 +57,44 @@ public class DebtCaseServiceImpl implements DebtCaseService {
         List<DebtCase> debtCases = debtCaseRepository.findAll();
 
         return debtCases.stream()
-                .filter(debtCase -> debtCase.getDebtors().stream()
-                        .anyMatch(debtor -> Objects.equals(debtor.getUser().getUsername(), username)))
-                .map(debtCase -> {
-                            DebtCase copy = new DebtCase();
-                            copy.setId(debtCase.getId());
-                            copy.setAmountOwed(debtCase.getAmountOwed());
-                            copy.setDueDate(debtCase.getDueDate());
-                            copy.setDebtCaseType(debtCase.getDebtCaseType());
-                            copy.setDebtCaseStatus(debtCase.getDebtCaseStatus());
-                            copy.setCreditor(debtCase.getCreditor());
-                            copy.getCreditor().setUser(null);
-                            copy.setIsSent(debtCase.getIsSent());
-                            return copy;
-                        }
-                )
+                .filter(debtCase -> Objects.equals(debtCase.getDebtor().getName(), username))
                 .toList();
     }
 
     @Override
-    public List<DebtCase> createDebtCase(MultipartFile file, int id) throws CsvValidationException, IOException, InvalidFileFormatException {
-        return csvService.readCsvData(file, id);
+    public List<DebtCase> createDebtCase(MultipartFile file, String username) throws CsvValidationException, IOException, InvalidFileFormatException {
+        return csvService.readCsvData(file, username);
     }
 
     @Override
-    public DebtCase editDebtCaseById(DebtCaseDTO debtCaseDTO, int id, int creditorId) {
+    public DebtCase editDebtCaseById(DebtCaseDTO debtCaseDTO, int id) {
         Optional<DebtCase> optionalDebtCase = debtCaseRepository.findById(id);
         if (optionalDebtCase.isPresent()) {
             DebtCase debtCase = optionalDebtCase.get();
-            if (debtCase.getCreditor().getId() == creditorId) {
-                if (Objects.nonNull(debtCaseDTO.getAmountOwed())) {
-                    debtCase.setAmountOwed(debtCaseDTO.getAmountOwed());
-                }
-                if (Objects.nonNull(debtCaseDTO.getDueDate())) {
-                    debtCase.setDueDate(debtCaseDTO.getDueDate());
-                }
-                if (debtCaseDTO.getTypeId() > 0) {
-                    debtCase.setDebtCaseType(debtCaseTypeRepository.findById(debtCaseDTO.getTypeId())
-                            .orElseThrow(() -> new EntityNotFoundException("Debtcase type not found with id " + debtCaseDTO.getTypeId())));
-                }
-
-                return debtCaseRepository.save(debtCase);
+            if (Objects.nonNull(debtCaseDTO.getAmountOwed())) {
+                debtCase.setAmountOwed(debtCaseDTO.getAmountOwed());
             }
+            if (Objects.nonNull(debtCaseDTO.getDueDate())) {
+                debtCase.setDueDate(debtCaseDTO.getDueDate());
+            }
+            if (debtCaseDTO.getTypeId() > 0) {
+                debtCase.setDebtCaseType(debtCaseTypeRepository.findById(debtCaseDTO.getTypeId())
+                        .orElseThrow(() -> new EntityNotFoundException("Debtcase type not found with id " + debtCaseDTO.getTypeId())));
+            }
+
+            return debtCaseRepository.save(debtCase);
         }
 
         throw new EntityNotFoundException("Debtcase not found with id " + id);
     }
 
     @Override
-    public boolean deleteDebtCaseById(int creditorId, int id) {
+    public boolean deleteDebtCaseById(int id) {
         Optional<DebtCase> optionalDebtCase = debtCaseRepository.findById(id);
         if (optionalDebtCase.isPresent()) {
-            if (optionalDebtCase.get().getCreditor().getId() == creditorId) {
-                debtCaseRepository.deleteById(id);
+            debtCaseRepository.deleteById(id);
 
-                return true;
-            }
-
-            throw new EntityNotFoundException("Creditor not found with id " + creditorId);
+            return true;
         }
 
         throw new EntityNotFoundException("Debtcase not found with id " + id);
@@ -122,5 +107,21 @@ public class DebtCaseServiceImpl implements DebtCaseService {
 
         debtCase.setIsSent(1);
         debtCaseRepository.save(debtCase);
+    }
+
+    @Override
+    public Optional<DebtCase> findExistingDebtCase(String username, String... indicator) {
+        return debtCaseRepository.findByAmountOwedAndDueDateAndDebtCaseType_TypeAndCreditor_User_UsernameAndDebtor_NameAndDebtor_Surname(
+                new BigDecimal(indicator[0]),
+                LocalDateTime.parse(indicator[1], DATE_TIME_FORMATTER),
+                getTypeToMatch(indicator[2]),
+                username,
+                indicator[3],
+                indicator[4]
+        );
+    }
+
+    private String getTypeToMatch(String type) {
+        return type.toUpperCase().contains("_DEBT") ? type.toUpperCase() : type.toUpperCase().concat("_DEBT");
     }
 }

@@ -9,5 +9,5 @@ import java.io.IOException;
 import java.util.List;
 
 public interface CsvService {
-    List<DebtCase> readCsvData(MultipartFile file, int id) throws IOException, CsvValidationException, InvalidFileFormatException;
+    List<DebtCase> readCsvData(MultipartFile file, String username) throws IOException, CsvValidationException, InvalidFileFormatException;
 }

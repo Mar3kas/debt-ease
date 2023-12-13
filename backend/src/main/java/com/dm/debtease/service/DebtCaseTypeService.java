@@ -6,4 +6,8 @@ import java.util.List;
 
 public interface DebtCaseTypeService {
     List<DebtCaseType> getAllDebtCaseTypes();
+
+    DebtCaseType findMatchingDebtCaseType(String typeToMatch);
+
+    DebtCaseType getDefaultDebtCaseType();
 }
