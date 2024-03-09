@@ -28,18 +28,14 @@ public class Scheduler {
     @Scheduled(cron = "0 * * * * *")
     public void emailNotificationScheduler() {
         log.info("Starting cron job scheduler for email notification!");
-
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime tenDaysLater = now.plusDays(10);
-
         List<DebtCase> debtCases = debtCaseService.getAllDebtCases();
-
         for (DebtCase debtCase : debtCases) {
             if (debtCaseIsPending(debtCase, now, tenDaysLater)) {
                 sendNotificationEmail(debtCase);
             }
         }
-
         log.info("Cron job scheduler for email notification has finished!");
     }
 
@@ -53,15 +49,12 @@ public class Scheduler {
     private void sendNotificationEmail(DebtCase debtCase) {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setFrom("marijuspet@gmail.com");
-
         Debtor debtor = debtCase.getDebtor();
-
         mailMessage.setTo(debtor.getEmail());
         mailMessage.setSubject("Pending debt until " + debtCase.getDueDate());
         mailMessage.setText(String.format("Dear, %s %s! %n You have an open debt case with an outstanding amount: %f.2f! Please pay by %s!",
                 debtor.getName(), debtor.getSurname(),
                 debtCase.getAmountOwed(), debtCase.getDueDate()));
-
         javaMailSender.send(mailMessage);
         debtCaseService.markDebtCaseEmailAsSentById(debtCase.getId());
     }

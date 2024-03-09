@@ -21,7 +21,7 @@ import { IPage } from "../../shared/models/Page";
 import { IDebtCase } from "../../shared/models/Debtcases";
 import { useDelete, useGet, usePost } from "../../services/api-service";
 import useErrorHandling from "../../services/handle-responses";
-import { ICreditor } from "../../shared/models/Creditor";
+import { IDebtor } from "../../shared/models/Debtor";
 
 const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
   const classes = useStyles("light");
@@ -38,9 +38,9 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
   const roleSpecificEndpoint = (() => {
     switch (role) {
       case "CREDITOR":
-        return `creditor/${username}/debtcases`;
+        return `debtcases/creditor/${username}`;
       case "DEBTOR":
-        return `creditor/debtcases/debtor/${username}`;
+        return `debtcases/debtor/${username}`;
       case "ADMIN":
         return "debtcases";
       default:
@@ -48,8 +48,8 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
     }
   })();
 
-  const { data: deletedData, error: deleteError, deleteData } = useDelete<any>("creditor/{creditorId}/debtcases/{id}", { creditorId: debtCaseToDelete?.creditorId, id: debtCaseToDelete?.id });
-  const { data: fileData, error: fileError, postData } = usePost<FormData>("creditor/{id}/debtcases/file", { id: creditorId });
+  const { data: deletedData, error: deleteError, deleteData } = useDelete<any>("debtcases/{id}/creditors/{creditorId}", { creditorId: debtCaseToDelete?.creditorId, id: debtCaseToDelete?.id });
+  const { data: fileData, error: fileError, postData } = usePost<FormData>("debtcases/creditors/{id}/file", { id: creditorId });
   const { data: debtCaseData, loading: debtCaseLoading, error } = useGet<IDebtCase[]>(
     roleSpecificEndpoint,
     role === "ADMIN" ? {} : username ? { username } : {},
@@ -63,7 +63,7 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
     } else if (error?.description.includes("Refresh Token")) {
       navigate("/login");
       openSnackbar("You need to login again", 'warning');
-  } 
+    }
   }, [error, openSnackbar]);
 
   useEffect(() => {
@@ -83,7 +83,7 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
   }, [debtCaseData]);
 
   const handleEdit = (creditorId: number, id: number) => {
-    navigate(`/creditor/${creditorId}/debtcases/${id}`);
+    navigate(`/debtcases/${id}/creditor/${creditorId}`);
   };
 
   const handleDelete = (creditorId: number, id: number) => {
@@ -182,25 +182,29 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
           >
             <Typography style={{ marginRight: "5px" }}>{debtCase.creditor?.name}</Typography>
             <Typography style={{ marginRight: "5px" }}>{transformDebtType(debtCase.debtCaseType.type)}</Typography>
+            <Typography style={{ marginRight: "5px" }}>for Debtor {debtCase.debtor.name} {debtCase.debtor.surname}</Typography>
           </AccordionSummary>
           <AccordionDetails>
             <Typography>Due Date: {debtCase.dueDate}</Typography>
             <Typography>Amount Owed: {debtCase.amountOwed}€</Typography>
             <Typography>Is Notification Sent? {debtCase.isSent ? "No" : "Yes"}</Typography>
-            {(role === "CREDITOR" || role === "ADMIN")
-              && debtCase.debtors?.map(renderDebtorDetails)
-              && renderActionButtons(debtCase.creditor.id, debtCase.id)}
+            {(role === "CREDITOR" || role === "ADMIN") && debtCase.debtor &&
+              <>
+                {renderDebtorDetails(debtCase.debtor)}
+                {renderActionButtons(debtCase.creditor.id, debtCase.id)}
+              </>
+            }
           </AccordionDetails>
         </Accordion>
       ))}
     </div>
   );
 
-  const renderDebtorDetails = (debtor: any, index: number) => (
-    <React.Fragment key={index}>
-      <Typography variant="subtitle1">Debtor: {debtor.name} {debtor.surname}</Typography>
-      <Typography variant="body2">Email: {debtor.email}</Typography>
-      <Typography variant="body2">Phone Number: {debtor.phoneNumber}</Typography>
+  const renderDebtorDetails = (debtor: IDebtor) => (
+    <React.Fragment>
+      <Typography>Debtor: {debtor.name} {debtor.surname}</Typography>
+      <Typography>Email: {debtor.email}</Typography>
+      <Typography>Phone Number: {debtor.phoneNumber}</Typography>
     </React.Fragment>
   );
 

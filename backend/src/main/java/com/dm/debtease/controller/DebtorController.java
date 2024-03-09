@@ -6,7 +6,6 @@ import com.dm.debtease.service.DebtorService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -47,14 +46,6 @@ public class DebtorController {
         return ResponseEntity.ok(debtor);
     }
 
-    @GetMapping("/{username}")
-    public ResponseEntity<Object> getDebtorByUsername(@Valid
-                                                      @NotBlank
-                                                      @PathVariable(name = "username") String username) {
-        Debtor debtor = debtorService.getDebtorByUsername(username);
-        return ResponseEntity.ok(debtor);
-    }
-
     @PutMapping("/debtors/{id}")
     public ResponseEntity<Debtor> editDebtorById(@Valid @RequestBody DebtorDTO debtorDTO, BindingResult result,
                                                  @Valid
@@ -64,17 +55,15 @@ public class DebtorController {
         return ResponseEntity.ok(debtor);
     }
 
-    @DeleteMapping("/debtors/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteDebtorById(@Valid
                                                                 @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
                                                                 @PathVariable(name = "id") int id) {
         if (Boolean.TRUE.equals(debtorService.deleteDebtorById(id))) {
             return ResponseEntity.noContent().build();
         }
-
         Map<String, String> response = new HashMap<>();
         response.put("message", "Error deleting debtor!");
-
         return ResponseEntity.badRequest().body(response);
     }
 }

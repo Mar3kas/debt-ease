@@ -10,6 +10,6 @@ export interface IDebtCase {
     debtCaseType: IDebtCaseType;
     debtCaseStatus: IDebtCaseStatus;
     creditor: ICreditor;
-    debtors?: IDebtor[];
+    debtor: IDebtor;
     isSent: number;
 }

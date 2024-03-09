@@ -29,7 +29,6 @@ import { IDebtor } from "../../shared/models/Debtor";
 import Navbar from "../../Components/Navbar/navbar";
 import { IDebtCaseDTO } from "../../shared/dtos/DebtCaseDTO";
 import { IDebtCaseType } from "../../shared/models/DebtCaseType";
-import { IApiError } from "../../shared/models/ApiError";
 
 const DebtCaseFormPage: FC<IPage> = (props): ReactElement => {
     const classes = useStyles("light");
@@ -57,9 +56,9 @@ const DebtCaseFormPage: FC<IPage> = (props): ReactElement => {
         error: debtCaseTypeError,
     } = useGet<IDebtCaseType[]>('debtcase/types', {});
 
-    const { data: editDebtCaseData, error: editDebtCaseError, editData: editDataDebtCase } = useEdit<IDebtCaseDTO>('creditor/{creditorId}/debtcases/{debtcaseId}', { creditorId: Number(creditorId), debtcaseId: Number(debtcaseId) });
+    const { data: editDebtCaseData, error: editDebtCaseError, editData: editDataDebtCase } = useEdit<IDebtCaseDTO>('debtcases/{debtcaseId}/creditors/{creditorId}', { debtcaseId: Number(debtcaseId), creditorId: Number(creditorId) });
 
-    const { data: editDebtorData, error: editDebtorError, editData: editDataDebtor } = useEdit<IDebtorDTO>('creditor/{creditorId}/debtcase/{debtcaseId}/debtors/{id}', { creditorId: Number(creditorId), debtcaseId: Number(debtcaseId), id: selectedDebtor?.id });
+    const { data: editDebtorData, error: editDebtorError, editData: editDataDebtor } = useEdit<IDebtorDTO>('debtors/{id}', { id: selectedDebtor?.id });
 
     useEffect(() => handleAPIError(debtCaseError, openSnackbar, null), [debtCaseError, openSnackbar]);
     useEffect(() => handleAPIError(debtCaseTypeError, openSnackbar, null), [debtCaseTypeError, openSnackbar]);
@@ -149,13 +148,13 @@ const DebtCaseFormPage: FC<IPage> = (props): ReactElement => {
         if (!editedDebtCaseData) {
             return;
         }
-    
+
         const debtCaseRequest: IDebtCaseDTO = {
             amountOwed: editedDebtCaseData.amountOwed,
             dueDate: editedDebtCaseData.dueDate,
             typeId: editedDebtCaseData.debtCaseType.id,
         };
-    
+
         if (editDebtor && editedDebtor && selectedDebtor) {
             const debtorRequest: IDebtorDTO = {
                 name: editedDebtor.name,
@@ -163,8 +162,8 @@ const DebtCaseFormPage: FC<IPage> = (props): ReactElement => {
                 email: editedDebtor.email,
                 phoneNumber: editedDebtor.phoneNumber,
             };
-    
-                await editDataDebtor(debtorRequest);
+
+            await editDataDebtor(debtorRequest);
         }
 
         await editDataDebtCase(debtCaseRequest);
@@ -246,13 +245,13 @@ const DebtCaseFormPage: FC<IPage> = (props): ReactElement => {
                                 </div>
                             </Grid>
                         ))}
-                        {debtCaseData && debtCaseData.debtors && debtCaseData?.debtors?.length > 0 && (
-                            <Grid item xs={12}>
-                                <FormControlLabel
-                                    control={<Checkbox checked={editDebtor} onChange={handleCheckboxChange} />}
-                                    label="Edit Debtor"
-                                />
-                            </Grid>
+                        {debtCaseData && debtCaseData.debtor && (
+                        <Grid item xs={12}>
+                            <FormControlLabel
+                                control={<Checkbox checked={editDebtor} onChange={handleCheckboxChange} />}
+                                label="Edit Debtor"
+                            />
+                        </Grid>
                         )}
                         {editDebtor && editedDebtCaseData && (
                             <>
@@ -260,17 +259,14 @@ const DebtCaseFormPage: FC<IPage> = (props): ReactElement => {
                                     select
                                     value={selectedDebtor ? selectedDebtor.id : ''}
                                     onChange={(e) => {
-                                        const selectedId = e.target.value;
-                                        const selectedDebtor = editedDebtCaseData.debtors?.find(debtor => debtor.id === Number(selectedId));
+                                        const selectedDebtor = editedDebtCaseData.debtor;
                                         setSelectedDebtor(selectedDebtor || null);
                                         setEditedDebtor(selectedDebtor || null);
                                     }}
                                     style={{ width: '30%', marginLeft: "20px" }}>
-                                    {editedDebtCaseData.debtors?.map((debtor) => (
-                                        <MenuItem key={debtor.id} value={debtor.id}>
-                                            {debtor.name} {debtor.surname}
-                                        </MenuItem>
-                                    ))}
+                                    <MenuItem key={editedDebtCaseData.debtor.id} value={editedDebtCaseData.debtor.id}>
+                                        {editedDebtCaseData.debtor.name} {editedDebtCaseData.debtor.surname}
+                                    </MenuItem>
                                 </TextField>
                                 {['name', 'surname', 'email', 'phoneNumber'].map((field) => (
                                     <Grid item xs={12} key={field}>

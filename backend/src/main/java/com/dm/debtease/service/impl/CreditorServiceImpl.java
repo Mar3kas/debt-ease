@@ -17,7 +17,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -38,14 +37,12 @@ public class CreditorServiceImpl implements CreditorService {
     @Override
     public Creditor getCreditorById(int id) {
         Optional<Creditor> optionalCreditor = creditorRepository.findById(id);
-
         return optionalCreditor.orElseThrow(() -> new EntityNotFoundException("Creditor not found with id " + id));
     }
 
     @Override
     public Creditor getCreditorByUsername(String username) {
         Optional<Creditor> optionalCreditor = creditorRepository.findByUserUsername(username);
-
         return optionalCreditor.orElseThrow(() -> new EntityNotFoundException("Creditor not found with username " + username));
     }
 
@@ -54,25 +51,23 @@ public class CreditorServiceImpl implements CreditorService {
         Optional<Creditor> optionalCreditor = creditorRepository.findById(id);
         if (optionalCreditor.isPresent()) {
             Creditor creditor = optionalCreditor.get();
-            if (Objects.nonNull(creditorDTO.getName())) {
+            if (creditorDTO.getName() != null) {
                 creditor.setName(creditorDTO.getName());
             }
-            if (Objects.nonNull(creditorDTO.getAddress())) {
+            if (creditorDTO.getAddress() != null) {
                 creditor.setAddress(creditorDTO.getAddress());
             }
-            if (Objects.nonNull(creditorDTO.getPhoneNumber())) {
+            if (creditorDTO.getPhoneNumber() != null) {
                 creditor.setPhoneNumber(creditorDTO.getPhoneNumber());
             }
-            if (Objects.nonNull(creditorDTO.getEmail())) {
+            if (creditorDTO.getEmail() != null) {
                 creditor.setEmail(creditorDTO.getEmail());
             }
-            if (Objects.nonNull(creditorDTO.getAccountNumber())) {
+            if (creditorDTO.getAccountNumber() != null) {
                 creditor.setAccountNumber(creditorDTO.getAccountNumber());
             }
-
             return creditorRepository.save(creditor);
         }
-
         throw new EntityNotFoundException("Creditor not found with id " + id);
     }
 
@@ -84,16 +79,13 @@ public class CreditorServiceImpl implements CreditorService {
         creditor.setPhoneNumber(creditorDTO.getPhoneNumber());
         creditor.setEmail(creditorDTO.getEmail());
         creditor.setAccountNumber(creditorDTO.getAccountNumber());
-
         Role role = roleRepository.findById(3).orElseThrow(() -> new EntityNotFoundException("Role not found with id 3"));
         CustomUser customUser = new CustomUser();
         customUser.setUsername(!creditorDTO.getUsername().isEmpty() ? creditorDTO.getUsername() : creditor.getName());
         customUser.setPassword(bCryptPasswordEncoder.encode(passwordGeneratorService.generatePassword(8)));
         customUser.setRole(role);
         customUserRepository.save(customUser);
-
         creditor.setUser(customUser);
-
         return creditorRepository.save(creditor);
     }
 
@@ -104,16 +96,12 @@ public class CreditorServiceImpl implements CreditorService {
             List<DebtCase> debtCases = debtCaseRepository.findAll()
                     .stream()
                     .filter(debtCase -> debtCase.getCreditor().getId() == id).toList();
-
             if (!debtCases.isEmpty()) {
                 return false;
             }
-
             creditorRepository.deleteById(id);
-
             return true;
         }
-
         throw new EntityNotFoundException("Creditor not found with id " + id);
     }
 }

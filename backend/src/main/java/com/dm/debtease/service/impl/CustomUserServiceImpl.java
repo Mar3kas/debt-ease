@@ -21,7 +21,6 @@ public class CustomUserServiceImpl implements CustomUserService {
         customUser.setUsername(userDTO.getUsername());
         customUser.setPassword(bCryptPasswordEncoder.encode(userDTO.getPassword()));
         customUser.setRole(role);
-
         return customUserRepository.save(customUser);
     }
 }

@@ -21,9 +21,9 @@ public interface DebtCaseService {
 
     List<DebtCase> createDebtCase(MultipartFile file, String username) throws CsvValidationException, IOException, InvalidFileFormatException;
 
-    DebtCase editDebtCaseById(DebtCaseDTO debtCaseDTO, int id);
+    DebtCase editDebtCaseById(DebtCaseDTO debtCaseDTO, int id, int creditorId);
 
-    boolean deleteDebtCaseById(int id);
+    boolean deleteDebtCaseById(int id, int creditorId);
 
     void markDebtCaseEmailAsSentById(int id);
 

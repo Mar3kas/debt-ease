@@ -16,7 +16,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import useErrorHandling from '../../services/handle-responses';
 import { ICreditor } from '../../shared/models/Creditor';
 import { ICreditorDTO } from '../../shared/dtos/CreditorDTO';
-import { IApiError } from '../../shared/models/ApiError';
 
 const CreditorFormPage: FC<IPage> = (props): ReactElement => {
     const classes = useStyles('light');

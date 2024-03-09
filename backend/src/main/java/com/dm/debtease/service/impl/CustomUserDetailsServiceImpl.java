@@ -24,12 +24,9 @@ public class CustomUserDetailsServiceImpl implements UserDetailsService {
         Optional<CustomUser> optionalCustomUser = customUserRepository.findByUsername(username);
         if (optionalCustomUser.isPresent()) {
             CustomUser customUser = optionalCustomUser.get();
-
             GrantedAuthority authority = new SimpleGrantedAuthority(customUser.getRole().getName());
-
             return new User(customUser.getUsername(), customUser.getPassword(), Collections.singleton(authority));
         }
-
         throw new UsernameNotFoundException("User not found with username " + username);
     }
 }

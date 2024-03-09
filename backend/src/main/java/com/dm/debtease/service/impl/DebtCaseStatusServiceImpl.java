@@ -15,6 +15,5 @@ public class DebtCaseStatusServiceImpl implements DebtCaseStatusService {
     @Override
     public DebtCaseStatus getDebtCaseStatusById(int id) {
         return debtCaseStatusRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Debtcase status not found with id " + id));
-
     }
 }

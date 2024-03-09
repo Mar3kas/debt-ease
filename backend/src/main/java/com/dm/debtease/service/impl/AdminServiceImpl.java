@@ -17,7 +17,6 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public Admin getAdminByUsername(String username) {
         Optional<Admin> optionalAdmin = adminRepository.findByUserUsername(username);
-
         return optionalAdmin.orElseThrow(() -> new EntityNotFoundException("Admin not found with username " + username));
     }
 }

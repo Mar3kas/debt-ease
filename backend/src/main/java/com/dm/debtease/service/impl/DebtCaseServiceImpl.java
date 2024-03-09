@@ -38,14 +38,12 @@ public class DebtCaseServiceImpl implements DebtCaseService {
     @Override
     public DebtCase getDebtCaseById(int id) {
         Optional<DebtCase> optionalDebtCase = debtCaseRepository.findById(id);
-
         return optionalDebtCase.orElseThrow(() -> new EntityNotFoundException("Debtcase not found with id " + id));
     }
 
     @Override
     public List<DebtCase> getDebtCasesByCreditorUsername(String username) {
         List<DebtCase> debtCases = debtCaseRepository.findAll();
-
         return debtCases.stream()
                 .filter(debtCase ->
                         Objects.equals(debtCase.getCreditor().getUser().getUsername(), username))
@@ -55,9 +53,8 @@ public class DebtCaseServiceImpl implements DebtCaseService {
     @Override
     public List<DebtCase> getDebtCasesByDebtorUsername(String username) {
         List<DebtCase> debtCases = debtCaseRepository.findAll();
-
         return debtCases.stream()
-                .filter(debtCase -> Objects.equals(debtCase.getDebtor().getName(), username))
+                .filter(debtCase -> Objects.equals(debtCase.getDebtor().getUser().getUsername(), username))
                 .toList();
     }
 
@@ -67,36 +64,32 @@ public class DebtCaseServiceImpl implements DebtCaseService {
     }
 
     @Override
-    public DebtCase editDebtCaseById(DebtCaseDTO debtCaseDTO, int id) {
-        Optional<DebtCase> optionalDebtCase = debtCaseRepository.findById(id);
+    public DebtCase editDebtCaseById(DebtCaseDTO debtCaseDTO, int id, int creditorId) {
+        Optional<DebtCase> optionalDebtCase = debtCaseRepository.findByIdAndCreditor_Id(id, creditorId);
         if (optionalDebtCase.isPresent()) {
             DebtCase debtCase = optionalDebtCase.get();
-            if (Objects.nonNull(debtCaseDTO.getAmountOwed())) {
+            if (debtCaseDTO.getAmountOwed() != null) {
                 debtCase.setAmountOwed(debtCaseDTO.getAmountOwed());
             }
-            if (Objects.nonNull(debtCaseDTO.getDueDate())) {
+            if (debtCaseDTO.getDueDate() != null) {
                 debtCase.setDueDate(debtCaseDTO.getDueDate());
             }
             if (debtCaseDTO.getTypeId() > 0) {
                 debtCase.setDebtCaseType(debtCaseTypeRepository.findById(debtCaseDTO.getTypeId())
                         .orElseThrow(() -> new EntityNotFoundException("Debtcase type not found with id " + debtCaseDTO.getTypeId())));
             }
-
             return debtCaseRepository.save(debtCase);
         }
-
         throw new EntityNotFoundException("Debtcase not found with id " + id);
     }
 
     @Override
-    public boolean deleteDebtCaseById(int id) {
-        Optional<DebtCase> optionalDebtCase = debtCaseRepository.findById(id);
+    public boolean deleteDebtCaseById(int id, int creditorId) {
+        Optional<DebtCase> optionalDebtCase = debtCaseRepository.findByIdAndCreditor_Id(id, creditorId);
         if (optionalDebtCase.isPresent()) {
             debtCaseRepository.deleteById(id);
-
             return true;
         }
-
         throw new EntityNotFoundException("Debtcase not found with id " + id);
     }
 
@@ -104,7 +97,6 @@ public class DebtCaseServiceImpl implements DebtCaseService {
     public void markDebtCaseEmailAsSentById(int id) {
         DebtCase debtCase = debtCaseRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Debtcase not found with id " + id));
-
         debtCase.setIsSent(1);
         debtCaseRepository.save(debtCase);
     }

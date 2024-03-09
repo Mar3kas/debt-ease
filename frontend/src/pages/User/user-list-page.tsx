@@ -23,7 +23,6 @@ import { useDelete, useGet } from "../../services/api-service";
 import useErrorHandling from "../../services/handle-responses";
 import { ICreditor } from "../../shared/models/Creditor";
 import { IDebtor } from "../../shared/models/Debtor";
-import { IApiError } from "../../shared/models/ApiError";
 
 const UserListPage: FC<IPage> = (props): ReactElement => {
     const navigate = useNavigate();

@@ -79,7 +79,7 @@ export const routes: Route[] = [
   {
     key: "debtcase-form-page-route",
     title: "DebtCase Edit",
-    path: "/creditor/:creditorId?/debtcases/:debtcaseId?",
+    path: "/debtcases/:debtcaseId?/creditor/:creditorId?",
     enabled: true,
     component: DebtCaseFormPage,
   }

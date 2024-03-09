@@ -45,7 +45,6 @@ public class CsvServiceImpl implements CsvService {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final DebtCaseRepository debtCaseRepository;
     private final PasswordGeneratorService passwordGeneratorService;
-
     private final DebtCaseTypeService debtCaseTypeService;
     private final CreditorService creditorService;
     private final RoleService roleService;
@@ -56,45 +55,34 @@ public class CsvServiceImpl implements CsvService {
     public List<DebtCase> readCsvData(MultipartFile file, String username) throws IOException, CsvValidationException, InvalidFileFormatException {
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         validateCsvFile(fileName);
-
         List<DebtCase> debtCases = new ArrayList<>();
         Creditor creditor = creditorService.getCreditorByUsername(username);
         DebtCaseStatus debtCaseStatus = debtCaseStatusService.getDebtCaseStatusById(1);
         Role role = roleService.getRoleById(2);
-
         log.info("Reading csv file");
-
         try (CSVReader reader = buildCsvReader(file)) {
             String[] line;
             reader.skip(1);
             while ((line = reader.readNext()) != null) {
                 Debtor debtor = debtorService.getDebtorByNameAndSurname(line[0], line[1]);
-
-                if (Objects.isNull(debtor)) {
+                if (debtor == null) {
                     DebtorDTO debtorDTO = new DebtorDTO();
                     debtorDTO.setName(line[0]);
                     debtorDTO.setSurname(line[1]);
                     debtorDTO.setEmail(line[2]);
                     debtorDTO.setPhoneNumber(line[3]);
-
                     UserDTO userDTO = new UserDTO();
                     userDTO.setUsername(line[0]);
                     userDTO.setPassword(passwordGeneratorService.generatePassword(8));
-
                     debtorService.createDebtor(debtorDTO, userDTO, role);
                 }
-
                 String typeToMatch = getTypeToMatch(line[4]);
-
                 Optional<DebtCase> existingDebtCase = findExistingDebtCase(username, line[5], line[6], typeToMatch, line[0], line[1]);
-
                 DebtCase debtCase = createOrUpdateDebtCase(debtor, creditor, debtCaseStatus, line, existingDebtCase, typeToMatch);
-
                 debtCases.add(debtCase);
             }
         }
         log.info("File read!");
-
         return debtCases;
     }
 
@@ -140,11 +128,8 @@ public class CsvServiceImpl implements CsvService {
             debtCase.setDueDate(line[6] != null ? LocalDateTime.parse(line[6], DATE_TIME_FORMATTER) : LocalDateTime.now().plusMonths(2));
             debtCase.setIsSent(0);
         }
-
         DebtCaseType matchingDebtCaseType = debtCaseTypeService.findMatchingDebtCaseType(typeToMatch);
-
         debtCase.setDebtCaseType(matchingDebtCaseType != null ? matchingDebtCaseType : debtCaseTypeService.getDefaultDebtCaseType());
-
         return debtCaseRepository.save(debtCase);
     }
 }

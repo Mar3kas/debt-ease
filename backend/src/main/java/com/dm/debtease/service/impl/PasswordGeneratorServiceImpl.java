@@ -15,14 +15,11 @@ public class PasswordGeneratorServiceImpl implements PasswordGeneratorService {
     public String generatePassword(int length) {
         StringBuilder password = new StringBuilder();
         SecureRandom random = new SecureRandom();
-
         String allChars = LOWERCASE_CHARS + UPPERCASE_CHARS + DIGITS;
-
         for (int i = 0; i < length; i++) {
             int randomIndex = random.nextInt(allChars.length());
             password.append(allChars.charAt(randomIndex));
         }
-
         return password.toString();
     }
 }

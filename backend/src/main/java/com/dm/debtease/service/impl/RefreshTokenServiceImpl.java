@@ -24,15 +24,11 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     public String createRefreshToken(String username) {
         Optional<RefreshToken> optionalRefreshToken = refreshTokenRepository.findByUsername(username);
         RefreshToken refreshToken = optionalRefreshToken.orElse(new RefreshToken());
-
         String token = UUID.randomUUID().toString();
-
         refreshToken.setToken(token);
         refreshToken.setExpirationDate(Instant.now().plusMillis(refreshTokenExpiration));
         refreshToken.setUsername(username);
-
         refreshTokenRepository.save(refreshToken);
-
         return token;
     }
 
@@ -41,7 +37,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         if (token.getExpirationDate().compareTo(Instant.now()) < 0) {
             throw new TokenRefreshException(token.getToken(), "Refresh token is expired. Please make a new login request");
         }
-
         return true;
     }
 

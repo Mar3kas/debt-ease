@@ -16,7 +16,6 @@ import { IDebtorDTO } from '../../shared/dtos/DebtorDTO';
 import { useNavigate, useParams } from 'react-router-dom';
 import useErrorHandling from '../../services/handle-responses';
 import { IDebtor } from '../../shared/models/Debtor';
-import { IApiError } from '../../shared/models/ApiError';
 
 const DebtorFormPage: FC<IPage> = (props): ReactElement => {
     const classes = useStyles('light');

@@ -36,11 +36,9 @@ public class JwtServiceImpl implements JwtService {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         Collection<? extends GrantedAuthority> roles = userDetails.getAuthorities();
         String role = roles.iterator().next().getAuthority();
-
         Claims claims = Jwts.claims().setSubject(userDetails.getUsername());
         claims.put("role", role);
         Date now = new Date();
-
         return Jwts.builder()
                 .setHeaderParam("typ", "JWT")
                 .setClaims(claims)
@@ -56,21 +54,18 @@ public class JwtServiceImpl implements JwtService {
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
-
         return null;
     }
 
     @Override
     public String getUsername(String token) {
         Claims claims = parseClaims(token);
-
         return claims != null ? claims.getSubject() : null;
     }
 
     @Override
     public boolean validateToken(String token) {
         Claims claims = parseClaims(token);
-
         return claims != null;
     }
 

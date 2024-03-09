@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -29,46 +28,40 @@ public class DebtorServiceImpl implements DebtorService {
 
     public Debtor getDebtorById(int id) {
         Optional<Debtor> optionalDebtor = debtorRepository.findById(id);
-
         return optionalDebtor.orElseThrow(() -> new EntityNotFoundException("Debtor not found with id " + id));
     }
 
     @Override
     public Debtor getDebtorByUsername(String username) {
         Optional<Debtor> optionalDebtor = debtorRepository.findByUserUsername(username);
-
         return optionalDebtor.orElseThrow(() -> new EntityNotFoundException("Debtor not found with username " + username));
     }
 
     @Override
     public Debtor getDebtorByNameAndSurname(String name, String surname) {
         Optional<Debtor> existingDebtor = debtorRepository.findByNameAndSurname(name, surname);
-
         return existingDebtor.orElse(null);
     }
 
     @Override
     public Debtor editDebtorById(DebtorDTO debtorDTO, int id) {
         Optional<Debtor> optionalDebtor = debtorRepository.findById(id);
-
         if (optionalDebtor.isPresent()) {
             Debtor debtor = optionalDebtor.get();
-            if (Objects.nonNull(debtorDTO.getName())) {
+            if (debtorDTO.getName() != null) {
                 debtor.setName(debtorDTO.getName());
             }
-            if (Objects.nonNull(debtorDTO.getSurname())) {
+            if (debtorDTO.getSurname() != null) {
                 debtor.setSurname(debtorDTO.getSurname());
             }
-            if (Objects.nonNull(debtorDTO.getEmail())) {
+            if (debtorDTO.getEmail() != null) {
                 debtor.setEmail(debtorDTO.getEmail());
             }
-            if (Objects.nonNull(debtorDTO.getPhoneNumber())) {
+            if (debtorDTO.getPhoneNumber() != null) {
                 debtor.setPhoneNumber(debtorDTO.getPhoneNumber());
             }
-
             return debtorRepository.save(debtor);
         }
-
         throw new EntityNotFoundException("Debtor not found with id " + id);
     }
 
@@ -76,22 +69,21 @@ public class DebtorServiceImpl implements DebtorService {
     public Debtor createDebtor(DebtorDTO debtorDTO, UserDTO userDTO, Role role) {
         Debtor debtor = new Debtor();
         CustomUser customUser = customUserService.createCustomUser(userDTO, role);
-        if (Objects.nonNull(debtorDTO.getName())) {
+        if (debtorDTO.getName() != null) {
             debtor.setName(debtorDTO.getName());
         }
-        if (Objects.nonNull(debtorDTO.getSurname())) {
+        if (debtorDTO.getSurname() != null) {
             debtor.setSurname(debtorDTO.getSurname());
         }
-        if (Objects.nonNull(debtorDTO.getEmail())) {
+        if (debtorDTO.getEmail() != null) {
             debtor.setEmail(debtorDTO.getEmail());
         }
-        if (Objects.nonNull(debtorDTO.getPhoneNumber())) {
+        if (debtorDTO.getPhoneNumber() != null) {
             debtor.setPhoneNumber(debtorDTO.getPhoneNumber());
         }
-        if (Objects.nonNull(customUser)) {
+        if (customUser != null) {
             debtor.setUser(customUser);
         }
-
         return debtorRepository.save(debtor);
     }
 
@@ -100,10 +92,8 @@ public class DebtorServiceImpl implements DebtorService {
         Optional<Debtor> optionalDebtor = debtorRepository.findById(id);
         if (optionalDebtor.isPresent()) {
             debtorRepository.deleteById(id);
-
             return true;
         }
-
         throw new EntityNotFoundException("Debtor not found with id " + id);
     }
 }
