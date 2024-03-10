@@ -99,7 +99,6 @@ public class SecurityConfig implements WebMvcConfigurer {
                                 -> response.setStatus(HttpServletResponse.SC_FORBIDDEN))
                         .authenticationEntryPoint(customAuthenticationEntryPoint)
                 );
-
         return http.build();
     }
 }

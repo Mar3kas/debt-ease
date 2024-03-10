@@ -28,23 +28,18 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-
         String requestUri = request.getRequestURI();
         if (isRefreshTokenRequest(requestUri)) {
             filterChain.doFilter(request, response);
             return;
         }
-
         String token = jwtService.resolveToken(request);
-
         if (token != null) {
             try {
                 if (jwtService.validateToken(token) && !jwtService.isTokenRevoked(token)) {
                     UserDetails userDetails = userDetailsService.loadUserByUsername(jwtService.getUsername(token));
-
                     UsernamePasswordAuthenticationToken authenticationToken =
                             new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-
                     authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                 }
@@ -53,7 +48,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 SecurityContextHolder.clearContext();
             }
         }
-
         filterChain.doFilter(request, response);
     }
 

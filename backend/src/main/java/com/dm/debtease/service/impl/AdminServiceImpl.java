@@ -3,7 +3,6 @@ package com.dm.debtease.service.impl;
 import com.dm.debtease.model.Admin;
 import com.dm.debtease.repository.AdminRepository;
 import com.dm.debtease.service.AdminService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +16,6 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public Admin getAdminByUsername(String username) {
         Optional<Admin> optionalAdmin = adminRepository.findByUserUsername(username);
-        return optionalAdmin.orElseThrow(() -> new EntityNotFoundException("Admin not found with username " + username));
+        return optionalAdmin.orElse(null);
     }
 }

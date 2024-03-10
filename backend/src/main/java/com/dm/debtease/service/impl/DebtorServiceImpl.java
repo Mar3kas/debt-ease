@@ -34,7 +34,7 @@ public class DebtorServiceImpl implements DebtorService {
     @Override
     public Debtor getDebtorByUsername(String username) {
         Optional<Debtor> optionalDebtor = debtorRepository.findByUserUsername(username);
-        return optionalDebtor.orElseThrow(() -> new EntityNotFoundException("Debtor not found with username " + username));
+        return optionalDebtor.orElse(null);
     }
 
     @Override

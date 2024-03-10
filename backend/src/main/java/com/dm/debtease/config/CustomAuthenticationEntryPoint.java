@@ -21,16 +21,13 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-
         String errorMessage = authException.getMessage();
-
         APIError error = APIError.builder()
                 .statusCode(HttpServletResponse.SC_UNAUTHORIZED)
                 .time(LocalDateTime.now())
                 .message("Unauthorized")
                 .description(errorMessage)
                 .build();
-
         objectMapper.writeValue(response.getWriter(), error);
     }
 }

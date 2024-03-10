@@ -43,7 +43,7 @@ public class CreditorServiceImpl implements CreditorService {
     @Override
     public Creditor getCreditorByUsername(String username) {
         Optional<Creditor> optionalCreditor = creditorRepository.findByUserUsername(username);
-        return optionalCreditor.orElseThrow(() -> new EntityNotFoundException("Creditor not found with username " + username));
+        return optionalCreditor.orElse(null);
     }
 
     @Override
