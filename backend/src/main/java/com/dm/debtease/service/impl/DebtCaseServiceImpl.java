@@ -14,8 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
@@ -59,8 +57,8 @@ public class DebtCaseServiceImpl implements DebtCaseService {
     }
 
     @Override
-    public List<DebtCase> createDebtCase(MultipartFile file, String username) throws CsvValidationException, IOException, InvalidFileFormatException {
-        return csvService.readCsvData(file, username);
+    public void createDebtCase(MultipartFile file, String username) throws CsvValidationException, IOException, InvalidFileFormatException {
+        csvService.readCsvData(file, username);
     }
 
     @Override
@@ -99,21 +97,5 @@ public class DebtCaseServiceImpl implements DebtCaseService {
                 .orElseThrow(() -> new EntityNotFoundException("Debtcase not found with id " + id));
         debtCase.setIsSent(1);
         debtCaseRepository.save(debtCase);
-    }
-
-    @Override
-    public Optional<DebtCase> findExistingDebtCase(String username, String... indicator) {
-        return debtCaseRepository.findByAmountOwedAndDueDateAndDebtCaseType_TypeAndCreditor_User_UsernameAndDebtor_NameAndDebtor_Surname(
-                new BigDecimal(indicator[0]),
-                LocalDateTime.parse(indicator[1], DATE_TIME_FORMATTER),
-                getTypeToMatch(indicator[2]),
-                username,
-                indicator[3],
-                indicator[4]
-        );
-    }
-
-    private String getTypeToMatch(String type) {
-        return type.toUpperCase().contains("_DEBT") ? type.toUpperCase() : type.toUpperCase().concat("_DEBT");
     }
 }

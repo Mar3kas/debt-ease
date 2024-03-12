@@ -156,7 +156,10 @@ export const usePost = <T>(
       setLoading(true);
       setError(null);
 
-      if (AuthService.getInstance().isTokenExpired() && !endpoint.includes("login")) {
+      if (
+        AuthService.getInstance().isTokenExpired() &&
+        !endpoint.includes("login")
+      ) {
         const refreshToken = AuthService.getInstance().getRefreshToken();
 
         try {

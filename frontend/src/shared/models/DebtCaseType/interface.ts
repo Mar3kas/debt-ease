@@ -1,4 +1,4 @@
 export interface IDebtCaseType {
-    id: number;
-    type: string;
+  id: number;
+  type: string;
 }

@@ -1,3 +1,3 @@
 export interface NavbarProps {
-    title: string;
+  title: string;
 }

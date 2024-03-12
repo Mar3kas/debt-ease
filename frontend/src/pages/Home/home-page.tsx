@@ -167,7 +167,7 @@ const HomePage: FC = (): ReactElement => {
               },
               color: "#654321",
             }}
-            onClick={() => { }}
+            onClick={() => {}}
           >
             <HelpIcon style={{ fontSize: 60 }} />
           </IconButton>
@@ -184,7 +184,7 @@ const HomePage: FC = (): ReactElement => {
               },
               color: "#654321",
             }}
-            onClick={() => { }}
+            onClick={() => {}}
           >
             <ContactSupportIcon style={{ fontSize: 60 }} />
           </IconButton>

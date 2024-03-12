@@ -1,12 +1,8 @@
 package com.dm.debtease.service.impl;
 
-import com.dm.debtease.model.CustomUser;
 import com.dm.debtease.model.Debtor;
-import com.dm.debtease.model.Role;
 import com.dm.debtease.model.dto.DebtorDTO;
-import com.dm.debtease.model.dto.UserDTO;
 import com.dm.debtease.repository.DebtorRepository;
-import com.dm.debtease.service.CustomUserService;
 import com.dm.debtease.service.DebtorService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +15,6 @@ import java.util.Optional;
 @Service
 public class DebtorServiceImpl implements DebtorService {
     private final DebtorRepository debtorRepository;
-    private final CustomUserService customUserService;
 
     @Override
     public List<Debtor> getAllDebtors() {
@@ -66,9 +61,8 @@ public class DebtorServiceImpl implements DebtorService {
     }
 
     @Override
-    public Debtor createDebtor(DebtorDTO debtorDTO, UserDTO userDTO, Role role) {
+    public Debtor createDebtor(DebtorDTO debtorDTO) {
         Debtor debtor = new Debtor();
-        CustomUser customUser = customUserService.createCustomUser(userDTO, role);
         if (debtorDTO.getName() != null) {
             debtor.setName(debtorDTO.getName());
         }
@@ -80,9 +74,6 @@ public class DebtorServiceImpl implements DebtorService {
         }
         if (debtorDTO.getPhoneNumber() != null) {
             debtor.setPhoneNumber(debtorDTO.getPhoneNumber());
-        }
-        if (customUser != null) {
-            debtor.setUser(customUser);
         }
         return debtorRepository.save(debtor);
     }

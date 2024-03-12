@@ -1,23 +1,35 @@
 import React, { FC, ReactElement, useEffect, useState } from "react";
-import { AppBar, Toolbar, Button, Typography, IconButton, Drawer, List, ListItem, useMediaQuery, useTheme } from "@mui/material";
+import {
+  AppBar,
+  Toolbar,
+  Button,
+  Typography,
+  IconButton,
+  Drawer,
+  List,
+  ListItem,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate } from "react-router-dom";
 import { NavbarProps } from "./interface";
 import useStyles from "../Styles/global-styles";
 import { usePost } from "../../services/api-service";
+import { DebtcaseListPage } from "../../pages";
 
 const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
   const classes = useStyles("light");
   const theme = useTheme();
   const navigate = useNavigate();
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
   const currentPageUrl = window.location.pathname;
 
   const { postData, data, error } = usePost<any>("logout");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen((prev) => !prev);
@@ -32,7 +44,7 @@ const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
   };
 
   useEffect(() => {
-    if (data !== null && data.hasOwnProperty('message')) {
+    if (data !== null && data.hasOwnProperty("message")) {
       localStorage.clear();
       navigate("/");
     }
@@ -168,10 +180,12 @@ const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
             <List>
               {token && (
                 <>
-                  <ListItem sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                  }}>
+                  <ListItem
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                    }}
+                  >
                     <IconButton
                       color="inherit"
                       sx={{
@@ -192,10 +206,12 @@ const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
                       <AccountCircleIcon style={{ fontSize: 30 }} />
                     </IconButton>
                   </ListItem>
-                  <ListItem sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                  }}>
+                  <ListItem
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                    }}
+                  >
                     <Button
                       sx={{
                         color: "black",
@@ -211,10 +227,12 @@ const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
                     </Button>
                   </ListItem>
                   {role === "ADMIN" && (
-                    <ListItem sx={{
-                      display: 'flex',
-                      justifyContent: 'center',
-                    }}>
+                    <ListItem
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                      }}
+                    >
                       <Button
                         sx={{
                           color: "black",
@@ -230,10 +248,12 @@ const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
                       </Button>
                     </ListItem>
                   )}
-                  <ListItem sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                  }}>
+                  <ListItem
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                    }}
+                  >
                     <Button
                       sx={{
                         color: "black",

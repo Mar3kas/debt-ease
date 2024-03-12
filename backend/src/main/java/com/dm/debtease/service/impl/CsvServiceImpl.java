@@ -1,28 +1,17 @@
 package com.dm.debtease.service.impl;
 
 import com.dm.debtease.exception.InvalidFileFormatException;
-import com.dm.debtease.model.Creditor;
-import com.dm.debtease.model.DebtCase;
-import com.dm.debtease.model.DebtCaseStatus;
-import com.dm.debtease.model.DebtCaseType;
-import com.dm.debtease.model.Debtor;
-import com.dm.debtease.model.Role;
+import com.dm.debtease.model.*;
 import com.dm.debtease.model.dto.DebtorDTO;
-import com.dm.debtease.model.dto.UserDTO;
 import com.dm.debtease.repository.DebtCaseRepository;
-import com.dm.debtease.service.CreditorService;
-import com.dm.debtease.service.CsvService;
-import com.dm.debtease.service.DebtCaseStatusService;
-import com.dm.debtease.service.DebtCaseTypeService;
-import com.dm.debtease.service.DebtorService;
-import com.dm.debtease.service.PasswordGeneratorService;
-import com.dm.debtease.service.RoleService;
+import com.dm.debtease.service.*;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,8 +22,6 @@ import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -43,22 +30,19 @@ import java.util.Optional;
 @Service
 public class CsvServiceImpl implements CsvService {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private final DebtCaseRepository debtCaseRepository;
-    private final PasswordGeneratorService passwordGeneratorService;
     private final DebtCaseTypeService debtCaseTypeService;
     private final CreditorService creditorService;
-    private final RoleService roleService;
     private final DebtCaseStatusService debtCaseStatusService;
     private final DebtorService debtorService;
+    private final DebtCaseRepository debtCaseRepository;
+    private final KafkaTemplate<String, DebtCase> kafkaTemplate;
 
     @Override
-    public List<DebtCase> readCsvData(MultipartFile file, String username) throws IOException, CsvValidationException, InvalidFileFormatException {
+    public void readCsvData(MultipartFile file, String username) throws IOException, CsvValidationException, InvalidFileFormatException {
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         validateCsvFile(fileName);
-        List<DebtCase> debtCases = new ArrayList<>();
         Creditor creditor = creditorService.getCreditorByUsername(username);
         DebtCaseStatus debtCaseStatus = debtCaseStatusService.getDebtCaseStatusById(1);
-        Role role = roleService.getRoleById(2);
         log.info("Reading csv file");
         try (CSVReader reader = buildCsvReader(file)) {
             String[] line;
@@ -71,19 +55,15 @@ public class CsvServiceImpl implements CsvService {
                     debtorDTO.setSurname(line[1]);
                     debtorDTO.setEmail(line[2]);
                     debtorDTO.setPhoneNumber(line[3]);
-                    UserDTO userDTO = new UserDTO();
-                    userDTO.setUsername(line[0]);
-                    userDTO.setPassword(passwordGeneratorService.generatePassword(8));
-                    debtorService.createDebtor(debtorDTO, userDTO, role);
+                    debtor = debtorService.createDebtor(debtorDTO);
                 }
                 String typeToMatch = getTypeToMatch(line[4]);
                 Optional<DebtCase> existingDebtCase = findExistingDebtCase(username, line[5], line[6], typeToMatch, line[0], line[1]);
                 DebtCase debtCase = createOrUpdateDebtCase(debtor, creditor, debtCaseStatus, line, existingDebtCase, typeToMatch);
-                debtCases.add(debtCase);
+                kafkaTemplate.send("base-debt-case-topic", debtCase);
             }
         }
         log.info("File read!");
-        return debtCases;
     }
 
     private void validateCsvFile(String fileName) throws InvalidFileFormatException {
@@ -130,6 +110,6 @@ public class CsvServiceImpl implements CsvService {
         }
         DebtCaseType matchingDebtCaseType = debtCaseTypeService.findMatchingDebtCaseType(typeToMatch);
         debtCase.setDebtCaseType(matchingDebtCaseType != null ? matchingDebtCaseType : debtCaseTypeService.getDefaultDebtCaseType());
-        return debtCaseRepository.save(debtCase);
+        return debtCase;
     }
 }

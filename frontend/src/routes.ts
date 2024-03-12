@@ -82,5 +82,5 @@ export const routes: Route[] = [
     path: "/debtcases/:debtcaseId?/creditor/:creditorId?",
     enabled: true,
     component: DebtCaseFormPage,
-  }
+  },
 ];

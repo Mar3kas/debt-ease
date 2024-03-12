@@ -22,15 +22,20 @@ import { IDebtCase } from "../../shared/models/Debtcases";
 import { useDelete, useGet, usePost } from "../../services/api-service";
 import useErrorHandling from "../../services/handle-responses";
 import { IDebtor } from "../../shared/models/Debtor";
+import SockJS from "sockjs-client";
+import Stomp from "stompjs";
 
 const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
   const classes = useStyles("light");
   const navigate = useNavigate();
   const role = localStorage.getItem("role");
-  const username = localStorage.getItem("username");
+  const username = localStorage.getItem("username") ?? "";
   const [shouldRefetch, setShouldRefetch] = useState(false);
   const [confirmationDialogOpen, setConfirmationDialogOpen] = useState(false);
-  const [debtCaseToDelete, setDebtCaseToDelete] = useState<{ creditorId: number, id: number } | null>(null);
+  const [debtCaseToDelete, setDebtCaseToDelete] = useState<{
+    creditorId: number;
+    id: number;
+  } | null>(null);
   const [creditorId, setCreditorId] = useState<number | undefined>(undefined);
   const { handleErrorResponse } = useErrorHandling();
   const { openSnackbar } = props;
@@ -48,9 +53,26 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
     }
   })();
 
-  const { data: deletedData, error: deleteError, deleteData } = useDelete<any>("debtcases/{id}/creditors/{creditorId}", { creditorId: debtCaseToDelete?.creditorId, id: debtCaseToDelete?.id });
-  const { data: fileData, error: fileError, postData } = usePost<FormData>("debtcases/creditors/{id}/file", { id: creditorId });
-  const { data: debtCaseData, loading: debtCaseLoading, error } = useGet<IDebtCase[]>(
+  const {
+    data: deletedData,
+    error: deleteError,
+    deleteData,
+  } = useDelete<any>("debtcases/{id}/creditors/{creditorId}", {
+    creditorId: debtCaseToDelete?.creditorId,
+    id: debtCaseToDelete?.id,
+  });
+  const {
+    data: fileData,
+    error: fileError,
+    postData,
+  } = usePost<FormData>("debtcases/creditors/{username}/file", {
+    username: username,
+  });
+  const {
+    data: debtCaseData,
+    loading: debtCaseLoading,
+    error,
+  } = useGet<IDebtCase[]>(
     roleSpecificEndpoint,
     role === "ADMIN" ? {} : username ? { username } : {},
     shouldRefetch
@@ -59,10 +81,10 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
   useEffect(() => {
     if (error && [401, 403].includes(error.statusCode)) {
       handleErrorResponse(error.statusCode);
-      openSnackbar(error.message, 'error');
+      openSnackbar(error.message, "error");
     } else if (error?.description.includes("Refresh Token")) {
       navigate("/login");
-      openSnackbar("You need to login again", 'warning');
+      openSnackbar("You need to login again", "warning");
     }
   }, [error, openSnackbar]);
 
@@ -74,8 +96,9 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
 
   useEffect(() => {
     if (debtCaseData && creditorId === undefined && role === "CREDITOR") {
-      const userWithSameUsername = debtCaseData.find(debtCase => debtCase.creditor.user.username === username);
-
+      const userWithSameUsername = debtCaseData.find(
+        (debtCase) => debtCase.creditor.user.username === username
+      );
       if (userWithSameUsername) {
         setCreditorId(userWithSameUsername.creditor.id);
       }
@@ -91,11 +114,13 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
     setConfirmationDialogOpen(true);
   };
 
-  const handleFileUpload = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const socket = new SockJS("http://localhost:8080/ws");
+    const client = Stomp.over(socket);
+    client.connect({}, () => {
+      client.subscribe(`/user/${username}/topic/enriched-debt-cases`);
+    });
     const file = event.target.files?.[0];
-
     if (file) {
       const formData = new FormData();
       formData.append("file", file);
@@ -105,11 +130,14 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
 
   useEffect(() => {
     if (fileData) {
-      openSnackbar("File uploaded successfully", 'success');
-      setShouldRefetch(true);
+      openSnackbar(
+        "CSV uploaded successfully and debt cases are being enriched",
+        "success"
+      );
+      setShouldRefetch(false);
       setCreditorId(undefined);
     } else if (fileError) {
-      openSnackbar(fileError.description, 'error');
+      openSnackbar(fileError.description, "error");
     }
   }, [fileData, fileError, openSnackbar]);
 
@@ -123,12 +151,16 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
   };
 
   useEffect(() => {
-    if (deletedData && deletedData.statusCode === 204 && deletedData.description.includes("Deleted successfully")) {
-      openSnackbar("Debt Case deleted successfully", 'success');
+    if (
+      deletedData &&
+      deletedData.statusCode === 204 &&
+      deletedData.description.includes("Deleted successfully")
+    ) {
+      openSnackbar("Debt Case deleted successfully", "success");
       setShouldRefetch(true);
       setConfirmationDialogOpen(false);
     } else if (deleteError && deleteError.statusCode !== 204) {
-      openSnackbar(deleteError.description, 'error');
+      openSnackbar(deleteError.description, "error");
     }
 
     setDebtCaseToDelete(null);
@@ -144,7 +176,11 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
               backgroundColor: "white",
               border: "3px solid #8FBC8F",
             }}
-            onClick={() => (action === "Edit" ? handleEdit(creditorId, id) : handleDelete(creditorId, id))}
+            onClick={() =>
+              action === "Edit"
+                ? handleEdit(creditorId, id)
+                : handleDelete(creditorId, id)
+            }
           >
             {action}
           </Button>
@@ -160,7 +196,11 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
     return acc;
   }, {} as Record<string, IDebtCase[]>);
 
-  const renderAccordionSection = (title: string, cases: IDebtCase[], status: string) => (
+  const renderAccordionSection = (
+    title: string,
+    cases: IDebtCase[],
+    status: string
+  ) => (
     <div>
       <Typography sx={{ marginTop: "10px" }} variant="h6" gutterBottom>
         {title}
@@ -180,20 +220,28 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
             expandIcon={<ExpandMoreIcon sx={{ color: "#2E8B57" }} />}
             sx={{ borderBottom: "1px solid #ccc" }}
           >
-            <Typography style={{ marginRight: "5px" }}>{debtCase.creditor?.name}</Typography>
-            <Typography style={{ marginRight: "5px" }}>{transformDebtType(debtCase.debtCaseType.type)}</Typography>
-            <Typography style={{ marginRight: "5px" }}>for Debtor {debtCase.debtor.name} {debtCase.debtor.surname}</Typography>
+            <Typography style={{ marginRight: "5px" }}>
+              {debtCase.creditor?.name}
+            </Typography>
+            <Typography style={{ marginRight: "5px" }}>
+              {transformDebtType(debtCase.debtCaseType.type)}
+            </Typography>
+            <Typography style={{ marginRight: "5px" }}>
+              for Debtor {debtCase.debtor.name} {debtCase.debtor.surname}
+            </Typography>
           </AccordionSummary>
           <AccordionDetails>
             <Typography>Due Date: {debtCase.dueDate}</Typography>
             <Typography>Amount Owed: {debtCase.amountOwed}€</Typography>
-            <Typography>Is Notification Sent? {debtCase.isSent ? "No" : "Yes"}</Typography>
-            {(role === "CREDITOR" || role === "ADMIN") && debtCase.debtor &&
+            <Typography>
+              Is Notification Sent? {debtCase.isSent ? "No" : "Yes"}
+            </Typography>
+            {(role === "CREDITOR" || role === "ADMIN") && debtCase.debtor && (
               <>
                 {renderDebtorDetails(debtCase.debtor)}
                 {renderActionButtons(debtCase.creditor.id, debtCase.id)}
               </>
-            }
+            )}
           </AccordionDetails>
         </Accordion>
       ))}
@@ -202,7 +250,9 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
 
   const renderDebtorDetails = (debtor: IDebtor) => (
     <React.Fragment>
-      <Typography>Debtor: {debtor.name} {debtor.surname}</Typography>
+      <Typography>
+        Debtor: {debtor.name} {debtor.surname}
+      </Typography>
       <Typography>Email: {debtor.email}</Typography>
       <Typography>Phone Number: {debtor.phoneNumber}</Typography>
     </React.Fragment>
@@ -210,12 +260,26 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
 
   const transformDebtType = (type: string): string => {
     const lowerCaseType = type.toLowerCase();
-    return lowerCaseType.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    return lowerCaseType
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
   };
 
   return (
     <>
-      <Box className={classes.body} sx={{ flexGrow: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: "100vh", height: "100%", overflow: "hidden" }}>
+      <Box
+        className={classes.body}
+        sx={{
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          minHeight: "100vh",
+          height: "100%",
+          overflow: "hidden",
+        }}
+      >
         <Navbar title="DebtEase" />
         <Box sx={{ padding: "16px" }}>
           <Grid container spacing={1} justifyContent="space-between">
@@ -267,13 +331,25 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
             <Typography>Loading...</Typography>
           ) : (
             <Box>
-              {groupedDebtCases && Object.entries(groupedDebtCases).map(([status, cases]) => (
-                renderAccordionSection(status === 'unpaid' ? 'Unpaid Debt Cases' : status.charAt(0).toUpperCase() + status.slice(1) + ' Debt Cases', cases, status)
-              ))}
+              {groupedDebtCases &&
+                Object.entries(groupedDebtCases).map(([status, cases]) =>
+                  renderAccordionSection(
+                    status === "unpaid"
+                      ? "Unpaid Debt Cases"
+                      : status.charAt(0).toUpperCase() +
+                          status.slice(1) +
+                          " Debt Cases",
+                    cases,
+                    status
+                  )
+                )}
             </Box>
           )}
           {debtCaseToDelete && (
-            <Dialog open={confirmationDialogOpen} onClose={handleDeleteCancelled}>
+            <Dialog
+              open={confirmationDialogOpen}
+              onClose={handleDeleteCancelled}
+            >
               <DialogTitle>Confirm Deletion</DialogTitle>
               <DialogContent>
                 <Typography>
@@ -281,13 +357,17 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
                 </Typography>
               </DialogContent>
               <DialogActions>
-                <Button sx={{
-                  color: "black",
-                  backgroundColor: "white",
-                  border: "3px solid #8FBC8F",
-                  marginRight: 2,
-                }}
-                  onClick={handleDeleteCancelled}>Cancel</Button>
+                <Button
+                  sx={{
+                    color: "black",
+                    backgroundColor: "white",
+                    border: "3px solid #8FBC8F",
+                    marginRight: 2,
+                  }}
+                  onClick={handleDeleteCancelled}
+                >
+                  Cancel
+                </Button>
                 <Button
                   sx={{
                     color: "red",
@@ -295,7 +375,8 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
                     border: "3px solid #8FBC8F",
                     marginRight: 2,
                   }}
-                  onClick={handleDeleteConfirmed}>
+                  onClick={handleDeleteConfirmed}
+                >
                   Confirm
                 </Button>
               </DialogActions>

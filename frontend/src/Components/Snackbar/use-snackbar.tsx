@@ -11,26 +11,19 @@ import { AlertProps, Grow, IconButton, Snackbar } from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
 
 const Alert = (props: any, ref: any): ReactElement => {
-  return (
-    <MuiAlert
-      elevation={6}
-      ref={ref}
-      variant='filled'
-      {...props}
-    />
-  );
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 };
 
 const SnackbarAlert = forwardRef<HTMLDivElement, AlertProps>(Alert);
 
 const useSnackbar = (): ISnackbarReturn => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarType, setSnackbarType] =
-    useState<AlertProps['severity']>('info');
+    useState<AlertProps["severity"]>("info");
 
   const handleSnackbarOpen = useCallback(
-    (message: string, type: SnackbarType = 'info'): void => {
+    (message: string, type: SnackbarType = "info"): void => {
       setSnackbarMessage(message);
       setSnackbarType(type);
       setSnackbarOpen(true);
@@ -42,14 +35,14 @@ const useSnackbar = (): ISnackbarReturn => {
     event: React.SyntheticEvent | Event,
     reason?: string
   ): void => {
-    if (reason === 'clickaway') {
+    if (reason === "clickaway") {
       return;
     }
     setSnackbarOpen(false);
   };
 
   const openSnackbar = useCallback(
-    (message: string, type: SnackbarType = 'info'): void => {
+    (message: string, type: SnackbarType = "info"): void => {
       handleSnackbarOpen(message, type);
     },
     [handleSnackbarOpen]
@@ -58,7 +51,7 @@ const useSnackbar = (): ISnackbarReturn => {
   const renderSnackbar = useCallback((): ReactElement => {
     return (
       <Snackbar
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
         TransitionComponent={Grow}
         open={snackbarOpen}
         autoHideDuration={5000}
@@ -68,12 +61,12 @@ const useSnackbar = (): ISnackbarReturn => {
           severity={snackbarType}
           action={
             <IconButton
-              size='small'
-              aria-label='close'
-              color='inherit'
+              size="small"
+              aria-label="close"
+              color="inherit"
               onClick={handleSnackbarClose}
             >
-              <CloseIcon fontSize='small' />
+              <CloseIcon fontSize="small" />
             </IconButton>
           }
         >

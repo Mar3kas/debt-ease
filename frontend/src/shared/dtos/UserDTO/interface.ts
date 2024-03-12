@@ -1,4 +1,4 @@
 export interface IUserDTO {
-    username: string;
-    password: string;
+  username: string;
+  password: string;
 }

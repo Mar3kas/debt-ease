@@ -1,4 +1,4 @@
-package com.dm.debtease.config;
+package com.dm.debtease.config.security;
 
 import com.dm.debtease.service.JwtService;
 import io.jsonwebtoken.ExpiredJwtException;

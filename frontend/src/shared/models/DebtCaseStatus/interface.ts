@@ -1,4 +1,4 @@
 export interface IDebtCaseStatus {
-    id: number;
-    status: string;
+  id: number;
+  status: string;
 }

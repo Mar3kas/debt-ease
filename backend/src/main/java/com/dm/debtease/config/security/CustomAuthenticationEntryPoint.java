@@ -1,4 +1,4 @@
-package com.dm.debtease.config;
+package com.dm.debtease.config.security;
 
 import com.dm.debtease.model.APIError;
 import com.fasterxml.jackson.databind.ObjectMapper;

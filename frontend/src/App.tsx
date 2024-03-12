@@ -2,7 +2,7 @@ import React, { FC, useEffect } from "react";
 import "./App.css";
 import { useSnackbar } from "./Components";
 import { routes as appRoutes } from "./routes";
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { CssBaseline } from "@mui/material";
 
 const App: FC = () => {
@@ -17,11 +17,7 @@ const App: FC = () => {
             <Route
               key={route.key}
               path={route.path}
-              element={
-                <route.component
-                  openSnackbar={snackbar.openSnackbar}
-                />
-              }
+              element={<route.component openSnackbar={snackbar.openSnackbar} />}
             />
           ))}
         </Routes>

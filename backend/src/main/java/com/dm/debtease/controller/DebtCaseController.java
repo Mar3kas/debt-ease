@@ -15,16 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -81,12 +72,12 @@ public class DebtCaseController {
     }
 
     @PostMapping(value = "/creditors/{username}/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<List<DebtCase>> createDebtCase(@Valid
-                                                         @NotBlank
-                                                         @PathVariable(name = "username") String username,
-                                                         @RequestParam(name = "file") MultipartFile file) throws CsvValidationException, IOException, InvalidFileFormatException {
-        List<DebtCase> debtCases = debtCaseService.createDebtCase(file, username);
-        return ResponseEntity.status(HttpStatus.CREATED).body(debtCases);
+    public ResponseEntity<String> createDebtCase(@Valid
+                                                 @NotBlank
+                                                 @PathVariable(name = "username") String username,
+                                                 @RequestParam(name = "file") MultipartFile file) throws CsvValidationException, IOException, InvalidFileFormatException {
+        debtCaseService.createDebtCase(file, username);
+        return ResponseEntity.status(HttpStatus.CREATED).body("CSV uploaded successfully and debt cases are being enriched");
     }
 
     @DeleteMapping("/{id}/creditors/{creditorId}")
