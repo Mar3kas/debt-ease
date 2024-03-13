@@ -16,9 +16,6 @@ public class DebtCaseConsumer {
     @KafkaListener(topics = "base-debt-case-topic")
     public void consumeAndEnrich(DebtCase debtCase) {
         // Implement enrichment logic
-        DebtCase enrichedDebtCase = new DebtCase();
-        // Store the enriched debt case in the database
-        debtCaseRepository.save(debtCase);
         String username = debtCase.getCreditor().getUser().getUsername();
         messagingTemplate.convertAndSendToUser(username, "/topic/enriched-debt-cases", debtCase);
     }

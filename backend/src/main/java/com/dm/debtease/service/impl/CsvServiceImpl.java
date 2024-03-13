@@ -59,7 +59,7 @@ public class CsvServiceImpl implements CsvService {
                 }
                 String typeToMatch = getTypeToMatch(line[4]);
                 Optional<DebtCase> existingDebtCase = findExistingDebtCase(username, line[5], line[6], typeToMatch, line[0], line[1]);
-                DebtCase debtCase = createOrUpdateDebtCase(debtor, creditor, debtCaseStatus, line, existingDebtCase, typeToMatch);
+                DebtCase debtCase = debtCaseRepository.save(createOrUpdateDebtCase(debtor, creditor, debtCaseStatus, line, existingDebtCase, typeToMatch));
                 kafkaTemplate.send("base-debt-case-topic", debtCase);
             }
         }

@@ -22,8 +22,7 @@ import { IDebtCase } from "../../shared/models/Debtcases";
 import { useDelete, useGet, usePost } from "../../services/api-service";
 import useErrorHandling from "../../services/handle-responses";
 import { IDebtor } from "../../shared/models/Debtor";
-import SockJS from "sockjs-client";
-import Stomp from "stompjs";
+import WebSocketService from "../../services/websocket-service";
 
 const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
   const classes = useStyles("light");
@@ -37,6 +36,9 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
     id: number;
   } | null>(null);
   const [creditorId, setCreditorId] = useState<number | undefined>(undefined);
+  const [currentDebtCases, setCurrentDebtCases] = useState<IDebtCase[] | null>(
+    null
+  );
   const { handleErrorResponse } = useErrorHandling();
   const { openSnackbar } = props;
 
@@ -105,6 +107,12 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
     }
   }, [debtCaseData]);
 
+  useEffect(() => {
+    if (debtCaseData) {
+      setCurrentDebtCases(debtCaseData);
+    }
+  }, [debtCaseData]);
+
   const handleEdit = (creditorId: number, id: number) => {
     navigate(`/debtcases/${id}/creditor/${creditorId}`);
   };
@@ -114,12 +122,44 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
     setConfirmationDialogOpen(true);
   };
 
+  useEffect(() => {
+    const webSocketService = WebSocketService.getInstance(
+      "http://localhost:8080/ws"
+    );
+    webSocketService.subscribe(
+      `/user/${username}/topic/enriched-debt-cases`,
+      (message) => {
+        const debtCase: IDebtCase = message;
+        const caseExists = currentDebtCases?.some(
+          (existingCase) => existingCase.id === debtCase.id
+        );
+
+        if (!caseExists) {
+          openSnackbar(
+            `Received enriched ${transformDebtType(
+              debtCase.debtCaseType.type
+            )} debt case for ${debtCase.debtor.name} ${
+              debtCase.debtor.surname
+            }`,
+            "success"
+          );
+
+          setCurrentDebtCases((prevDebtCases) => {
+            if (prevDebtCases) {
+              return [...prevDebtCases, debtCase];
+            } else {
+              return [debtCase];
+            }
+          });
+          setCurrentDebtCases((updatedDebtCases) => {
+            return updatedDebtCases;
+          });
+        }
+      }
+    );
+  }, []);
+
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const socket = new SockJS("http://localhost:8080/ws");
-    const client = Stomp.over(socket);
-    client.connect({}, () => {
-      client.subscribe(`/user/${username}/topic/enriched-debt-cases`);
-    });
     const file = event.target.files?.[0];
     if (file) {
       const formData = new FormData();
@@ -134,7 +174,6 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
         "CSV uploaded successfully and debt cases are being enriched",
         "success"
       );
-      setShouldRefetch(false);
       setCreditorId(undefined);
     } else if (fileError) {
       openSnackbar(fileError.description, "error");
@@ -157,18 +196,26 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
       deletedData.description.includes("Deleted successfully")
     ) {
       openSnackbar("Debt Case deleted successfully", "success");
-      setShouldRefetch(true);
+      setCurrentDebtCases((prevDebtCases) =>
+        prevDebtCases
+          ? prevDebtCases.filter(
+              (debtCase) => debtCase.id !== debtCaseToDelete?.id
+            )
+          : null
+      );
+      setCurrentDebtCases((updatedDebtCases) => {
+        return updatedDebtCases;
+      });
       setConfirmationDialogOpen(false);
     } else if (deleteError && deleteError.statusCode !== 204) {
       openSnackbar(deleteError.description, "error");
     }
-
     setDebtCaseToDelete(null);
   }, [deleteError, deletedData, openSnackbar]);
 
   const renderActionButtons = (creditorId: number, id: number) => (
     <Grid container spacing={1} justifyContent="flex-end">
-      {["Edit", role === "ADMIN" && "Delete"].filter(Boolean).map((action) => (
+      {["Edit", "Delete"].filter(Boolean).map((action) => (
         <Grid item key={`${action}-${id}`}>
           <Button
             sx={{
@@ -331,7 +378,8 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
             <Typography>Loading...</Typography>
           ) : (
             <Box>
-              {groupedDebtCases &&
+              {currentDebtCases &&
+                groupedDebtCases &&
                 Object.entries(groupedDebtCases).map(([status, cases]) =>
                   renderAccordionSection(
                     status === "unpaid"
@@ -339,7 +387,10 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
                       : status.charAt(0).toUpperCase() +
                           status.slice(1) +
                           " Debt Cases",
-                    cases,
+                    currentDebtCases.filter(
+                      (debtCase) =>
+                        debtCase.debtCaseStatus.status.toLowerCase() === status
+                    ),
                     status
                   )
                 )}

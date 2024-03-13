@@ -17,7 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { NavbarProps } from "./interface";
 import useStyles from "../Styles/global-styles";
 import { usePost } from "../../services/api-service";
-import { DebtcaseListPage } from "../../pages";
+import WebSocketService from "../../services/websocket-service";
 
 const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
   const classes = useStyles("light");
@@ -26,7 +26,6 @@ const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
   const currentPageUrl = window.location.pathname;
-
   const { postData, data, error } = usePost<any>("logout");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -40,6 +39,10 @@ const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
   };
 
   const handleLogout = () => {
+    const webSocketService = WebSocketService.getInstance(
+      "http://localhost:8080/ws"
+    );
+    webSocketService.disconnect();
     postData();
   };
 
