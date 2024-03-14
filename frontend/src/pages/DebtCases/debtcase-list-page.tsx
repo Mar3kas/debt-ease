@@ -23,6 +23,8 @@ import { useDelete, useGet, usePost } from "../../services/api-service";
 import useErrorHandling from "../../services/handle-responses";
 import { IDebtor } from "../../shared/models/Debtor";
 import WebSocketService from "../../services/websocket-service";
+import { ICreditor } from "../../shared/models/Creditor";
+import { ICompany } from "../../shared/models/CompanyInformation";
 
 const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
   const classes = useStyles("light");
@@ -39,6 +41,7 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
   const [currentDebtCases, setCurrentDebtCases] = useState<IDebtCase[] | null>(
     null
   );
+  const [highlightedCases, setHighlightedCases] = useState<number[]>([]);
   const { handleErrorResponse } = useErrorHandling();
   const { openSnackbar } = props;
 
@@ -130,31 +133,30 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
       `/user/${username}/topic/enriched-debt-cases`,
       (message) => {
         const debtCase: IDebtCase = message;
-        const caseExists = currentDebtCases?.some(
-          (existingCase) => existingCase.id === debtCase.id
-        );
-
-        if (!caseExists) {
-          openSnackbar(
-            `Received enriched ${transformDebtType(
-              debtCase.debtCaseType.type
-            )} debt case for ${debtCase.debtor.name} ${
-              debtCase.debtor.surname
-            }`,
-            "success"
+        setCurrentDebtCases((prevDebtCases) => {
+          const caseExists = prevDebtCases?.some(
+            (existingCase) => existingCase.id === debtCase.id
           );
-
-          setCurrentDebtCases((prevDebtCases) => {
-            if (prevDebtCases) {
-              return [...prevDebtCases, debtCase];
-            } else {
-              return [debtCase];
-            }
-          });
-          setCurrentDebtCases((updatedDebtCases) => {
-            return updatedDebtCases;
-          });
-        }
+          if (!caseExists) {
+            setHighlightedCases((prevCases) => [...prevCases, debtCase.id]);
+            setTimeout(() => {
+              setHighlightedCases((prevCases) =>
+                prevCases.filter((id) => id !== debtCase.id)
+              );
+            }, 5000);
+            return [...(prevDebtCases || []), debtCase];
+          } else {
+            openSnackbar(
+              `Enriched ${transformDebtType(
+                debtCase.debtCaseType.type
+              )} debt case for ${debtCase.debtor.name} ${
+                debtCase.debtor.surname
+              } already exists`,
+              "warning"
+            );
+          }
+          return prevDebtCases;
+        });
       }
     );
   }, []);
@@ -201,7 +203,7 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
           ? prevDebtCases.filter(
               (debtCase) => debtCase.id !== debtCaseToDelete?.id
             )
-          : null
+          : []
       );
       setCurrentDebtCases((updatedDebtCases) => {
         return updatedDebtCases;
@@ -211,7 +213,7 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
       openSnackbar(deleteError.description, "error");
     }
     setDebtCaseToDelete(null);
-  }, [deleteError, deletedData, openSnackbar]);
+  }, [deleteError, deletedData, openSnackbar, setCurrentDebtCases]);
 
   const renderActionButtons = (creditorId: number, id: number) => (
     <Grid container spacing={1} justifyContent="flex-end">
@@ -222,6 +224,10 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
               color: "black",
               backgroundColor: "white",
               border: "3px solid #8FBC8F",
+              "&:hover": {
+                color: "black",
+                backgroundColor: "#F8DE7E",
+              },
             }}
             onClick={() =>
               action === "Edit"
@@ -246,28 +252,34 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
   const renderAccordionSection = (
     title: string,
     cases: IDebtCase[],
-    status: string
+    status: string,
+    highlightedCases: number[]
   ) => (
     <div>
-      <Typography sx={{ marginTop: "10px" }} variant="h6" gutterBottom>
-        {title}
-      </Typography>
+      {cases.length > 0 && (
+        <Typography sx={{ marginTop: "20px" }} variant="h6" gutterBottom>
+          {title}
+        </Typography>
+      )}
       {cases.map((debtCase: IDebtCase, index: number) => (
         <Accordion
           key={`${status}-${index}`}
           sx={{
-            background: "white",
+            background: highlightedCases.includes(debtCase.id)
+              ? "#F8DE7E"
+              : "white",
             boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
             "&:hover": {
               boxShadow: "0px 8px 16px rgba(0, 0, 0, 0.2)",
             },
+            my: 1,
           }}
         >
           <AccordionSummary
             expandIcon={<ExpandMoreIcon sx={{ color: "#2E8B57" }} />}
             sx={{ borderBottom: "1px solid #ccc" }}
           >
-            <Typography style={{ marginRight: "5px" }}>
+            <Typography style={{ marginRight: "5px", fontWeight: "bold" }}>
               {debtCase.creditor?.name}
             </Typography>
             <Typography style={{ marginRight: "5px" }}>
@@ -278,16 +290,18 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Typography>Due Date: {debtCase.dueDate}</Typography>
+            <Typography sx={{ fontWeight: "bold" }}>
+              Debt case information
+            </Typography>
             <Typography>Amount Owed: {debtCase.amountOwed}€</Typography>
+            <Typography>Due Date: {debtCase.dueDate}</Typography>
             <Typography>
               Is Notification Sent? {debtCase.isSent ? "No" : "Yes"}
             </Typography>
-            {(role === "CREDITOR" || role === "ADMIN") && debtCase.debtor && (
-              <>
-                {renderDebtorDetails(debtCase.debtor)}
-                {renderActionButtons(debtCase.creditor.id, debtCase.id)}
-              </>
+            {renderDebtorDetails(debtCase.debtor)}
+            {renderCreditorDetails(debtCase.creditor, debtCase.company)}
+            {(role === "CREDITOR" || role === "ADMIN") && (
+              <>{renderActionButtons(debtCase.creditor.id, debtCase.id)}</>
             )}
           </AccordionDetails>
         </Accordion>
@@ -297,11 +311,22 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
 
   const renderDebtorDetails = (debtor: IDebtor) => (
     <React.Fragment>
-      <Typography>
-        Debtor: {debtor.name} {debtor.surname}
-      </Typography>
+      <Typography sx={{ fontWeight: "bold" }}>Debtor information</Typography>
       <Typography>Email: {debtor.email}</Typography>
       <Typography>Phone Number: {debtor.phoneNumber}</Typography>
+    </React.Fragment>
+  );
+
+  const renderCreditorDetails = (creditor: ICreditor, company: ICompany) => (
+    <React.Fragment>
+      <Typography sx={{ fontWeight: "bold" }}>Creditor Information</Typography>
+      <Typography>Industry: {company.industry}</Typography>
+      <Typography>Email: {creditor.email}</Typography>
+      <Typography>Phone Number: {creditor.phoneNumber}</Typography>
+      <Typography>
+        Address: {creditor.address.split(",")[0]}, {company.locality}
+      </Typography>
+      <Typography>Account Number: {creditor.accountNumber}</Typography>
     </React.Fragment>
   );
 
@@ -391,7 +416,8 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
                       (debtCase) =>
                         debtCase.debtCaseStatus.status.toLowerCase() === status
                     ),
-                    status
+                    status,
+                    highlightedCases
                   )
                 )}
             </Box>
@@ -414,6 +440,10 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
                     backgroundColor: "white",
                     border: "3px solid #8FBC8F",
                     marginRight: 2,
+                    "&:hover": {
+                      color: "black",
+                      backgroundColor: "#F8DE7E",
+                    },
                   }}
                   onClick={handleDeleteCancelled}
                 >
@@ -425,6 +455,10 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
                     backgroundColor: "white",
                     border: "3px solid #8FBC8F",
                     marginRight: 2,
+                    "&:hover": {
+                      color: "red",
+                      backgroundColor: "#F8DE7E",
+                    },
                   }}
                   onClick={handleDeleteConfirmed}
                 >

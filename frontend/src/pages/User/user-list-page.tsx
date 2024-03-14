@@ -178,6 +178,10 @@ const UserListPage: FC<IPage> = (props): ReactElement => {
               color: "black",
               backgroundColor: "white",
               border: "3px solid #8FBC8F",
+              "&:hover": {
+                color: "black",
+                backgroundColor: "#F8DE7E",
+              },
             }}
             onClick={() =>
               action === "Edit" ? handleEdit(id, type) : handleDelete(id, type)
@@ -382,6 +386,10 @@ const UserListPage: FC<IPage> = (props): ReactElement => {
                     backgroundColor: "white",
                     border: "3px solid #8FBC8F",
                     marginRight: 2,
+                    "&:hover": {
+                      color: "black",
+                      backgroundColor: "#F8DE7E",
+                    },
                   }}
                   onClick={handleDeleteCancelled}
                 >
@@ -393,6 +401,10 @@ const UserListPage: FC<IPage> = (props): ReactElement => {
                     backgroundColor: "white",
                     border: "3px solid #8FBC8F",
                     marginRight: 2,
+                    "&:hover": {
+                      color: "red",
+                      backgroundColor: "#F8DE7E",
+                    },
                   }}
                   onClick={handleDeleteConfirmed}
                 >

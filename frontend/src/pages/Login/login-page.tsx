@@ -152,21 +152,37 @@ const LoginPage: FC<IPage> = (props): ReactElement => {
               justifyContent: "center",
             }}
           >
-            <LoadingButton
+            <Button
               size="medium"
               color="inherit"
               variant="outlined"
               onClick={handleLogin}
               sx={{
+                color: "black",
+                backgroundColor: "white",
+                border: "3px solid #8FBC8F",
                 marginRight: "8px",
+                "&:hover": {
+                  color: "black",
+                  backgroundColor: "#F8DE7E",
+                },
               }}
             >
               Login
-            </LoadingButton>
+            </Button>
             <Button
               size="medium"
               color="inherit"
               variant="outlined"
+              sx={{
+                color: "black",
+                backgroundColor: "white",
+                border: "3px solid #8FBC8F",
+                "&:hover": {
+                  color: "black",
+                  backgroundColor: "#F8DE7E",
+                },
+              }}
               onClick={(): void => {
                 navigate("/");
               }}

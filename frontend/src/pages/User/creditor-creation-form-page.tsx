@@ -171,6 +171,10 @@ const CreditorCreationFormPage: FC<IPage> = ({
               onClick={handleSaveChanges}
               sx={{
                 marginRight: "8px",
+                "&:hover": {
+                  color: "black",
+                  backgroundColor: "#F8DE7E",
+                },
               }}
             >
               Save
@@ -179,6 +183,12 @@ const CreditorCreationFormPage: FC<IPage> = ({
               size="medium"
               color="inherit"
               variant="outlined"
+              sx={{
+                "&:hover": {
+                  color: "black",
+                  backgroundColor: "#F8DE7E",
+                },
+              }}
               onClick={(): void => {
                 navigate(-1);
               }}

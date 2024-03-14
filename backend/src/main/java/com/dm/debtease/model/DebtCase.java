@@ -52,6 +52,10 @@ public class DebtCase {
     @JoinColumn(name = "debtor_id", nullable = false)
     Debtor debtor;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "company_id", nullable = false)
+    CompanyInformation company;
+
     @Column(name = "email_sent", nullable = false)
     int isSent;
 }

@@ -173,6 +173,10 @@ const DebtorFormPage: FC<IPage> = (props): ReactElement => {
                 backgroundColor: "white",
                 border: "3px solid #8FBC8F",
                 marginRight: 2,
+                "&:hover": {
+                  color: "black",
+                  backgroundColor: "#F8DE7E",
+                },
               }}
               onClick={handleSaveChanges}
             >
@@ -183,6 +187,10 @@ const DebtorFormPage: FC<IPage> = (props): ReactElement => {
                 color: "black",
                 backgroundColor: "white",
                 border: "3px solid #8FBC8F",
+                "&:hover": {
+                  color: "black",
+                  backgroundColor: "#F8DE7E",
+                },
               }}
               onClick={() => navigate(-1)}
             >

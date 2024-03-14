@@ -34,7 +34,7 @@ public class CsvServiceImpl implements CsvService {
     private final CreditorService creditorService;
     private final DebtCaseStatusService debtCaseStatusService;
     private final DebtorService debtorService;
-    private final DebtCaseRepository debtCaseRepository;
+        private final DebtCaseRepository debtCaseRepository;
     private final KafkaTemplate<String, DebtCase> kafkaTemplate;
 
     @Override
@@ -59,7 +59,7 @@ public class CsvServiceImpl implements CsvService {
                 }
                 String typeToMatch = getTypeToMatch(line[4]);
                 Optional<DebtCase> existingDebtCase = findExistingDebtCase(username, line[5], line[6], typeToMatch, line[0], line[1]);
-                DebtCase debtCase = debtCaseRepository.save(createOrUpdateDebtCase(debtor, creditor, debtCaseStatus, line, existingDebtCase, typeToMatch));
+                DebtCase debtCase = createOrUpdateDebtCase(debtor, creditor, debtCaseStatus, line, existingDebtCase, typeToMatch);
                 kafkaTemplate.send("base-debt-case-topic", debtCase);
             }
         }

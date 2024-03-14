@@ -1,3 +1,4 @@
+import { ICompany } from "../CompanyInformation";
 import { ICreditor } from "../Creditor";
 import { IDebtCaseStatus } from "../DebtCaseStatus";
 import { IDebtCaseType } from "../DebtCaseType";
@@ -11,5 +12,6 @@ export interface IDebtCase {
   debtCaseStatus: IDebtCaseStatus;
   creditor: ICreditor;
   debtor: IDebtor;
+  company: ICompany;
   isSent: number;
 }

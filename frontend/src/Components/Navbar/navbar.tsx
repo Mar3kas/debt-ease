@@ -84,6 +84,10 @@ const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
                     color: "black",
                     backgroundColor: "white",
                     border: "3px solid #8FBC8F",
+                    "&:hover": {
+                      color: "black",
+                      backgroundColor: "#F8DE7E",
+                    },
                   }}
                   onClick={() => {
                     navigate("/login");
@@ -102,6 +106,10 @@ const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
                     backgroundColor: "white",
                     border: "3px solid #8FBC8F",
                     marginRight: 2,
+                    "&:hover": {
+                      color: "black",
+                      backgroundColor: "#F8DE7E",
+                    },
                   }}
                   onClick={handleLogout}
                 >
@@ -115,6 +123,10 @@ const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
                     backgroundColor: "white",
                     border: "3px solid #8FBC8F",
                     marginRight: 2,
+                    "&:hover": {
+                      color: "black",
+                      backgroundColor: "#F8DE7E",
+                    },
                   }}
                   onClick={() => {
                     navigate("/users");
@@ -130,6 +142,10 @@ const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
                     backgroundColor: "white",
                     border: "3px solid #8FBC8F",
                     marginRight: 1,
+                    "&:hover": {
+                      color: "black",
+                      backgroundColor: "#F8DE7E",
+                    },
                   }}
                   onClick={() => {
                     navigate("/debtcases");
