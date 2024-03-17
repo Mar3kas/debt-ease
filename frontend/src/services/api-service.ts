@@ -21,7 +21,7 @@ async function handleResponse<T>(
       return mappedError;
     }
     const responseJson: IApiError = JSON.parse(response.request.response);
-
+    console.log(responseJson);
     if (responseJson.statusCode === 422) {
       if (
         responseJson.description.includes("JSON") ||
@@ -57,6 +57,7 @@ async function handleResponse<T>(
   } else if (response.data) {
     return response.data;
   }
+  console.log(response);
 
   return JSON.parse(response.request.response);
 }
@@ -85,62 +86,71 @@ const buildUrl = (
 export const useGet = <T>(
   endpoint: string,
   pathVariables: Record<string, string | number | undefined> = {},
-  shouldRefetch: boolean = false
+  shouldRefetch: boolean = true,
+  shouldFetchInitial: boolean = false,
+  responseType: "json" | "blob" = "json"
 ) => {
   const [data, setData] = React.useState<T | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<IApiError | null>(null);
 
-  React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  const fetchData = async (shouldRefetch: boolean = false) => {
+    try {
+      setLoading(true);
+      setError(null);
 
-        if (AuthService.getInstance().isTokenExpired()) {
-          const refreshToken = AuthService.getInstance().getRefreshToken();
+      if (AuthService.getInstance().isTokenExpired()) {
+        const refreshToken = AuthService.getInstance().getRefreshToken();
 
-          try {
-            const response = await axios.post(
-              `${API_BASE_URL}/refresh`,
-              { refreshToken },
-              axiosConfig
-            );
-            const newAccessToken = response.data.accessToken;
+        try {
+          const response = await axios.post(
+            `${API_BASE_URL}/refresh`,
+            { refreshToken },
+            axiosConfig
+          );
+          const newAccessToken = response.data.accessToken;
 
-            localStorage.setItem("token", newAccessToken);
-          } catch (refreshError: any) {
-            const errorResult = await handleResponse<T>(refreshError);
-            setError(errorResult as IApiError);
-            AuthService.getInstance().clearLocalStorage();
-            return;
-          }
+          localStorage.setItem("token", newAccessToken);
+        } catch (refreshError: any) {
+          const errorResult = await handleResponse<T>(refreshError);
+          setError(errorResult as IApiError);
+          AuthService.getInstance().clearLocalStorage();
+          return;
         }
-
-        const updatedToken = localStorage.getItem("token");
-        const url = buildUrl(endpoint, pathVariables);
-        const response = await axios.get(url, {
-          ...axiosConfig,
-          headers: {
-            ...axiosConfig.headers,
-            Authorization: `Bearer ${updatedToken ?? ""}`,
-          },
-        });
-
-        const result = await handleResponse<T>(response);
-        setData(result as T);
-      } catch (error: any) {
-        const errorResult = await handleResponse<T>(error);
-        setError(errorResult as IApiError);
-      } finally {
-        setLoading(false);
       }
-    };
 
-    fetchData();
+      const updatedToken = localStorage.getItem("token");
+      const url = buildUrl(endpoint, pathVariables);
+      const response = await axios.get(url, {
+        ...axiosConfig,
+        headers: {
+          ...axiosConfig.headers,
+          Authorization: `Bearer ${updatedToken ?? ""}`,
+        },
+        responseType: responseType,
+      });
+
+      const result = await handleResponse<T>(response);
+      setData(result as T);
+    } catch (error: any) {
+      const errorResult = await handleResponse<T>(error);
+      setError(errorResult as IApiError);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getData = async (shouldRefetch: boolean = false) => {
+    await fetchData(shouldRefetch);
+  };
+
+  React.useEffect(() => {
+    if (shouldFetchInitial) {
+      fetchData();
+    }
   }, [endpoint, shouldRefetch, ...Object.values(pathVariables)]);
 
-  return { data, loading, error };
+  return { data, loading, error, getData };
 };
 
 export const usePost = <T>(

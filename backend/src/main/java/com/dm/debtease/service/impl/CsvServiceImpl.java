@@ -3,7 +3,6 @@ package com.dm.debtease.service.impl;
 import com.dm.debtease.exception.InvalidFileFormatException;
 import com.dm.debtease.model.*;
 import com.dm.debtease.model.dto.DebtorDTO;
-import com.dm.debtease.repository.DebtCaseRepository;
 import com.dm.debtease.service.*;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
@@ -34,11 +33,11 @@ public class CsvServiceImpl implements CsvService {
     private final CreditorService creditorService;
     private final DebtCaseStatusService debtCaseStatusService;
     private final DebtorService debtorService;
-        private final DebtCaseRepository debtCaseRepository;
+    private final DebtCaseService debtCaseService;
     private final KafkaTemplate<String, DebtCase> kafkaTemplate;
 
     @Override
-    public void readCsvData(MultipartFile file, String username) throws IOException, CsvValidationException, InvalidFileFormatException {
+    public void readCsvDataAndSendToKafka(MultipartFile file, String username) throws IOException, CsvValidationException, InvalidFileFormatException {
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         validateCsvFile(fileName);
         Creditor creditor = creditorService.getCreditorByUsername(username);
@@ -57,8 +56,8 @@ public class CsvServiceImpl implements CsvService {
                     debtorDTO.setPhoneNumber(line[3]);
                     debtor = debtorService.createDebtor(debtorDTO);
                 }
-                String typeToMatch = getTypeToMatch(line[4]);
-                Optional<DebtCase> existingDebtCase = findExistingDebtCase(username, line[5], line[6], typeToMatch, line[0], line[1]);
+                String typeToMatch = debtCaseService.getTypeToMatch(line[4]);
+                Optional<DebtCase> existingDebtCase = debtCaseService.findExistingDebtCase(username, line[5], line[7], typeToMatch, line[0], line[1]);
                 DebtCase debtCase = createOrUpdateDebtCase(debtor, creditor, debtCaseStatus, line, existingDebtCase, typeToMatch);
                 kafkaTemplate.send("base-debt-case-topic", debtCase);
             }
@@ -78,34 +77,21 @@ public class CsvServiceImpl implements CsvService {
                 .build();
     }
 
-    private String getTypeToMatch(String type) {
-        return type.toUpperCase().contains("_DEBT") ? type.toUpperCase() : type.toUpperCase().concat("_DEBT");
-    }
-
-    public Optional<DebtCase> findExistingDebtCase(String username, String... indicator) {
-        return debtCaseRepository.findByAmountOwedAndDueDateAndDebtCaseType_TypeAndCreditor_User_UsernameAndDebtor_NameAndDebtor_Surname(
-                new BigDecimal(indicator[0]),
-                LocalDateTime.parse(indicator[1], DATE_TIME_FORMATTER),
-                getTypeToMatch(indicator[2]),
-                username,
-                indicator[3],
-                indicator[4]
-        );
-    }
-
     private DebtCase createOrUpdateDebtCase(Debtor debtor, Creditor creditor, DebtCaseStatus debtCaseStatus, String[] line, Optional<DebtCase> existingDebtCase, String typeToMatch) {
         DebtCase debtCase;
         if (existingDebtCase.isPresent()) {
             debtCase = existingDebtCase.get();
             debtCase.setAmountOwed(new BigDecimal(line[5]));
-            debtCase.setDueDate(line[6] != null ? LocalDateTime.parse(line[6], DATE_TIME_FORMATTER) : LocalDateTime.now().plusMonths(2));
+            debtCase.setLateInterestRate(Double.parseDouble(line[6]));
+            debtCase.setDueDate(line[7] != null ? LocalDateTime.parse(line[7], DATE_TIME_FORMATTER) : LocalDateTime.now().plusMonths(2));
         } else {
             debtCase = new DebtCase();
             debtCase.setCreditor(creditor);
             debtCase.setDebtor(debtor);
             debtCase.setDebtCaseStatus(debtCaseStatus);
             debtCase.setAmountOwed(new BigDecimal(line[5]));
-            debtCase.setDueDate(line[6] != null ? LocalDateTime.parse(line[6], DATE_TIME_FORMATTER) : LocalDateTime.now().plusMonths(2));
+            debtCase.setLateInterestRate(Double.parseDouble(line[6]));
+            debtCase.setDueDate(line[7] != null ? LocalDateTime.parse(line[7], DATE_TIME_FORMATTER) : LocalDateTime.now().plusMonths(2));
             debtCase.setIsSent(0);
         }
         DebtCaseType matchingDebtCaseType = debtCaseTypeService.findMatchingDebtCaseType(typeToMatch);

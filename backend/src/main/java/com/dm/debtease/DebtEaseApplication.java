@@ -9,8 +9,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import java.util.TimeZone;
-
 @SpringBootApplication
 @EnableScheduling
 @OpenAPIDefinition(info = @Info(title = "Debt Management System API", version = "1.0",
@@ -20,7 +18,6 @@ import java.util.TimeZone;
 public class DebtEaseApplication {
 
     public static void main(String[] args) {
-        //TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         SpringApplication.run(DebtEaseApplication.class, args);
     }
 }

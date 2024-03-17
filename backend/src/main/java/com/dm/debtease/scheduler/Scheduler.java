@@ -2,6 +2,7 @@ package com.dm.debtease.scheduler;
 
 import com.dm.debtease.model.DebtCase;
 import com.dm.debtease.model.Debtor;
+import com.dm.debtease.repository.DebtCaseRepository;
 import com.dm.debtease.service.DebtCaseService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,18 +11,22 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Component
 @Log4j2
 public class Scheduler {
     private final DebtCaseService debtCaseService;
+    private final DebtCaseRepository debtCaseRepository;
     private final JavaMailSender javaMailSender;
 
     @Autowired
-    public Scheduler(DebtCaseService debtCaseService, JavaMailSender javaMailSender) {
+    public Scheduler(DebtCaseService debtCaseService, DebtCaseRepository debtCaseRepository, JavaMailSender javaMailSender) {
         this.debtCaseService = debtCaseService;
+        this.debtCaseRepository = debtCaseRepository;
         this.javaMailSender = javaMailSender;
     }
 
@@ -37,6 +42,23 @@ public class Scheduler {
             }
         }
         log.info("Cron job scheduler for email notification has finished!");
+    }
+
+    @Scheduled(cron = "0 * * * * *")
+    //@Scheduled(cron = "0 0 23 * * *")
+    public void calculateOutstandingBalance() {
+        log.info("Starting cron job scheduler for calculating outstanding balance!");
+        LocalDateTime currentDate = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
+        List<DebtCase> debtCases = debtCaseRepository.findByDueDateLessThanEqual(currentDate);
+        if (!debtCases.isEmpty()) {
+            for (DebtCase debtCase : debtCases) {
+                BigDecimal lateInterestAmount = debtCase.getAmountOwed().multiply(BigDecimal.valueOf(debtCase.getLateInterestRate() / 100.0));
+                BigDecimal updatedOutstandingBalance = debtCase.getOutstandingBalance().add(lateInterestAmount);
+                debtCase.setOutstandingBalance(updatedOutstandingBalance);
+                debtCaseRepository.save(debtCase);
+            }
+        }
+        log.info("Cron job scheduler for calculating outstanding balance has finished!");
     }
 
     private boolean debtCaseIsPending(DebtCase debtCase, LocalDateTime startTime, LocalDateTime endTime) {

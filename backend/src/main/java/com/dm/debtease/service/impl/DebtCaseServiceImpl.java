@@ -1,19 +1,16 @@
 package com.dm.debtease.service.impl;
 
-import com.dm.debtease.exception.InvalidFileFormatException;
 import com.dm.debtease.model.DebtCase;
 import com.dm.debtease.model.dto.DebtCaseDTO;
 import com.dm.debtease.repository.DebtCaseRepository;
 import com.dm.debtease.repository.DebtCaseTypeRepository;
-import com.dm.debtease.service.CsvService;
 import com.dm.debtease.service.DebtCaseService;
-import com.opencsv.exceptions.CsvValidationException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
@@ -23,10 +20,8 @@ import java.util.Optional;
 @Service
 public class DebtCaseServiceImpl implements DebtCaseService {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
     private final DebtCaseRepository debtCaseRepository;
     private final DebtCaseTypeRepository debtCaseTypeRepository;
-    private final CsvService csvService;
 
     @Override
     public List<DebtCase> getAllDebtCases() {
@@ -54,11 +49,6 @@ public class DebtCaseServiceImpl implements DebtCaseService {
         return debtCases.stream()
                 .filter(debtCase -> Objects.equals(debtCase.getDebtor().getUser().getUsername(), username))
                 .toList();
-    }
-
-    @Override
-    public void createDebtCase(MultipartFile file, String username) throws CsvValidationException, IOException, InvalidFileFormatException {
-        csvService.readCsvData(file, username);
     }
 
     @Override
@@ -97,5 +87,22 @@ public class DebtCaseServiceImpl implements DebtCaseService {
                 .orElseThrow(() -> new EntityNotFoundException("Debtcase not found with id " + id));
         debtCase.setIsSent(1);
         debtCaseRepository.save(debtCase);
+    }
+
+    @Override
+    public Optional<DebtCase> findExistingDebtCase(String username, String... indicator) {
+        return debtCaseRepository.findByAmountOwedAndDueDateAndDebtCaseType_TypeAndCreditor_User_UsernameAndDebtor_NameAndDebtor_Surname(
+                new BigDecimal(indicator[0]),
+                LocalDateTime.parse(indicator[1], DATE_TIME_FORMATTER),
+                getTypeToMatch(indicator[2]),
+                username,
+                indicator[3],
+                indicator[4]
+        );
+    }
+
+    @Override
+    public String getTypeToMatch(String type) {
+        return type.toUpperCase().contains("_DEBT") ? type.toUpperCase() : type.toUpperCase().concat("_DEBT");
     }
 }

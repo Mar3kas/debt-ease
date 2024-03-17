@@ -31,7 +31,7 @@ public class DebtCaseTypeServiceImpl implements DebtCaseTypeService {
     public DebtCaseType getDefaultDebtCaseType() {
         List<DebtCaseType> debtCaseTypes = debtCaseTypeRepository.findAll();
         return debtCaseTypes.stream()
-                .filter(debtCaseType -> debtCaseType.getId() == 10)
+                .filter(debtCaseType -> debtCaseType.getId() == 15)
                 .findFirst()
                 .orElse(null);
     }

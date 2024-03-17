@@ -39,23 +39,11 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
   );
   const [editCompleted, setEditCompleted] = useState(false);
   const { handleErrorResponse } = useErrorHandling();
-
   const { data, loading, error } = useGet<ICreditor | IDebtor | IAdmin>(
     "users/{username}",
     username ? { username: username } : {},
     shouldRefetch
   );
-
-  useEffect(() => {
-    if (error && [401, 403].includes(error.statusCode)) {
-      handleErrorResponse(error.statusCode);
-      openSnackbar(error.message, "error");
-    } else if (error?.description.includes("Refresh Token")) {
-      navigate("/login");
-      openSnackbar("You need to login again", "warning");
-    }
-  }, [error, openSnackbar]);
-
   const canEditProfile = data?.user?.role.name !== "ADMIN";
 
   const roleSpecificEndpoint =
@@ -70,32 +58,19 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
     { id: data?.id }
   );
 
-  const handleEditModeToggle = () => {
-    setEditMode((prevEditMode) => {
-      if (prevEditMode) {
-        setEditedData(data ? { ...data } : null);
-      }
-      return !prevEditMode;
-    });
-  };
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    field: string
-  ) => {
-    setFieldErrors((prevErrors) => ({ ...prevErrors, [field]: "" }));
-
-    setEditedData((prevData) => {
-      if (prevData) {
-        return { ...prevData, [field]: e.target.value };
-      }
-      return prevData;
-    });
-  };
-
   useEffect(() => {
     setEditedData(data ? { ...data } : null);
   }, [data]);
+
+  useEffect(() => {
+    if (error && [401, 403].includes(error.statusCode)) {
+      handleErrorResponse(error.statusCode);
+      openSnackbar(error.message, "error");
+    } else if (error?.description.includes("Refresh Token")) {
+      navigate("/login");
+      openSnackbar("You need to login again", "warning");
+    }
+  }, [error, openSnackbar]);
 
   useEffect(() => {
     if (editError !== null && editError.statusCode === 422) {
@@ -143,6 +118,29 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
     setEditCompleted(true);
 
     setTimeout(() => setEditCompleted(false), 1000);
+  };
+
+  const handleEditModeToggle = () => {
+    setEditMode((prevEditMode) => {
+      if (prevEditMode) {
+        setEditedData(data ? { ...data } : null);
+      }
+      return !prevEditMode;
+    });
+  };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    field: string
+  ) => {
+    setFieldErrors((prevErrors) => ({ ...prevErrors, [field]: "" }));
+
+    setEditedData((prevData) => {
+      if (prevData) {
+        return { ...prevData, [field]: e.target.value };
+      }
+      return prevData;
+    });
   };
 
   const renderFields = () =>

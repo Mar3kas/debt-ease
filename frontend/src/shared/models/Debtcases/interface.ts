@@ -7,6 +7,8 @@ import { IDebtor } from "../Debtor";
 export interface IDebtCase {
   id: number;
   amountOwed: number;
+  lateInterestRate: number;
+  outstandingBalance: number;
   dueDate: string;
   debtCaseType: IDebtCaseType;
   debtCaseStatus: IDebtCaseStatus;

@@ -4,7 +4,6 @@ import useStyles from "../../Components/Styles/global-styles";
 import { useNavigate } from "react-router-dom";
 import { usePost } from "../../services/api-service";
 import { Box, Paper, Typography, TextField, Button } from "@mui/material";
-import { LoadingButton } from "@mui/lab";
 import { IUserDTO } from "../../shared/dtos/UserDTO";
 import { IAccessMap } from "../../shared/models/AccessMap";
 import Footer from "../../Components/Footer/footer";
@@ -12,11 +11,11 @@ import Navbar from "../../Components/Navbar/navbar";
 import AuthService from "../../services/jwt-service";
 
 const LoginPage: FC<IPage> = (props): ReactElement => {
-  const { openSnackbar } = props;
-  const { data, error, postData } = usePost<IAccessMap>("login");
-
   const classes = useStyles("light");
   const navigate = useNavigate();
+
+  const { openSnackbar } = props;
+  const { data, error, postData } = usePost<IAccessMap>("login");
 
   const [form, setForm] = useState<Record<string, any>>({
     username: {

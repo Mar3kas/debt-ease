@@ -42,6 +42,7 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
     null
   );
   const [highlightedCases, setHighlightedCases] = useState<number[]>([]);
+  const [downloadPdf, setDownloadPdf] = useState(false);
   const { handleErrorResponse } = useErrorHandling();
   const { openSnackbar } = props;
 
@@ -66,6 +67,7 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
     creditorId: debtCaseToDelete?.creditorId,
     id: debtCaseToDelete?.id,
   });
+
   const {
     data: fileData,
     error: fileError,
@@ -73,6 +75,7 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
   } = usePost<FormData>("debtcases/creditors/{username}/file", {
     username: username,
   });
+
   const {
     data: debtCaseData,
     loading: debtCaseLoading,
@@ -80,7 +83,23 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
   } = useGet<IDebtCase[]>(
     roleSpecificEndpoint,
     role === "ADMIN" ? {} : username ? { username } : {},
-    shouldRefetch
+    shouldRefetch,
+    true
+  );
+
+  const {
+    data: pdfData,
+    loading: fileLoading,
+    error: pdfError,
+    getData,
+  } = useGet<any>(
+    "debtcases/generate/report/debtor/{username}",
+    {
+      username: username,
+    },
+    shouldRefetch,
+    false,
+    "blob"
   );
 
   useEffect(() => {
@@ -100,6 +119,12 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
   }, [debtCaseLoading]);
 
   useEffect(() => {
+    if (debtCaseData) {
+      setCurrentDebtCases(debtCaseData);
+    }
+  }, [debtCaseData]);
+
+  useEffect(() => {
     if (debtCaseData && creditorId === undefined && role === "CREDITOR") {
       const userWithSameUsername = debtCaseData.find(
         (debtCase) => debtCase.creditor.user.username === username
@@ -109,21 +134,6 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
       }
     }
   }, [debtCaseData]);
-
-  useEffect(() => {
-    if (debtCaseData) {
-      setCurrentDebtCases(debtCaseData);
-    }
-  }, [debtCaseData]);
-
-  const handleEdit = (creditorId: number, id: number) => {
-    navigate(`/debtcases/${id}/creditor/${creditorId}`);
-  };
-
-  const handleDelete = (creditorId: number, id: number) => {
-    setDebtCaseToDelete({ creditorId, id });
-    setConfirmationDialogOpen(true);
-  };
 
   useEffect(() => {
     const webSocketService = WebSocketService.getInstance(
@@ -161,14 +171,25 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
     );
   }, []);
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const formData = new FormData();
-      formData.append("file", file);
-      postData(formData, true);
+  useEffect(() => {
+    if (downloadPdf && !fileLoading && !pdfError) {
+      if (pdfData) {
+        const blob = new Blob([pdfData], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `debt_cases_report_${getCurrentDateString()}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+      setDownloadPdf(false);
+    } else if (fileError) {
+      openSnackbar("Error generating Debt Case report", "error");
+      setDownloadPdf(false);
     }
-  };
+  }, [pdfData, fileLoading, pdfError, downloadPdf, openSnackbar]);
 
   useEffect(() => {
     if (fileData) {
@@ -181,15 +202,6 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
       openSnackbar(fileError.description, "error");
     }
   }, [fileData, fileError, openSnackbar]);
-
-  const handleDeleteConfirmed = async () => {
-    deleteData();
-  };
-
-  const handleDeleteCancelled = () => {
-    setConfirmationDialogOpen(false);
-    setDebtCaseToDelete(null);
-  };
 
   useEffect(() => {
     if (
@@ -214,6 +226,46 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
     }
     setDebtCaseToDelete(null);
   }, [deleteError, deletedData, openSnackbar, setCurrentDebtCases]);
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append("file", file);
+      postData(formData, true);
+    }
+  };
+
+  const handleDownloadPdf = async () => {
+    setDownloadPdf(true);
+    getData();
+  };
+
+  const handleEdit = (creditorId: number, id: number) => {
+    navigate(`/debtcases/${id}/creditor/${creditorId}`);
+  };
+
+  const handleDelete = (creditorId: number, id: number) => {
+    setDebtCaseToDelete({ creditorId, id });
+    setConfirmationDialogOpen(true);
+  };
+
+  const handleDeleteConfirmed = async () => {
+    deleteData();
+  };
+
+  const handleDeleteCancelled = () => {
+    setConfirmationDialogOpen(false);
+    setDebtCaseToDelete(null);
+  };
+
+  const getCurrentDateString = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    return `${year}${month}${day}`;
+  };
 
   const renderActionButtons = (creditorId: number, id: number) => (
     <Grid container spacing={1} justifyContent="flex-end">
@@ -293,7 +345,23 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
             <Typography sx={{ fontWeight: "bold" }}>
               Debt case information
             </Typography>
-            <Typography>Amount Owed: {debtCase.amountOwed}€</Typography>
+            <Typography>
+              Late Interest Rate: {debtCase.lateInterestRate}%
+            </Typography>
+            <>
+              {debtCase.outstandingBalance > 0 ? (
+                <>
+                  <Typography>
+                    Initial Amount Owed: {debtCase.amountOwed}€
+                  </Typography>
+                  <Typography>
+                    Outstanding Balance: {debtCase.outstandingBalance}€
+                  </Typography>
+                </>
+              ) : (
+                <Typography>Amount Owed: {debtCase.amountOwed}€</Typography>
+              )}
+            </>
             <Typography>Due Date: {debtCase.dueDate}</Typography>
             <Typography>
               Is Notification Sent? {debtCase.isSent ? "No" : "Yes"}
@@ -326,7 +394,17 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
       <Typography>
         Address: {creditor.address.split(",")[0]}, {company.locality}
       </Typography>
-      <Typography>Account Number: {creditor.accountNumber}</Typography>
+      <Typography>Account Number: {creditor.accountNumber}</Typography>{" "}
+      <Typography>
+        Domain:{" "}
+        <a
+          href={`https://${company.domain}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {company.domain}
+        </a>
+      </Typography>
     </React.Fragment>
   );
 
@@ -372,6 +450,25 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
                 Back
               </Button>
             </Grid>
+            {role === "DEBTOR" && (
+              <Grid item>
+                <Button
+                  component="span"
+                  sx={{
+                    color: "black",
+                    backgroundColor: "white",
+                    border: "2px solid",
+                    "&:hover": {
+                      color: "black",
+                      backgroundColor: "#F8DE7E",
+                    },
+                  }}
+                  onClick={handleDownloadPdf}
+                >
+                  Download generated report
+                </Button>
+              </Grid>
+            )}
             {role === "CREDITOR" && (
               <Grid item>
                 <label htmlFor="file-upload">
