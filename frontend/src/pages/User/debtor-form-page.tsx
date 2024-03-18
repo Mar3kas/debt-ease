@@ -26,7 +26,9 @@ const DebtorFormPage: FC<IPage> = (props): ReactElement => {
 
   const { data: debtorData, error: debtorError } = useGet<IDebtor>(
     `debtors/${id}`,
-    { id: Number(id) }
+    { id: Number(id) },
+    false,
+    true
   );
 
   useEffect(() => {

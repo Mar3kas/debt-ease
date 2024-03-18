@@ -46,12 +46,14 @@ const DebtCaseFormPage: FC<IPage> = (props): ReactElement => {
 
   const { data: debtCaseData, error: debtCaseError } = useGet<IDebtCase>(
     "debtcases/{id}",
-    { id: Number(debtcaseId) }
+    { id: Number(debtcaseId) },
+    false,
+    true
   );
 
   const { data: debtCaseTypeData, error: debtCaseTypeError } = useGet<
     IDebtCaseType[]
-  >("debtcase/types", {});
+  >("debtcase/types", {}, false, true);
 
   const {
     data: editDebtCaseData,

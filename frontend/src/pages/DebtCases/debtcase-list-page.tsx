@@ -382,6 +382,27 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
       <Typography sx={{ fontWeight: "bold" }}>Debtor information</Typography>
       <Typography>Email: {debtor.email}</Typography>
       <Typography>Phone Number: {debtor.phoneNumber}</Typography>
+      {debtor.verifiedPhoneNumberInformation &&
+        debtor.verifiedPhoneNumberInformation.lineType && (
+          <Typography>
+            Line Type: {debtor.verifiedPhoneNumberInformation.lineType}
+          </Typography>
+        )}
+      {debtor.verifiedPhoneNumberInformation &&
+        debtor.verifiedPhoneNumberInformation.location && (
+          <Typography>
+            Location: {debtor.verifiedPhoneNumberInformation.location}
+          </Typography>
+        )}
+      {debtor.verifiedPhoneNumberInformation &&
+        debtor.verifiedPhoneNumberInformation.carrier && (
+          <Typography>
+            Carrier: {debtor.verifiedPhoneNumberInformation.carrier}
+          </Typography>
+        )}
+      <Typography>
+        Is Valid: {debtor.verifiedPhoneNumberInformation?.valid}
+      </Typography>
     </React.Fragment>
   );
 
@@ -450,7 +471,7 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
                 Back
               </Button>
             </Grid>
-            {role === "DEBTOR" && (
+            {role === "DEBTOR" && debtCaseData && debtCaseData.length > 0 && (
               <Grid item>
                 <Button
                   component="span"

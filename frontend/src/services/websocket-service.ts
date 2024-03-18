@@ -98,7 +98,6 @@ class WebSocketService {
 
   disconnect() {
     if (this.stompClient) {
-      console.log("hi");
       this.unsubscribeAll();
       this.stompClient.disconnect(() => this.onDisconnect());
       this.stompClient = null;

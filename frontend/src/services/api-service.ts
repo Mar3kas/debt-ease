@@ -21,7 +21,6 @@ async function handleResponse<T>(
       return mappedError;
     }
     const responseJson: IApiError = JSON.parse(response.request.response);
-    console.log(responseJson);
     if (responseJson.statusCode === 422) {
       if (
         responseJson.description.includes("JSON") ||
@@ -57,8 +56,6 @@ async function handleResponse<T>(
   } else if (response.data) {
     return response.data;
   }
-  console.log(response);
-
   return JSON.parse(response.request.response);
 }
 

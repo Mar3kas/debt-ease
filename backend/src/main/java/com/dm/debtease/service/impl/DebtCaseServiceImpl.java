@@ -1,6 +1,9 @@
 package com.dm.debtease.service.impl;
 
+import com.dm.debtease.model.Creditor;
+import com.dm.debtease.model.CustomUser;
 import com.dm.debtease.model.DebtCase;
+import com.dm.debtease.model.Debtor;
 import com.dm.debtease.model.dto.DebtCaseDTO;
 import com.dm.debtease.repository.DebtCaseRepository;
 import com.dm.debtease.repository.DebtCaseTypeRepository;
@@ -38,8 +41,14 @@ public class DebtCaseServiceImpl implements DebtCaseService {
     public List<DebtCase> getDebtCasesByCreditorUsername(String username) {
         List<DebtCase> debtCases = debtCaseRepository.findAll();
         return debtCases.stream()
-                .filter(debtCase ->
-                        Objects.equals(debtCase.getCreditor().getUser().getUsername(), username))
+                .filter(debtCase -> {
+                    Creditor creditor = debtCase.getCreditor();
+                    if (creditor != null) {
+                        CustomUser user = creditor.getUser();
+                        return user != null && Objects.equals(user.getUsername(), username);
+                    }
+                    return false;
+                })
                 .toList();
     }
 
@@ -47,7 +56,14 @@ public class DebtCaseServiceImpl implements DebtCaseService {
     public List<DebtCase> getDebtCasesByDebtorUsername(String username) {
         List<DebtCase> debtCases = debtCaseRepository.findAll();
         return debtCases.stream()
-                .filter(debtCase -> Objects.equals(debtCase.getDebtor().getUser().getUsername(), username))
+                .filter(debtCase -> {
+                    Debtor debtor = debtCase.getDebtor();
+                    if (debtor != null) {
+                        CustomUser user = debtor.getUser();
+                        return user != null && Objects.equals(user.getUsername(), username);
+                    }
+                    return false;
+                })
                 .toList();
     }
 

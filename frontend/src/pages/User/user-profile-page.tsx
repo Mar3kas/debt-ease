@@ -42,7 +42,8 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
   const { data, loading, error } = useGet<ICreditor | IDebtor | IAdmin>(
     "users/{username}",
     username ? { username: username } : {},
-    shouldRefetch
+    shouldRefetch,
+    true
   );
   const canEditProfile = data?.user?.role.name !== "ADMIN";
 

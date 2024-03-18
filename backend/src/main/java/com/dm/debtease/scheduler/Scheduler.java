@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @Log4j2
@@ -49,8 +50,9 @@ public class Scheduler {
     public void calculateOutstandingBalance() {
         log.info("Starting cron job scheduler for calculating outstanding balance!");
         LocalDateTime currentDate = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
-        List<DebtCase> debtCases = debtCaseRepository.findByDueDateLessThanEqual(currentDate);
-        if (!debtCases.isEmpty()) {
+        Optional<List<DebtCase>> optionalDebtCases = debtCaseRepository.findByDueDateLessThanEqual(currentDate);
+        if (optionalDebtCases.isPresent()) {
+            List<DebtCase> debtCases = optionalDebtCases.get();
             for (DebtCase debtCase : debtCases) {
                 BigDecimal lateInterestAmount = debtCase.getAmountOwed().multiply(BigDecimal.valueOf(debtCase.getLateInterestRate() / 100.0));
                 BigDecimal updatedOutstandingBalance = debtCase.getOutstandingBalance().add(lateInterestAmount);

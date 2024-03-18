@@ -1,4 +1,5 @@
 import { IUser } from "../User";
+import { IVerifiedPhoneNumberInformation } from "../VerifiedPhoneNumberInformation";
 
 export interface IDebtor {
   id: number;
@@ -6,5 +7,6 @@ export interface IDebtor {
   surname: string;
   email?: string;
   phoneNumber?: string;
+  verifiedPhoneNumberInformation?: IVerifiedPhoneNumberInformation;
   user: IUser;
 }

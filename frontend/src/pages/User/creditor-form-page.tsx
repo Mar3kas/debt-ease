@@ -28,7 +28,9 @@ const CreditorFormPage: FC<IPage> = (props): ReactElement => {
 
   const { data: creditorData, error: creditorError } = useGet<ICreditor>(
     `creditors/${id}`,
-    { id: Number(id) }
+    { id: Number(id) },
+    false,
+    true
   );
 
   useEffect(() => {

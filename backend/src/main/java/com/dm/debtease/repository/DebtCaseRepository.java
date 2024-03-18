@@ -15,5 +15,5 @@ public interface DebtCaseRepository extends JpaRepository<DebtCase, Integer> {
 
     Optional<DebtCase> findByIdAndCreditor_Id(int id, int creditorId);
 
-    List<DebtCase> findByDueDateLessThanEqual(LocalDateTime dueDate);
+    Optional<List<DebtCase>> findByDueDateLessThanEqual(LocalDateTime dueDate);
 }

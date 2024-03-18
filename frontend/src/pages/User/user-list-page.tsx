@@ -44,13 +44,13 @@ const UserListPage: FC<IPage> = (props): ReactElement => {
     data: creditorData,
     loading: creditorLoading,
     error: creditorError,
-  } = useGet<ICreditor[]>("creditors", {}, shouldRefetch);
+  } = useGet<ICreditor[]>("creditors", {}, shouldRefetch, true);
 
   const {
     data: debtorData,
     loading: debtorLoading,
     error: debtorError,
-  } = useGet<IDebtor[]>("debtors", {}, shouldRefetch);
+  } = useGet<IDebtor[]>("debtors", {}, shouldRefetch, true);
 
   const useDeleteCreditor = (id: number) => {
     const { data, loading, error, deleteData } = useDelete<any>(
