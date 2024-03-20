@@ -7,6 +7,7 @@ import com.dm.debtease.repository.CompanyInformationRepository;
 import com.dm.debtease.repository.DebtCaseRepository;
 import com.dm.debtease.repository.DebtorRepository;
 import com.dm.debtease.repository.VerifiedPhoneNumberInformationRepository;
+import com.dm.debtease.utils.Constants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.json.JSONObject;
@@ -25,6 +26,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 @Log4j2
+@SuppressWarnings("unused")
 public class DebtCaseConsumer {
     private final DebtCaseRepository debtCaseRepository;
     private final DebtorRepository debtorRepository;
@@ -56,7 +58,7 @@ public class DebtCaseConsumer {
 
     private DebtCase enrich(DebtCase debtCase) {
         CompanyInformation companyInformation = companyInformationRepository.findByNameContainingIgnoreCase(debtCase.getCreditor().getName());
-        debtCase.setCompany(companyInformation);
+        debtCase.getCreditor().setCompany(companyInformation);
         String phoneNumber = fixPhoneNumberFormat(debtCase.getDebtor().getPhoneNumber());
         return validatePhoneNumber(phoneNumber, debtCase);
     }
@@ -105,8 +107,7 @@ public class DebtCaseConsumer {
 
     private void delayBetweenRequests() {
         try {
-            long DELAY_BETWEEN_REQUESTS = 1000;
-            Thread.sleep(DELAY_BETWEEN_REQUESTS);
+            Thread.sleep(Constants.DELAY_BETWEEN_NUMVERIFY_REQUESTS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

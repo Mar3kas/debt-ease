@@ -1,3 +1,4 @@
+import { ICompany } from "../CompanyInformation";
 import { IUser } from "../User";
 
 export interface ICreditor {
@@ -8,4 +9,5 @@ export interface ICreditor {
   email: string;
   accountNumber: string;
   user: IUser;
+  company: ICompany;
 }

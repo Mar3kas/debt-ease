@@ -11,6 +11,7 @@ import com.dm.debtease.repository.DebtCaseRepository;
 import com.dm.debtease.repository.RoleRepository;
 import com.dm.debtease.service.CreditorService;
 import com.dm.debtease.service.PasswordGeneratorService;
+import com.dm.debtease.utils.Constants;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -37,7 +38,7 @@ public class CreditorServiceImpl implements CreditorService {
     @Override
     public Creditor getCreditorById(int id) {
         Optional<Creditor> optionalCreditor = creditorRepository.findById(id);
-        return optionalCreditor.orElseThrow(() -> new EntityNotFoundException("Creditor not found with id " + id));
+        return optionalCreditor.orElseThrow(() -> new EntityNotFoundException(String.format(Constants.CREDITOR_NOT_FOUND, id)));
     }
 
     @Override
@@ -68,7 +69,7 @@ public class CreditorServiceImpl implements CreditorService {
             }
             return creditorRepository.save(creditor);
         }
-        throw new EntityNotFoundException("Creditor not found with id " + id);
+        throw new EntityNotFoundException(String.format(Constants.CREDITOR_NOT_FOUND, id));
     }
 
     @Override
@@ -79,7 +80,7 @@ public class CreditorServiceImpl implements CreditorService {
         creditor.setPhoneNumber(creditorDTO.getPhoneNumber());
         creditor.setEmail(creditorDTO.getEmail());
         creditor.setAccountNumber(creditorDTO.getAccountNumber());
-        Role role = roleRepository.findById(3).orElseThrow(() -> new EntityNotFoundException("Role not found with id 3"));
+        Role role = roleRepository.findById(3).orElseThrow(() -> new EntityNotFoundException(String.format(Constants.ROLE_NOT_FOUND, "3")));
         CustomUser customUser = new CustomUser();
         customUser.setUsername(!creditorDTO.getUsername().isEmpty() ? creditorDTO.getUsername() : creditor.getName());
         customUser.setPassword(bCryptPasswordEncoder.encode(passwordGeneratorService.generatePassword(8)));
@@ -102,6 +103,6 @@ public class CreditorServiceImpl implements CreditorService {
             creditorRepository.deleteById(id);
             return true;
         }
-        throw new EntityNotFoundException("Creditor not found with id " + id);
+        throw new EntityNotFoundException(String.format(Constants.CREDITOR_NOT_FOUND, id));
     }
 }

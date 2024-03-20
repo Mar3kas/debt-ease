@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import java.security.SecureRandom;
 
 @Service
+@SuppressWarnings("unused")
 public class PasswordGeneratorServiceImpl implements PasswordGeneratorService {
     private static final String LOWERCASE_CHARS = "abcdefghijklmnopqrstuvwxyz";
     private static final String UPPERCASE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";

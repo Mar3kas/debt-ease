@@ -23,6 +23,7 @@ import java.util.NoSuchElementException;
 
 @RestControllerAdvice
 @Component
+@SuppressWarnings("unused")
 public class GlobalExceptionHandler {
     @ExceptionHandler(LoginException.class)
     @ResponseStatus(HttpStatus.CONFLICT)

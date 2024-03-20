@@ -2,6 +2,7 @@ package com.dm.debtease.service.impl;
 
 import com.dm.debtease.model.CustomUser;
 import com.dm.debtease.repository.CustomUserRepository;
+import com.dm.debtease.utils.Constants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -27,6 +28,6 @@ public class CustomUserDetailsServiceImpl implements UserDetailsService {
             GrantedAuthority authority = new SimpleGrantedAuthority(customUser.getRole().getName());
             return new User(customUser.getUsername(), customUser.getPassword(), Collections.singleton(authority));
         }
-        throw new UsernameNotFoundException("User not found with username " + username);
+        throw new UsernameNotFoundException(String.format(Constants.USER_NOT_FOUND, username));
     }
 }

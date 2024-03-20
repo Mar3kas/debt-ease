@@ -3,10 +3,12 @@ package com.dm.debtease.service.impl;
 import com.dm.debtease.model.DebtCase;
 import com.dm.debtease.service.DebtCaseService;
 import com.dm.debtease.service.PdfService;
+import com.dm.debtease.utils.Constants;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfWriter;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.knowm.xchart.BitmapEncoder;
 import org.knowm.xchart.PieChart;
@@ -37,12 +39,17 @@ public class PdfServiceImpl implements PdfService {
                 .filter(debtCase -> !"CLOSED".equals(debtCase.getDebtCaseStatus().getStatus()))
                 .collect(Collectors.toList());
         if (debtCases.isEmpty()) {
-            return null;
+            throw new EntityNotFoundException(String.format(Constants.USER_NOT_FOUND, username));
         }
         Document document = new Document();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         PdfWriter.getInstance(document, outputStream);
         document.open();
+        Image img = Image.getInstance("src/main/resources/images/debtease.png");
+        img.scaleToFit(100, 100);
+        img.setAbsolutePosition(36, 770);
+        document.add(img);
+        document.add(new Paragraph("\n"));
         addTitle(document);
         addIntro(document, debtCases.get(0).getDebtor().getName(), debtCases.get(0).getDebtor().getSurname());
         addDebtCasesInfo(document, debtCases);
@@ -79,7 +86,11 @@ public class PdfServiceImpl implements PdfService {
 
     private void addIntro(Document document, String name, String surname) throws DocumentException {
         Font introFont = FontFactory.getFont(FontFactory.HELVETICA, 12, BaseColor.BLACK);
-        Paragraph intro = new Paragraph("Dear " + name + " " + surname + ",\n\nThis report contains information about all your debt cases.\n\n", introFont);
+        String greeting = String.format("Dear %s %s,", name, surname);
+        String introMessage = "We hope this message finds you well. Below is a summary of all your active debt cases.";
+        Paragraph intro = new Paragraph();
+        intro.add(new Phrase(greeting + "\n\n", introFont));
+        intro.add(new Phrase(introMessage + "\n\n", introFont));
         document.add(intro);
     }
 

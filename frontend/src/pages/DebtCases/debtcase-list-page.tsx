@@ -363,11 +363,12 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
               )}
             </>
             <Typography>Due Date: {debtCase.dueDate}</Typography>
-            <Typography>
-              Is Notification Sent? {debtCase.isSent ? "No" : "Yes"}
-            </Typography>
+            <Typography>Date Created: {debtCase.createdDate}</Typography>
+            {debtCase.modifiedDate && (
+              <Typography>Date Modified: {debtCase.modifiedDate}</Typography>
+            )}
             {renderDebtorDetails(debtCase.debtor)}
-            {renderCreditorDetails(debtCase.creditor, debtCase.company)}
+            {renderCreditorDetails(debtCase.creditor)}
             {(role === "CREDITOR" || role === "ADMIN") && (
               <>{renderActionButtons(debtCase.creditor.id, debtCase.id)}</>
             )}
@@ -406,24 +407,24 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
     </React.Fragment>
   );
 
-  const renderCreditorDetails = (creditor: ICreditor, company: ICompany) => (
+  const renderCreditorDetails = (creditor: ICreditor) => (
     <React.Fragment>
       <Typography sx={{ fontWeight: "bold" }}>Creditor Information</Typography>
-      <Typography>Industry: {company.industry}</Typography>
+      <Typography>Industry: {creditor.company.industry}</Typography>
       <Typography>Email: {creditor.email}</Typography>
       <Typography>Phone Number: {creditor.phoneNumber}</Typography>
       <Typography>
-        Address: {creditor.address.split(",")[0]}, {company.locality}
+        Address: {creditor.address.split(",")[0]}, {creditor.company.locality}
       </Typography>
       <Typography>Account Number: {creditor.accountNumber}</Typography>{" "}
       <Typography>
         Domain:{" "}
         <a
-          href={`https://${company.domain}`}
+          href={`https://${creditor.company.domain}`}
           target="_blank"
           rel="noopener noreferrer"
         >
-          {company.domain}
+          {creditor.company.domain}
         </a>
       </Typography>
     </React.Fragment>

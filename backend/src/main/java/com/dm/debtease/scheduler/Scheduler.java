@@ -1,11 +1,12 @@
 package com.dm.debtease.scheduler;
 
+import com.dm.debtease.model.Creditor;
 import com.dm.debtease.model.DebtCase;
 import com.dm.debtease.model.Debtor;
 import com.dm.debtease.repository.DebtCaseRepository;
 import com.dm.debtease.service.DebtCaseService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -18,22 +19,17 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
+@RequiredArgsConstructor
 @Log4j2
+@SuppressWarnings("unused")
 public class Scheduler {
     private final DebtCaseService debtCaseService;
     private final DebtCaseRepository debtCaseRepository;
     private final JavaMailSender javaMailSender;
 
-    @Autowired
-    public Scheduler(DebtCaseService debtCaseService, DebtCaseRepository debtCaseRepository, JavaMailSender javaMailSender) {
-        this.debtCaseService = debtCaseService;
-        this.debtCaseRepository = debtCaseRepository;
-        this.javaMailSender = javaMailSender;
-    }
-
     @Scheduled(cron = "0 * * * * *")
-    public void emailNotificationScheduler() {
-        log.info("Starting cron job scheduler for email notification!");
+    public void emailNotificationForUpcomingDueDatePaymentScheduler() {
+        log.info("Starting cron job scheduler for email notification for upcoming due date payment!");
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime tenDaysLater = now.plusDays(10);
         List<DebtCase> debtCases = debtCaseService.getAllDebtCases();
@@ -42,7 +38,17 @@ public class Scheduler {
                 sendNotificationEmail(debtCase);
             }
         }
-        log.info("Cron job scheduler for email notification has finished!");
+        log.info("Cron job scheduler for email notification for upcoming due date payment has finished!");
+    }
+
+    @Scheduled(cron = "0 0 0 20 * *")
+    public void emailNotificationEachMonth20DayScheduler() {
+        log.info("Starting cron job scheduler for email notification each month 20th day!");
+        List<DebtCase> debtCases = debtCaseService.getAllDebtCases();
+        for (DebtCase debtCase : debtCases) {
+            sendNotificationEmail(debtCase);
+        }
+        log.info("Cron job scheduler for email notification each month 20th day has finished!");
     }
 
     @Scheduled(cron = "0 * * * * *")
@@ -66,20 +72,20 @@ public class Scheduler {
     private boolean debtCaseIsPending(DebtCase debtCase, LocalDateTime startTime, LocalDateTime endTime) {
         return debtCase.getDueDate().isAfter(startTime)
                 && debtCase.getDueDate().isBefore(endTime)
-                && "NEW".equals(debtCase.getDebtCaseType().getType())
-                && debtCase.getIsSent() != 1;
+                && "NEW".equals(debtCase.getDebtCaseType().getType());
     }
 
     private void sendNotificationEmail(DebtCase debtCase) {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setFrom("marijuspet@gmail.com");
         Debtor debtor = debtCase.getDebtor();
+        Creditor creditor = debtCase.getCreditor();
         mailMessage.setTo(debtor.getEmail());
         mailMessage.setSubject("Pending debt until " + debtCase.getDueDate());
-        mailMessage.setText(String.format("Dear, %s %s! %n You have an open debt case with an outstanding amount: %f.2f! Please pay by %s!",
+        mailMessage.setText(String.format("Dear, %s %s! %n You have an open debt case with an amount owed: %f.2f! Issued by %s. Please pay by %s!",
                 debtor.getName(), debtor.getSurname(),
-                debtCase.getAmountOwed(), debtCase.getDueDate()));
+                debtCase.getAmountOwed(), creditor.getName(),
+                debtCase.getDueDate()));
         javaMailSender.send(mailMessage);
-        debtCaseService.markDebtCaseEmailAsSentById(debtCase.getId());
     }
 }

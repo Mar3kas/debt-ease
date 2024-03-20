@@ -35,4 +35,8 @@ public class Creditor {
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     CustomUser user;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "company_id", nullable = false)
+    CompanyInformation company;
 }

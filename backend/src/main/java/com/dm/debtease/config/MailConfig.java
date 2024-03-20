@@ -9,6 +9,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import java.util.Properties;
 
 @Configuration
+@SuppressWarnings("unused")
 public class MailConfig {
     @Value("${spring.mail.host}")
     private String mailHost;

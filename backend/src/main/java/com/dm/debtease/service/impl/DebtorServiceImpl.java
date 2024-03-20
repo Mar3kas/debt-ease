@@ -4,6 +4,7 @@ import com.dm.debtease.model.Debtor;
 import com.dm.debtease.model.dto.DebtorDTO;
 import com.dm.debtease.repository.DebtorRepository;
 import com.dm.debtease.service.DebtorService;
+import com.dm.debtease.utils.Constants;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class DebtorServiceImpl implements DebtorService {
 
     public Debtor getDebtorById(int id) {
         Optional<Debtor> optionalDebtor = debtorRepository.findById(id);
-        return optionalDebtor.orElseThrow(() -> new EntityNotFoundException("Debtor not found with id " + id));
+        return optionalDebtor.orElseThrow(() -> new EntityNotFoundException(String.format(Constants.DEBTOR_NOT_FOUND, id)));
     }
 
     @Override
@@ -57,7 +58,7 @@ public class DebtorServiceImpl implements DebtorService {
             }
             return debtorRepository.save(debtor);
         }
-        throw new EntityNotFoundException("Debtor not found with id " + id);
+        throw new EntityNotFoundException(String.format(Constants.DEBTOR_NOT_FOUND, id));
     }
 
     @Override
@@ -85,6 +86,6 @@ public class DebtorServiceImpl implements DebtorService {
             debtorRepository.deleteById(id);
             return true;
         }
-        throw new EntityNotFoundException("Debtor not found with id " + id);
+        throw new EntityNotFoundException(String.format(Constants.DEBTOR_NOT_FOUND, id));
     }
 }

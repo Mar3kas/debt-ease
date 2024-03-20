@@ -58,10 +58,11 @@ public class DebtCase {
     @JoinColumn(name = "debtor_id", nullable = false)
     Debtor debtor;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "company_id", nullable = false)
-    CompanyInformation company;
+    @Column(name = "created_date", nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    LocalDateTime createdDate;
 
-    @Column(name = "email_sent", nullable = false)
-    int isSent;
+    @Column(name = "modified_date")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    LocalDateTime modifiedDate;
 }

@@ -47,6 +47,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @SecurityRequirement(name = "dmapi")
 @RequestMapping(value = "/api")
+@SuppressWarnings("unused")
 public class UserController {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;

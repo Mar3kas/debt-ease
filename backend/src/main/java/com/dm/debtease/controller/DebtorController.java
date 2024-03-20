@@ -29,6 +29,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @SecurityRequirement(name = "dmapi")
 @RequestMapping(value = "/api/debtors")
+@SuppressWarnings("unused")
 public class DebtorController {
     private final DebtorService debtorService;
 

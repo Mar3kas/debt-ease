@@ -8,13 +8,13 @@ import com.dm.debtease.model.dto.DebtCaseDTO;
 import com.dm.debtease.repository.DebtCaseRepository;
 import com.dm.debtease.repository.DebtCaseTypeRepository;
 import com.dm.debtease.service.DebtCaseService;
+import com.dm.debtease.utils.Constants;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -22,7 +22,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Service
 public class DebtCaseServiceImpl implements DebtCaseService {
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final DebtCaseRepository debtCaseRepository;
     private final DebtCaseTypeRepository debtCaseTypeRepository;
 
@@ -34,7 +33,7 @@ public class DebtCaseServiceImpl implements DebtCaseService {
     @Override
     public DebtCase getDebtCaseById(int id) {
         Optional<DebtCase> optionalDebtCase = debtCaseRepository.findById(id);
-        return optionalDebtCase.orElseThrow(() -> new EntityNotFoundException("Debtcase not found with id " + id));
+        return optionalDebtCase.orElseThrow(() -> new EntityNotFoundException(String.format(Constants.DEBT_CASE_NOT_FOUND, id)));
     }
 
     @Override
@@ -80,11 +79,12 @@ public class DebtCaseServiceImpl implements DebtCaseService {
             }
             if (debtCaseDTO.getTypeId() > 0) {
                 debtCase.setDebtCaseType(debtCaseTypeRepository.findById(debtCaseDTO.getTypeId())
-                        .orElseThrow(() -> new EntityNotFoundException("Debtcase type not found with id " + debtCaseDTO.getTypeId())));
+                        .orElseThrow(() -> new EntityNotFoundException(String.format(Constants.DEBT_CASE_TYPE_NOT_FOUND, debtCaseDTO.getTypeId()))));
             }
+            debtCase.setModifiedDate(LocalDateTime.parse(LocalDateTime.now().format(Constants.DATE_TIME_FORMATTER)));
             return debtCaseRepository.save(debtCase);
         }
-        throw new EntityNotFoundException("Debtcase not found with id " + id);
+        throw new EntityNotFoundException(String.format(Constants.DEBT_CASE_NOT_FOUND, id));
     }
 
     @Override
@@ -94,22 +94,14 @@ public class DebtCaseServiceImpl implements DebtCaseService {
             debtCaseRepository.deleteById(id);
             return true;
         }
-        throw new EntityNotFoundException("Debtcase not found with id " + id);
-    }
-
-    @Override
-    public void markDebtCaseEmailAsSentById(int id) {
-        DebtCase debtCase = debtCaseRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Debtcase not found with id " + id));
-        debtCase.setIsSent(1);
-        debtCaseRepository.save(debtCase);
+        throw new EntityNotFoundException(String.format(Constants.DEBT_CASE_NOT_FOUND, id));
     }
 
     @Override
     public Optional<DebtCase> findExistingDebtCase(String username, String... indicator) {
         return debtCaseRepository.findByAmountOwedAndDueDateAndDebtCaseType_TypeAndCreditor_User_UsernameAndDebtor_NameAndDebtor_Surname(
                 new BigDecimal(indicator[0]),
-                LocalDateTime.parse(indicator[1], DATE_TIME_FORMATTER),
+                LocalDateTime.parse(indicator[1], Constants.DATE_TIME_FORMATTER),
                 getTypeToMatch(indicator[2]),
                 username,
                 indicator[3],

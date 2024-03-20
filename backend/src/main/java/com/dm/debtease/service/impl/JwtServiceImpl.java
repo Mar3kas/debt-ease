@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Service
+@SuppressWarnings("unused")
 public class JwtServiceImpl implements JwtService {
     private final Key key;
     private final Set<String> revokedTokens;

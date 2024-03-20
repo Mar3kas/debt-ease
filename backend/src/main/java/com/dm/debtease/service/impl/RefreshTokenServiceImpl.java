@@ -5,6 +5,7 @@ import com.dm.debtease.exception.TokenRefreshException;
 import com.dm.debtease.model.RefreshToken;
 import com.dm.debtease.repository.RefreshTokenRepository;
 import com.dm.debtease.service.RefreshTokenService;
+import com.dm.debtease.utils.Constants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
+@SuppressWarnings("unused")
 public class RefreshTokenServiceImpl implements RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
     @Value("${spring.jwt.refreshTokenExpirationInMs}")
@@ -35,7 +37,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     public boolean validateRefreshToken(RefreshToken token) {
         if (token.getExpirationDate().compareTo(Instant.now()) < 0) {
-            throw new TokenRefreshException(token.getToken(), "Refresh token is expired. Please make a new login request");
+            throw new TokenRefreshException(token.getToken(), Constants.REFRESH_TOKEN_EXPIRED);
         }
         return true;
     }
@@ -43,6 +45,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     public RefreshToken findByToken(String token) {
         return refreshTokenRepository.findByToken(token)
-                .orElseThrow(() -> new InvalidRefreshTokenException(String.format("Refresh token not found by this token %s", token)));
+                .orElseThrow(() -> new InvalidRefreshTokenException(String.format(Constants.REFRESH_TOKEN_NOT_FOUND, token)));
     }
 }

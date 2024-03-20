@@ -19,8 +19,6 @@ public interface DebtCaseService {
 
     boolean deleteDebtCaseById(int id, int creditorId);
 
-    void markDebtCaseEmailAsSentById(int id);
-
     Optional<DebtCase> findExistingDebtCase(String username, String... indicator);
 
     String getTypeToMatch(String type);

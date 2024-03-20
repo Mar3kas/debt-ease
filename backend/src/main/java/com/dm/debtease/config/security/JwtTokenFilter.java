@@ -4,6 +4,7 @@ import com.dm.debtease.service.JwtService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.SignatureException;
+import jakarta.annotation.Nullable;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,29 +27,31 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
-        String requestUri = request.getRequestURI();
-        if (isRefreshTokenRequest(requestUri)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-        String token = jwtService.resolveToken(request);
-        if (token != null) {
-            try {
-                if (jwtService.validateToken(token) && !jwtService.isTokenRevoked(token)) {
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(jwtService.getUsername(token));
-                    UsernamePasswordAuthenticationToken authenticationToken =
-                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                }
-            } catch (ExpiredJwtException | UnsupportedJwtException
-                     | SignatureException | IllegalStateException | NullPointerException ex) {
-                SecurityContextHolder.clearContext();
+    protected void doFilterInternal(@Nullable HttpServletRequest request, @Nullable HttpServletResponse response,
+                                    @Nullable FilterChain filterChain) throws ServletException, IOException {
+        if (filterChain != null && request != null) {
+            String requestUri = request.getRequestURI();
+            if (isRefreshTokenRequest(requestUri)) {
+                filterChain.doFilter(request, response);
+                return;
             }
+            String token = jwtService.resolveToken(request);
+            if (token != null) {
+                try {
+                    if (jwtService.validateToken(token) && !jwtService.isTokenRevoked(token)) {
+                        UserDetails userDetails = userDetailsService.loadUserByUsername(jwtService.getUsername(token));
+                        UsernamePasswordAuthenticationToken authenticationToken =
+                                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                        authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                    }
+                } catch (ExpiredJwtException | UnsupportedJwtException
+                         | SignatureException | IllegalStateException | NullPointerException ex) {
+                    SecurityContextHolder.clearContext();
+                }
+            }
+            filterChain.doFilter(request, response);
         }
-        filterChain.doFilter(request, response);
     }
 
     private boolean isRefreshTokenRequest(String requestUri) {

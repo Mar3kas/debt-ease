@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
+@SuppressWarnings("unused")
 public class KafkaConsumerConfig {
     @Value("${spring.kafka.consumer.bootstrap-servers}")
     private String bootstrapServer;

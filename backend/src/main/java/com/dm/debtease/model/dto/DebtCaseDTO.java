@@ -13,7 +13,9 @@ public class DebtCaseDTO {
     @Positive(message = "Amount Owed must be positive")
     @NotNull(message = "Amount Owed cannot be null")
     BigDecimal amountOwed;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime dueDate;
+
     int typeId;
 }

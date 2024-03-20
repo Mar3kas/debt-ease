@@ -19,6 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @SecurityRequirement(name = "dmapi")
 @RequestMapping(value = "/api/debtcase/types")
+@SuppressWarnings("unused")
 public class DebtCaseTypeController {
     private final DebtCaseTypeService debtCaseTypeService;
 

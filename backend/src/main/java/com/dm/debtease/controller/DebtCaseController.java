@@ -3,9 +3,10 @@ package com.dm.debtease.controller;
 import com.dm.debtease.exception.InvalidFileFormatException;
 import com.dm.debtease.model.DebtCase;
 import com.dm.debtease.model.dto.DebtCaseDTO;
-import com.dm.debtease.service.CsvService;
+import com.dm.debtease.service.CSVService;
 import com.dm.debtease.service.DebtCaseService;
 import com.dm.debtease.service.PdfService;
+import com.dm.debtease.utils.Constants;
 import com.itextpdf.text.DocumentException;
 import com.opencsv.exceptions.CsvValidationException;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -25,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -33,9 +35,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @SecurityRequirement(name = "dmapi")
 @RequestMapping(value = "/api/debtcases")
+@SuppressWarnings("unused")
 public class DebtCaseController {
     private final DebtCaseService debtCaseService;
-    private final CsvService csvService;
+    private final CSVService csvService;
     private final PdfService pdfService;
 
     @GetMapping()
@@ -72,7 +75,7 @@ public class DebtCaseController {
                                                                            @PathVariable(name = "username") String username) throws IOException, DocumentException {
         ByteArrayInputStream document = pdfService.generatePdf(username);
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("Content-Disposition", "attachment; filename=debt_cases_report.pdf");
+        httpHeaders.add("Content-Disposition", "attachment; filename=" + "debt_cases_report_" + LocalDateTime.now().format(Constants.DATE_TIME_FORMATTER_FOR_FILE) + ".pdf");
         httpHeaders.setContentType(MediaType.APPLICATION_PDF);
         return ResponseEntity.ok().headers(httpHeaders).contentType(MediaType.APPLICATION_PDF).body(new InputStreamResource(document));
     }

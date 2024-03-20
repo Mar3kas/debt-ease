@@ -4,6 +4,7 @@ import com.dm.debtease.exception.InvalidFileFormatException;
 import com.dm.debtease.model.*;
 import com.dm.debtease.model.dto.DebtorDTO;
 import com.dm.debtease.service.*;
+import com.dm.debtease.utils.Constants;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
@@ -20,15 +21,13 @@ import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.Optional;
 
 @Log4j2
 @RequiredArgsConstructor
 @Service
-public class CsvServiceImpl implements CsvService {
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+public class CSVServiceImpl implements CSVService {
     private final DebtCaseTypeService debtCaseTypeService;
     private final CreditorService creditorService;
     private final DebtCaseStatusService debtCaseStatusService;
@@ -67,7 +66,7 @@ public class CsvServiceImpl implements CsvService {
 
     private void validateCsvFile(String fileName) throws InvalidFileFormatException {
         if (!fileName.toLowerCase().endsWith(".csv")) {
-            throw new InvalidFileFormatException("Uploaded file is not a CSV file");
+            throw new InvalidFileFormatException(Constants.NOT_CSV);
         }
     }
 
@@ -83,7 +82,8 @@ public class CsvServiceImpl implements CsvService {
             debtCase = existingDebtCase.get();
             debtCase.setAmountOwed(new BigDecimal(line[5]));
             debtCase.setLateInterestRate(Double.parseDouble(line[6]));
-            debtCase.setDueDate(line[7] != null ? LocalDateTime.parse(line[7], DATE_TIME_FORMATTER) : LocalDateTime.now().plusMonths(2));
+            debtCase.setDueDate(line[7] != null ? LocalDateTime.parse(line[7], Constants.DATE_TIME_FORMATTER) : LocalDateTime.parse(LocalDateTime.now().plusMonths(2).format(Constants.DATE_TIME_FORMATTER)));
+            debtCase.setModifiedDate(LocalDateTime.parse(LocalDateTime.now().format(Constants.DATE_TIME_FORMATTER)));
         } else {
             debtCase = new DebtCase();
             debtCase.setCreditor(creditor);
@@ -92,8 +92,8 @@ public class CsvServiceImpl implements CsvService {
             debtCase.setAmountOwed(new BigDecimal(line[5]));
             debtCase.setOutstandingBalance(BigDecimal.ZERO);
             debtCase.setLateInterestRate(Double.parseDouble(line[6]));
-            debtCase.setDueDate(line[7] != null ? LocalDateTime.parse(line[7], DATE_TIME_FORMATTER) : LocalDateTime.now().plusMonths(2));
-            debtCase.setIsSent(0);
+            debtCase.setDueDate(line[7] != null ? LocalDateTime.parse(line[7], Constants.DATE_TIME_FORMATTER) : LocalDateTime.parse(LocalDateTime.now().plusMonths(2).format(Constants.DATE_TIME_FORMATTER)));
+            debtCase.setCreatedDate(LocalDateTime.parse(LocalDateTime.now().format(Constants.DATE_TIME_FORMATTER)));
         }
         DebtCaseType matchingDebtCaseType = debtCaseTypeService.findMatchingDebtCaseType(typeToMatch);
         debtCase.setDebtCaseType(matchingDebtCaseType != null ? matchingDebtCaseType : debtCaseTypeService.getDefaultDebtCaseType());
