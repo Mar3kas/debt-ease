@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,6 +23,7 @@ import java.util.Set;
 @Service
 @SuppressWarnings("unused")
 public class JwtServiceImpl implements JwtService {
+    @Getter
     private final Key key;
     private final Set<String> revokedTokens;
     @Value("${spring.jwt.accessTokenExpirationInMs}")

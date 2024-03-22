@@ -1,0 +1,102 @@
+package com.dm.debtease.service;
+
+import com.dm.debtease.service.impl.JwtServiceImpl;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import jakarta.servlet.http.HttpServletRequest;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Date;
+import java.util.HashSet;
+
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+public class JwtServiceTest {
+    @Mock
+    private HttpServletRequest request;
+
+    @InjectMocks
+    private JwtServiceImpl jwtService;
+
+    @Test
+    void testCreateToken() {
+        HashSet<GrantedAuthority> roles = new HashSet<>();
+        roles.add(new SimpleGrantedAuthority("ADMIN"));
+        UserDetails userDetails = new User("testUser", "password", roles);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        String token = jwtService.createToken(authentication);
+        Assertions.assertNotNull(token);
+    }
+
+    @Test
+    void testResolveToken() {
+        String testToken = "Bearer testToken";
+        when(request.getHeader("Authorization")).thenReturn(testToken);
+        String resolvedToken = jwtService.resolveToken(request);
+        Assertions.assertEquals("testToken", resolvedToken);
+    }
+
+    @Test
+    void testGetUsername() {
+        String token = Jwts.builder()
+                .setSubject("testUser")
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 3600000))
+                .signWith(jwtService.getKey())
+                .compact();
+        String username = jwtService.getUsername(token);
+        Assertions.assertEquals("testUser", username);
+    }
+
+    @Test
+    void testValidateToken() {
+        String token = Jwts.builder()
+                .setSubject("testUser")
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 3600000))
+                .signWith(jwtService.getKey())
+                .compact();
+        boolean isValid = jwtService.validateToken(token);
+        Assertions.assertTrue(isValid);
+    }
+
+    @Test
+    void testParseClaims() {
+        String token = Jwts.builder()
+                .setSubject("testUser")
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 3600000))
+                .signWith(jwtService.getKey())
+                .compact();
+        Claims claims = jwtService.parseClaims(token);
+        Assertions.assertNotNull(claims);
+        Assertions.assertEquals("testUser", claims.getSubject());
+    }
+
+    @Test
+    void testAddToRevokedTokens() {
+        String token = "testToken";
+        jwtService.addToRevokedTokens(token);
+        Assertions.assertTrue(jwtService.isTokenRevoked(token));
+    }
+
+    @Test
+    void testIsTokenRevoked() {
+        String token = "testToken";
+        jwtService.addToRevokedTokens(token);
+        boolean isRevoked = jwtService.isTokenRevoked(token);
+        Assertions.assertTrue(isRevoked);
+    }
+}
