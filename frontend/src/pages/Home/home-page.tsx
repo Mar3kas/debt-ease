@@ -8,6 +8,7 @@ import { useTransition, animated, useSpring } from "@react-spring/web";
 import useStyles from "../../Components/Styles/global-styles";
 import Navbar from "../../Components/Navbar/navbar";
 import Footer from "../../Components/Footer/footer";
+import { useNavigate } from "react-router-dom";
 
 const slides = [
   {
@@ -33,6 +34,7 @@ const slides = [
 const HomePage: FC = (): ReactElement => {
   const classes = useStyles("light");
   const [index, setIndex] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -58,6 +60,10 @@ const HomePage: FC = (): ReactElement => {
     setIndex((prevIndex) =>
       prevIndex === 0 ? slides.length - 1 : prevIndex - 1
     );
+  };
+
+  const handleContactSupport = () => {
+    window.location.href = "mailto:marijuspet@email.com";
   };
 
   const sloganStyle = useSpring({
@@ -167,7 +173,9 @@ const HomePage: FC = (): ReactElement => {
               },
               color: "#654321",
             }}
-            onClick={() => {}}
+            onClick={(): void => {
+              navigate("/information");
+            }}
           >
             <HelpIcon style={{ fontSize: 60 }} />
           </IconButton>
@@ -184,7 +192,7 @@ const HomePage: FC = (): ReactElement => {
               },
               color: "#654321",
             }}
-            onClick={() => {}}
+            onClick={handleContactSupport}
           >
             <ContactSupportIcon style={{ fontSize: 60 }} />
           </IconButton>

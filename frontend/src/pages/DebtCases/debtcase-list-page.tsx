@@ -24,7 +24,6 @@ import useErrorHandling from "../../services/handle-responses";
 import { IDebtor } from "../../shared/models/Debtor";
 import WebSocketService from "../../services/websocket-service";
 import { ICreditor } from "../../shared/models/Creditor";
-import { ICompany } from "../../shared/models/CompanyInformation";
 
 const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
   const classes = useStyles("light");
@@ -307,7 +306,7 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
     status: string,
     highlightedCases: number[]
   ) => (
-    <div>
+    <React.Fragment>
       {cases.length > 0 && (
         <Typography sx={{ marginTop: "20px" }} variant="h6" gutterBottom>
           {title}
@@ -342,40 +341,48 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Typography sx={{ fontWeight: "bold" }}>
-              Debt case information
-            </Typography>
-            <Typography>
-              Late Interest Rate: {debtCase.lateInterestRate}%
-            </Typography>
-            <>
-              {debtCase.outstandingBalance > 0 ? (
-                <>
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <Typography sx={{ fontWeight: "bold" }}>
+                  Debt case information
+                </Typography>
+                <Typography>
+                  Late Interest Rate: {debtCase.lateInterestRate}%
+                </Typography>
+                {debtCase.outstandingBalance > 0 ? (
+                  <>
+                    <Typography>
+                      Initial Amount Owed: {debtCase.amountOwed}€
+                    </Typography>
+                    <Typography>
+                      Outstanding Balance: {debtCase.outstandingBalance}€
+                    </Typography>
+                  </>
+                ) : (
+                  <Typography>Amount Owed: {debtCase.amountOwed}€</Typography>
+                )}
+                <Typography>Due Date: {debtCase.dueDate}</Typography>
+                <Typography>Date Created: {debtCase.createdDate}</Typography>
+                {debtCase.modifiedDate && (
                   <Typography>
-                    Initial Amount Owed: {debtCase.amountOwed}€
+                    Date Modified: {debtCase.modifiedDate}
                   </Typography>
-                  <Typography>
-                    Outstanding Balance: {debtCase.outstandingBalance}€
-                  </Typography>
-                </>
-              ) : (
-                <Typography>Amount Owed: {debtCase.amountOwed}€</Typography>
-              )}
-            </>
-            <Typography>Due Date: {debtCase.dueDate}</Typography>
-            <Typography>Date Created: {debtCase.createdDate}</Typography>
-            {debtCase.modifiedDate && (
-              <Typography>Date Modified: {debtCase.modifiedDate}</Typography>
-            )}
-            {renderDebtorDetails(debtCase.debtor)}
-            {renderCreditorDetails(debtCase.creditor)}
+                )}
+              </Grid>
+              <Grid item xs={6}>
+                {renderDebtorDetails(debtCase.debtor)}
+                {renderCreditorDetails(debtCase.creditor)}
+              </Grid>
+            </Grid>
             {(role === "CREDITOR" || role === "ADMIN") && (
-              <>{renderActionButtons(debtCase.creditor.id, debtCase.id)}</>
+              <Grid item xs={12}>
+                {renderActionButtons(debtCase.creditor.id, debtCase.id)}
+              </Grid>
             )}
           </AccordionDetails>
         </Accordion>
       ))}
-    </div>
+    </React.Fragment>
   );
 
   const renderDebtorDetails = (debtor: IDebtor) => (

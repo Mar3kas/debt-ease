@@ -9,6 +9,7 @@ import {
   CreditorFormPage,
   CreditorCreationFormPage,
   DebtCaseFormPage,
+  SystemInfoPage,
 } from "./pages";
 
 interface Route {
@@ -26,6 +27,13 @@ export const routes: Route[] = [
     path: "/",
     enabled: true,
     component: HomePage,
+  },
+  {
+    key: "help-page-route",
+    title: "Information",
+    path: "/information",
+    enabled: true,
+    component: SystemInfoPage,
   },
   {
     key: "login-page-route",

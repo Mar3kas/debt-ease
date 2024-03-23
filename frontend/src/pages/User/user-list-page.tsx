@@ -266,12 +266,13 @@ const UserListPage: FC<IPage> = (props): ReactElement => {
                 >
                   <TextField
                     label="Search Creditors"
-                    sx={{ background: "white" }}
+                    sx={{ background: "white", borderRadius: "4px" }}
                     variant="outlined"
                     value={creditorSearchQuery}
                     onChange={(e) => setCreditorSearchQuery(e.target.value)}
                     margin="normal"
                     size="small"
+                    className={classes.searchTextField}
                   />
                 </Box>
               </Typography>
@@ -298,11 +299,12 @@ const UserListPage: FC<IPage> = (props): ReactElement => {
                 Create Creditor
               </Button>
               {filteredCreditors?.slice(0, showMoreCreditor).map((creditor) => (
-                <Accordion key={creditor.id}>
+                <Accordion key={creditor.id} sx={{ my: 1 }}>
                   <AccordionSummary
                     expandIcon={<ExpandMoreIcon />}
                     aria-controls={`creditor-details-${creditor.id}`}
                     id={`creditor-details-${creditor.id}`}
+                    sx={{ borderBottom: "1px solid #ccc" }}
                   >
                     <Typography>{creditor.name}</Typography>
                   </AccordionSummary>
@@ -332,12 +334,13 @@ const UserListPage: FC<IPage> = (props): ReactElement => {
                 >
                   <TextField
                     label="Search Debtors"
-                    sx={{ background: "white" }}
+                    sx={{ background: "white", borderRadius: "4px" }}
                     variant="outlined"
                     value={debtorSearchQuery}
                     onChange={(e) => setDebtorSearchQuery(e.target.value)}
                     margin="normal"
                     size="small"
+                    className={classes.searchTextField}
                   />
                 </Box>
               </Typography>
@@ -348,11 +351,12 @@ const UserListPage: FC<IPage> = (props): ReactElement => {
                 "Debtors"
               )}
               {filteredDebtors?.slice(0, showMoreDebtor).map((debtor) => (
-                <Accordion key={debtor.id}>
+                <Accordion key={debtor.id} sx={{ my: 1 }}>
                   <AccordionSummary
                     expandIcon={<ExpandMoreIcon />}
                     aria-controls={`debtor-details-${debtor.id}`}
                     id={`debtor-details-${debtor.id}`}
+                    sx={{ borderBottom: "1px solid #ccc" }}
                   >
                     <Typography>{`${debtor.name} ${debtor.surname}`}</Typography>
                   </AccordionSummary>

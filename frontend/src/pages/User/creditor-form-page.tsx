@@ -1,5 +1,13 @@
 import React, { FC, ReactElement, useEffect, useState } from "react";
-import { Paper, Typography, Box, Button, Grid, Divider } from "@mui/material";
+import {
+  Paper,
+  Typography,
+  Box,
+  Button,
+  Grid,
+  Divider,
+  TextField,
+} from "@mui/material";
 import Navbar from "../../Components/Navbar/navbar";
 import Footer from "../../Components/Footer/footer";
 import { IPage } from "../../shared/models/Page";
@@ -147,26 +155,27 @@ const CreditorFormPage: FC<IPage> = (props): ReactElement => {
         </Box>
         <form>
           <Grid container spacing={2} sx={{ padding: 0.5 }}>
-            {["name", "address", "phoneNumber", "email", "accountNumber"].map(
-              (field) => (
-                <Grid item xs={12} key={field}>
-                  <div>
-                    <label style={{ color: "black", marginRight: "5px" }}>
-                      {field.charAt(0).toUpperCase() + field.slice(1)}
-                    </label>
-                    <input
-                      type="text"
-                      value={(editedData as any)?.[field] || ""}
-                      onChange={(e) =>
-                        handleInputChange(e, field as keyof ICreditor)
-                      }
-                      style={{ width: "30%" }}
-                    />
-                    <span style={{ color: "red" }}>{fieldErrors[field]}</span>
-                  </div>
-                </Grid>
-              )
-            )}
+            {[
+              { label: "Name", field: "name" },
+              { label: "Address", field: "address" },
+              { label: "Phone Number", field: "phoneNumber" },
+              { label: "Email", field: "email" },
+              { label: "Bank Account Number", field: "accountNumber" },
+            ].map(({ label, field }) => (
+              <Grid item xs={12} key={field}>
+                <TextField
+                  fullWidth
+                  label={label}
+                  value={(editedData as any)?.[field] || ""}
+                  onChange={(e) =>
+                    handleInputChange(e, field as keyof ICreditor)
+                  }
+                  error={!!fieldErrors[field]}
+                  helperText={fieldErrors[field]}
+                  className={classes.textField}
+                />
+              </Grid>
+            ))}
           </Grid>
           <Box
             sx={{

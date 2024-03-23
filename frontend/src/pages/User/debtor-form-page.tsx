@@ -1,5 +1,13 @@
 import React, { FC, ReactElement, useEffect, useState } from "react";
-import { Paper, Typography, Box, Button, Grid, Divider } from "@mui/material";
+import {
+  Paper,
+  Typography,
+  Box,
+  Button,
+  Grid,
+  Divider,
+  TextField,
+} from "@mui/material";
 import Navbar from "../../Components/Navbar/navbar";
 import Footer from "../../Components/Footer/footer";
 import { IPage } from "../../shared/models/Page";
@@ -32,26 +40,14 @@ const DebtorFormPage: FC<IPage> = (props): ReactElement => {
   );
 
   useEffect(() => {
-    handleAPIError(debtorError, openSnackbar, null);
-  }, [debtorError, openSnackbar]);
-
-  useEffect(() => {
-    handleAPIError(editError, openSnackbar, null);
-  }, [editError, openSnackbar]);
-
-  useEffect(() => {
-    handleAPIError(null, openSnackbar, editCompleted);
-  }, [editCompleted, openSnackbar]);
+    handleAPIError(debtorError || editError, openSnackbar);
+  }, [debtorError, editError, openSnackbar]);
 
   useEffect(() => {
     setEditedData(debtorData ? { ...debtorData } : null);
   }, [debtorData]);
 
-  const handleAPIError = (
-    error: any,
-    snackbar: any,
-    editCompleted: boolean | null
-  ) => {
+  const handleAPIError = (error: any, snackbar: any) => {
     if (error && [401, 403].includes(error.statusCode)) {
       handleErrorResponse(error.statusCode);
       snackbar(error.message, "error");
@@ -61,8 +57,6 @@ const DebtorFormPage: FC<IPage> = (props): ReactElement => {
     } else if (error && error.statusCode === 422) {
       const fieldErrors = JSON.parse(error.description);
       setFieldErrors(fieldErrors);
-    } else if (error) {
-      snackbar(error.message, "error");
     } else if (editCompleted) {
       setFieldErrors({});
       navigate(-1);
@@ -72,7 +66,7 @@ const DebtorFormPage: FC<IPage> = (props): ReactElement => {
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    field: string
+    field: keyof IDebtor
   ) => {
     setFieldErrors((prevErrors) => ({ ...prevErrors, [field]: "" }));
 
@@ -97,7 +91,6 @@ const DebtorFormPage: FC<IPage> = (props): ReactElement => {
     };
 
     await editData(debtorEditedData);
-
     setEditCompleted(true);
 
     setTimeout(() => setEditCompleted(false), 1000);
@@ -142,22 +135,22 @@ const DebtorFormPage: FC<IPage> = (props): ReactElement => {
         </Box>
         <form>
           <Grid container spacing={2} sx={{ padding: 0.5 }}>
-            {["name", "surname", "email", "phoneNumber"].map((field) => (
+            {[
+              { label: "Name", field: "name" },
+              { label: "Surname", field: "surname" },
+              { label: "Email", field: "email" },
+              { label: "Phone Number", field: "phoneNumber" },
+            ].map(({ label, field }) => (
               <Grid item xs={12} key={field}>
-                <div>
-                  <label style={{ color: "black", marginRight: "5px" }}>
-                    {field.charAt(0).toUpperCase() + field.slice(1)}
-                  </label>
-                  <input
-                    type="text"
-                    value={(editedData as any)?.[field] || ""}
-                    onChange={(e) =>
-                      handleInputChange(e, field as keyof IDebtor)
-                    }
-                    style={{ width: "30%" }}
-                  />
-                  <span style={{ color: "red" }}>{fieldErrors[field]}</span>
-                </div>
+                <TextField
+                  fullWidth
+                  label={label}
+                  value={(editedData as any)?.[field] || ""}
+                  onChange={(e) => handleInputChange(e, field as keyof IDebtor)}
+                  error={!!fieldErrors[field]}
+                  helperText={fieldErrors[field]}
+                  className={classes.textField}
+                />
               </Grid>
             ))}
           </Grid>

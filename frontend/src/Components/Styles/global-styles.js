@@ -47,21 +47,63 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(2),
   },
 
-  // TextField Styles
   textField: {
     "& .MuiOutlinedInput-root": {
       "& fieldset": {
-        borderColor: "black",
+        borderColor: "#CCCCCC",
       },
       "&:hover fieldset": {
-        borderColor: "rgba(152, 251, 152, 0.7)",
+        borderColor: "black",
+      },
+      "& .MuiInputBase-input": {
+        color: "black",
       },
       "&.Mui-focused fieldset": {
-        borderColor: "rgba(152, 251, 152, 1)",
+        borderColor: "#8FBC8F",
       },
     },
-    "& .Mui-focused": {
-      color: "rgba(152, 251, 152, 1)",
+    "& .MuiInputLabel-root.Mui-focused": {
+      color: "black",
+    },
+  },
+
+  searchTextField: {
+    "& .MuiOutlinedInput-root": {
+      "& fieldset": {
+        borderColor: "#black",
+      },
+      "&:hover fieldset": {
+        borderColor: "black",
+      },
+      "& .MuiInputBase-input": {
+        color: "black",
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "black",
+      },
+    },
+    "& .MuiInputLabel-root.Mui-focused": {
+      color: "black",
+    },
+  },
+
+  dateTimePicker: {
+    "& .MuiOutlinedInput-root": {
+      "& fieldset": {
+        borderColor: "#CCCCCC",
+      },
+      "&:hover fieldset": {
+        borderColor: "black",
+      },
+      "& .MuiInputBase-input": {
+        color: "black",
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "#8FBC8F",
+      },
+    },
+    "& .MuiInputLabel-root.Mui-focused": {
+      color: "black",
     },
   },
 

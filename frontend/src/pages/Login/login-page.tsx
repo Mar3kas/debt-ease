@@ -58,11 +58,7 @@ const LoginPage: FC<IPage> = (props): ReactElement => {
     }
   }, [data, error, openSnackbar, navigate]);
 
-  const handleLogin = async (
-    e: React.MouseEvent<HTMLElement>
-  ): Promise<void> => {
-    e.preventDefault();
-
+  const handleLogin = async (): Promise<void> => {
     const request: IUserDTO = {
       username: form.username.value,
       password: form.password.value,
@@ -71,15 +67,20 @@ const LoginPage: FC<IPage> = (props): ReactElement => {
     postData(request);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLElement>): void => {
-    const event = e.target as any;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const { name, value } = e.target;
     setForm({
       ...form,
-      [event.name]: {
-        value: event.value,
+      [name]: {
+        value: value,
         errorMessage: "",
       },
     });
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+    e.preventDefault();
+    handleLogin();
   };
 
   return (
@@ -98,98 +99,102 @@ const LoginPage: FC<IPage> = (props): ReactElement => {
     >
       <Navbar title="DebtEase" />
       <Paper elevation={16} square={true} className={classes.paper}>
-        <Box className={classes.form}>
-          <Typography variant="h4">Login</Typography>
-          {error !== null && error.statusCode !== 422 && (
+        <form onSubmit={handleSubmit}>
+          <Box className={classes.form}>
+            <Typography variant="h4">Login</Typography>
+            {error !== null && error.statusCode !== 422 && (
+              <Box
+                sx={{
+                  flexGrow: 1,
+                  display: "flex",
+                  width: "100%",
+                  justifyContent: "center",
+                }}
+              >
+                <Typography variant="body1" color="red">
+                  {error.statusCode === 401
+                    ? "Bad Credentials"
+                    : error.description}
+                </Typography>
+              </Box>
+            )}
+            <TextField
+              id="username"
+              label="Username"
+              name="username"
+              type="text"
+              value={form.username.value}
+              onChange={handleChange}
+              error={form.username.errorMessage !== ""}
+              helperText={form.username.errorMessage}
+              size="small"
+              margin="normal"
+              required
+              className={classes.textField}
+            />
+            <TextField
+              id="password"
+              label="Password"
+              name="password"
+              type="password"
+              value={form.password.value}
+              onChange={handleChange}
+              error={form.password.errorMessage !== ""}
+              helperText={form.password.errorMessage}
+              size="small"
+              margin="normal"
+              required
+              className={classes.textField}
+            />
             <Box
               sx={{
                 flexGrow: 1,
                 display: "flex",
                 width: "100%",
+                paddingTop: "16px",
                 justifyContent: "center",
               }}
             >
-              <Typography variant="body1" color="red">
-                {error.statusCode === 401
-                  ? "Bad Credentials"
-                  : error.description}
-              </Typography>
+              <Button
+                type="submit"
+                size="medium"
+                color="inherit"
+                variant="outlined"
+                sx={{
+                  color: "black",
+                  backgroundColor: "white",
+                  border: "3px solid #8FBC8F",
+                  marginRight: "8px",
+                  "&:hover": {
+                    color: "black",
+                    backgroundColor: "#F8DE7E",
+                  },
+                }}
+              >
+                Login
+              </Button>
+              <Button
+                size="medium"
+                color="inherit"
+                variant="outlined"
+                sx={{
+                  color: "black",
+                  backgroundColor: "white",
+                  border: "3px solid #8FBC8F",
+                  "&:hover": {
+                    color: "black",
+                    backgroundColor: "#F8DE7E",
+                  },
+                }}
+                onClick={(): void => {
+                  navigate("/");
+                }}
+              >
+                Cancel
+              </Button>
             </Box>
-          )}
-          <TextField
-            id="username"
-            label="Username"
-            name="username"
-            type="text"
-            value={form.username.value}
-            onChange={handleChange}
-            error={form.username.errorMessage !== ""}
-            helperText={form.username.errorMessage}
-            size="small"
-            margin="normal"
-            required
-          />
-          <TextField
-            id="password"
-            label="Password"
-            name="password"
-            type="password"
-            value={form.password.value}
-            onChange={handleChange}
-            error={form.password.errorMessage !== ""}
-            helperText={form.password.errorMessage}
-            size="small"
-            margin="normal"
-            required
-          />
-          <Box
-            sx={{
-              flexGrow: 1,
-              display: "flex",
-              width: "100%",
-              paddingTop: "16px",
-              justifyContent: "center",
-            }}
-          >
-            <Button
-              size="medium"
-              color="inherit"
-              variant="outlined"
-              onClick={handleLogin}
-              sx={{
-                color: "black",
-                backgroundColor: "white",
-                border: "3px solid #8FBC8F",
-                marginRight: "8px",
-                "&:hover": {
-                  color: "black",
-                  backgroundColor: "#F8DE7E",
-                },
-              }}
-            >
-              Login
-            </Button>
-            <Button
-              size="medium"
-              color="inherit"
-              variant="outlined"
-              sx={{
-                color: "black",
-                backgroundColor: "white",
-                border: "3px solid #8FBC8F",
-                "&:hover": {
-                  color: "black",
-                  backgroundColor: "#F8DE7E",
-                },
-              }}
-              onClick={(): void => {
-                navigate("/");
-              }}
-            >
-              Cancel
-            </Button>
           </Box>
-        </Box>
+        </form>
       </Paper>
       <Footer />
     </Box>

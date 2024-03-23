@@ -233,7 +233,15 @@ const DebtCaseFormPage: FC<IPage> = (props): ReactElement => {
       }}
     >
       <Navbar title="DebtEase" />
-      <Paper className={classes.paper} elevation={16} square={true}>
+      <Paper
+        className={classes.paper}
+        elevation={16}
+        square={true}
+        sx={{
+          marginTop: 3,
+          marginBottom: 3,
+        }}
+      >
         {editDebtCaseError !== null && editDebtCaseError.statusCode !== 422 && (
           <Box
             sx={{
@@ -242,7 +250,9 @@ const DebtCaseFormPage: FC<IPage> = (props): ReactElement => {
               width: "100%",
               justifyContent: "center",
               height: "200px",
+              backgroundColor: "#8FBC8F",
               marginTop: 3,
+              padding: 2,
             }}
           >
             <Typography variant="body1" color="red">
@@ -260,17 +270,20 @@ const DebtCaseFormPage: FC<IPage> = (props): ReactElement => {
           <Grid container spacing={2} sx={{ padding: 0.5 }}>
             {["amountOwed", "dueDate", "debtCaseType"].map((field) => (
               <Grid item xs={12} key={field}>
-                <div>
-                  <label style={{ color: "black", marginRight: "5px" }}>
-                    {field
-                      .split(/(?=[A-Z])/)
-                      .map(
-                        (word) =>
-                          word.charAt(0).toUpperCase() +
-                          word.slice(1).toLowerCase()
-                      )
-                      .join(" ")}
-                  </label>
+                <React.Fragment>
+                  <Typography variant="subtitle1" sx={{ color: "black" }}>
+                    <strong>
+                      {field
+                        .split(/(?=[A-Z])/)
+                        .map(
+                          (word) =>
+                            word.charAt(0).toUpperCase() +
+                            word.slice(1).toLowerCase()
+                        )
+                        .join(" ")}
+                      :
+                    </strong>
+                  </Typography>
                   {field === "debtCaseType" ? (
                     <TextField
                       select
@@ -282,7 +295,8 @@ const DebtCaseFormPage: FC<IPage> = (props): ReactElement => {
                       onChange={(e) =>
                         handleInputChange(e, field as keyof IDebtCase)
                       }
-                      style={{ width: "30%" }}
+                      fullWidth
+                      className={classes.textField}
                     >
                       {debtCaseTypeData?.map((debtCaseType) => (
                         <MenuItem key={debtCaseType.id} value={debtCaseType.id}>
@@ -298,20 +312,24 @@ const DebtCaseFormPage: FC<IPage> = (props): ReactElement => {
                         onChange={(date) =>
                           handleDateTimeChange(date, field as keyof IDebtCase)
                         }
+                        className={classes.dateTimePicker}
                       />
                     </LocalizationProvider>
                   ) : (
-                    <input
+                    <TextField
                       type="text"
                       value={(editedDebtCaseData as any)?.[field] || ""}
                       onChange={(e) =>
                         handleInputChange(e, field as keyof IDebtCase)
                       }
-                      style={{ width: "30%" }}
+                      fullWidth
+                      className={classes.textField}
                     />
                   )}
-                  <span style={{ color: "red" }}>{fieldErrors[field]}</span>
-                </div>
+                  <Typography variant="subtitle2" sx={{ color: "red" }}>
+                    {fieldErrors[field]}
+                  </Typography>
+                </React.Fragment>
               </Grid>
             ))}
             {debtCaseData && debtCaseData.debtor && (
@@ -321,6 +339,11 @@ const DebtCaseFormPage: FC<IPage> = (props): ReactElement => {
                     <Checkbox
                       checked={editDebtor}
                       onChange={handleCheckboxChange}
+                      sx={{
+                        "&.Mui-checked": {
+                          color: "#8FBC8F",
+                        },
+                      }}
                     />
                   }
                   label="Edit Debtor"
@@ -337,7 +360,9 @@ const DebtCaseFormPage: FC<IPage> = (props): ReactElement => {
                     setSelectedDebtor(selectedDebtor || null);
                     setEditedDebtor(selectedDebtor || null);
                   }}
-                  style={{ width: "30%", marginLeft: "20px" }}
+                  style={{ marginLeft: "1em" }}
+                  fullWidth
+                  className={classes.textField}
                 >
                   <MenuItem
                     key={editedDebtCaseData.debtor.id}
@@ -349,27 +374,33 @@ const DebtCaseFormPage: FC<IPage> = (props): ReactElement => {
                 </TextField>
                 {["name", "surname", "email", "phoneNumber"].map((field) => (
                   <Grid item xs={12} key={field}>
-                    <div>
-                      <label style={{ color: "black", marginRight: "5px" }}>
-                        {field
-                          .split(/(?=[A-Z])/)
-                          .map(
-                            (word) =>
-                              word.charAt(0).toUpperCase() +
-                              word.slice(1).toLowerCase()
-                          )
-                          .join(" ")}
-                      </label>
-                      <input
+                    <React.Fragment>
+                      <Typography variant="subtitle1" sx={{ color: "black" }}>
+                        <strong>
+                          {field
+                            .split(/(?=[A-Z])/)
+                            .map(
+                              (word) =>
+                                word.charAt(0).toUpperCase() +
+                                word.slice(1).toLowerCase()
+                            )
+                            .join(" ")}
+                          :
+                        </strong>
+                      </Typography>
+                      <TextField
                         type="text"
                         value={(editedDebtor as any)?.[field] || ""}
                         onChange={(e) =>
                           handleEditDebtorChange(e, field as keyof IDebtor)
                         }
-                        style={{ width: "30%" }}
+                        fullWidth
+                        className={classes.textField}
                       />
-                      <span style={{ color: "red" }}>{fieldErrors[field]}</span>
-                    </div>
+                      <Typography variant="subtitle2" sx={{ color: "red" }}>
+                        {fieldErrors[field]}
+                      </Typography>
+                    </React.Fragment>
                   </Grid>
                 ))}
               </>

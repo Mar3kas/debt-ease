@@ -6,8 +6,8 @@ import {
   Button,
   TextField,
   Divider,
+  Grid,
 } from "@mui/material";
-import { LoadingButton } from "@mui/lab";
 import Navbar from "../../Components/Navbar/navbar";
 import Footer from "../../Components/Footer/footer";
 import { IPage } from "../../shared/models/Page";
@@ -133,69 +133,74 @@ const CreditorCreationFormPage: FC<IPage> = ({
               </Typography>
             </Box>
           )}
-          {Object.entries(form).map(([key, { value, errorMessage }]) => (
-            <TextField
-              key={key}
-              id={key}
-              label={key
-                .split(/(?=[A-Z])/)
-                .map(
-                  (word) =>
-                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-                )
-                .join(" ")}
-              name={key}
-              type={key}
-              value={value}
-              onChange={handleChange}
-              error={errorMessage !== ""}
-              helperText={errorMessage}
-              size="small"
-              margin="normal"
-              required
-            />
-          ))}
-          <Box
-            sx={{
-              flexGrow: 1,
-              display: "flex",
-              width: "100%",
-              paddingTop: "16px",
-              justifyContent: "center",
-            }}
-          >
-            <LoadingButton
-              size="medium"
-              color="inherit"
-              variant="outlined"
-              onClick={handleSaveChanges}
+          <Grid container spacing={1} justifyContent="flex-start">
+            {Object.entries(form).map(([key, { value, errorMessage }]) => (
+              <TextField
+                key={key}
+                id={key}
+                label={key
+                  .split(/(?=[A-Z])/)
+                  .map(
+                    (word) =>
+                      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                  )
+                  .join(" ")}
+                name={key}
+                type={key}
+                value={value}
+                onChange={handleChange}
+                error={errorMessage !== ""}
+                helperText={errorMessage}
+                size="small"
+                margin="normal"
+                required
+                fullWidth
+                className={classes.textField}
+              />
+            ))}
+          </Grid>
+          <Grid container spacing={1} justifyContent="flex-end">
+            <Box
               sx={{
-                marginRight: "8px",
-                "&:hover": {
-                  color: "black",
-                  backgroundColor: "#F8DE7E",
-                },
+                marginTop: 1,
+                display: "flex",
+                justifyContent: "flex-end",
+                padding: 1,
               }}
             >
-              Save
-            </LoadingButton>
-            <Button
-              size="medium"
-              color="inherit"
-              variant="outlined"
-              sx={{
-                "&:hover": {
+              <Button
+                onClick={handleSaveChanges}
+                sx={{
                   color: "black",
-                  backgroundColor: "#F8DE7E",
-                },
-              }}
-              onClick={(): void => {
-                navigate(-1);
-              }}
-            >
-              Cancel
-            </Button>
-          </Box>
+                  backgroundColor: "white",
+                  border: "3px solid #8FBC8F",
+                  marginRight: 2,
+                  "&:hover": {
+                    color: "black",
+                    backgroundColor: "#F8DE7E",
+                  },
+                }}
+              >
+                Save
+              </Button>
+              <Button
+                sx={{
+                  color: "black",
+                  backgroundColor: "white",
+                  border: "3px solid #8FBC8F",
+                  "&:hover": {
+                    color: "black",
+                    backgroundColor: "#F8DE7E",
+                  },
+                }}
+                onClick={(): void => {
+                  navigate(-1);
+                }}
+              >
+                Cancel
+              </Button>
+            </Box>
+          </Grid>
         </Box>
       </Paper>
       <Footer />

@@ -13,6 +13,7 @@ import {
   Divider,
   Button,
   Grid,
+  TextField,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
@@ -157,11 +158,11 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
           additionalFields = (
             <>
               <Typography>
-                Address:{" "}
+                <strong>Address: </strong>
                 {renderField("address", "address", editedData?.address)}
               </Typography>
               <Typography>
-                Phone:{" "}
+                <strong>Phone Number: </strong>
                 {renderField(
                   "phoneNumber",
                   "phoneNumber",
@@ -169,10 +170,11 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
                 )}
               </Typography>
               <Typography>
-                Email: {renderField("email", "email", editedData?.email)}
+                <strong>Email: </strong>
+                {renderField("email", "email", editedData?.email)}
               </Typography>
               <Typography>
-                Account Number:{" "}
+                <strong>Bank Account Number: </strong>
                 {renderField(
                   "acountNumber",
                   "accountNumber",
@@ -186,14 +188,15 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
           additionalFields = (
             <>
               <Typography>
-                Surname:{" "}
+                <strong>Surname: </strong>
                 {renderField("surname", "surname", editedData?.surname)}
               </Typography>
               <Typography>
-                Email: {renderField("email", "email", editedData?.email)}
+                <strong>Email: </strong>
+                {renderField("email", "email", editedData?.email)}
               </Typography>
               <Typography>
-                Phone:{" "}
+                <strong>Phone Number: </strong>
                 {renderField(
                   "phoneNumber",
                   "phoneNumber",
@@ -219,10 +222,11 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
     <>
       {editMode ? (
         <>
-          <input
-            style={{ width: "30%" }}
+          <TextField
+            style={{ width: "100%", marginBottom: "1rem" }}
             defaultValue={value}
             onChange={(e) => handleInputChange(e, field)}
+            className={classes.textField}
           />
           <span style={{ color: "red" }}>{fieldErrors[field]}</span>
         </>
@@ -241,48 +245,51 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
       if (data.user?.username === username) {
         if (data.user?.role.name === "CREDITOR") {
           const creditorData = data as ICreditor;
-          icon = (
-            <BusinessIcon
-              sx={{ fontSize: { xs: "1.5rem", md: "2rem", lg: "2.5rem" } }}
-            />
-          );
+          icon = <BusinessIcon sx={{ fontSize: "3rem" }} />;
           title = "Creditor";
           additionalContent = (
             <>
-              <Typography>Address: {creditorData.address}</Typography>
-              <Typography>Phone: {creditorData.phoneNumber}</Typography>
-              <Typography>Email: {creditorData.email}</Typography>
-              <Typography>
-                Bank Account Number: {creditorData.accountNumber}
+              <Typography variant="subtitle1">
+                <strong>Address:</strong> {creditorData.address}
+              </Typography>
+              <Typography variant="subtitle1">
+                <strong>Phone Number:</strong> {creditorData.phoneNumber}
+              </Typography>
+              <Typography variant="subtitle1">
+                <strong>Email:</strong> {creditorData.email}
+              </Typography>
+              <Typography variant="subtitle1">
+                <strong>Bank Account Number:</strong>{" "}
+                {creditorData.accountNumber}
               </Typography>
             </>
           );
         } else if (data.user?.role.name === "DEBTOR") {
           const debtorData = data as IDebtor;
-          icon = (
-            <PersonIcon
-              sx={{ fontSize: { xs: "1.5rem", md: "2rem", lg: "2.5rem" } }}
-            />
-          );
+          icon = <PersonIcon sx={{ fontSize: "3rem" }} />;
           title = "Debtor";
           additionalContent = (
             <>
-              <Typography>Surname: {debtorData.surname}</Typography>
-              <Typography>Email: {debtorData.email}</Typography>
-              <Typography>Phone Number: {debtorData.phoneNumber}</Typography>
+              <Typography variant="subtitle1">
+                <strong>Surname:</strong> {debtorData.surname}
+              </Typography>
+              <Typography variant="subtitle1">
+                <strong>Email:</strong> {debtorData.email}
+              </Typography>
+              <Typography variant="subtitle1">
+                <strong>Phone Number:</strong> {debtorData.phoneNumber}
+              </Typography>
             </>
           );
         } else if (data.user?.role.name === "ADMIN") {
           const adminData = data as IAdmin;
-          icon = (
-            <AccountCircleIcon
-              sx={{ fontSize: { xs: "1.5rem", md: "2rem", lg: "2.5rem" } }}
-            />
-          );
+          icon = <AccountCircleIcon sx={{ fontSize: "3rem" }} />;
           title = "Admin";
           additionalContent = (
             <>
-              <Typography>Surname: {adminData.surname}</Typography>
+              <Typography variant="subtitle1">
+                <strong>Surname:</strong> {adminData.surname}
+              </Typography>
             </>
           );
         }
@@ -299,9 +306,14 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
             <Grid item xs={10} md={7} lg={6}>
               <Typography
                 variant="h4"
-                sx={{ fontSize: { xs: "1.5rem", md: "2rem", lg: "2.5rem" } }}
+                sx={{
+                  fontSize: { xs: "1.5rem", md: "2rem", lg: "2.5rem" },
+                  display: "flex",
+                  alignItems: "center",
+                }}
               >
-                {icon} {title}
+                {icon}
+                <span style={{ marginLeft: "0.5rem" }}>{title}</span>
                 {canEditProfile && !editMode && (
                   <IconButton onClick={handleEditModeToggle} aria-label="Edit">
                     <EditIcon sx={{ color: "#8FBC8F" }} />
@@ -311,14 +323,19 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
             </Grid>
           </Grid>
           <Divider sx={{ marginBottom: 2 }} />
-          <Typography>
-            Name: {renderField("name", "name", editedData?.name)}
+          <Typography variant="subtitle1">
+            <strong>Name:</strong>{" "}
+            {renderField("name", "name", editedData?.name)}
           </Typography>
           {editMode && renderFields()}
           {!editMode && additionalContent}
           {editMode && (
             <Box
-              sx={{ marginTop: 1, display: "flex", justifyContent: "flex-end" }}
+              sx={{
+                marginTop: 1,
+                display: "flex",
+                justifyContent: "flex-end",
+              }}
             >
               <Button
                 sx={{
