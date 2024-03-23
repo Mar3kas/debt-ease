@@ -2,7 +2,7 @@ package com.dm.debtease.service.impl;
 
 import com.dm.debtease.model.DebtCase;
 import com.dm.debtease.service.DebtCaseService;
-import com.dm.debtease.service.PdfService;
+import com.dm.debtease.service.PDFService;
 import com.dm.debtease.utils.Constants;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Image;
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class PdfServiceImpl implements PdfService {
+public class PDFServiceImpl implements PDFService {
     private final DebtCaseService debtCaseService;
 
     @Override
@@ -39,7 +39,7 @@ public class PdfServiceImpl implements PdfService {
                 .filter(debtCase -> !"CLOSED".equals(debtCase.getDebtCaseStatus().getStatus()))
                 .collect(Collectors.toList());
         if (debtCases.isEmpty()) {
-            throw new EntityNotFoundException(String.format(Constants.USER_NOT_FOUND, username));
+            throw new EntityNotFoundException(String.format(Constants.DEBT_CASES_EMPTY, username));
         }
         Document document = new Document();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -79,18 +79,16 @@ public class PdfServiceImpl implements PdfService {
 
     private void addTitle(Document document) throws DocumentException {
         Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, BaseColor.BLACK);
-        Paragraph title = new Paragraph("Debt Cases Report", titleFont);
+        Paragraph title = new Paragraph(Constants.GENERATED_PDF_TITLE, titleFont);
         title.setAlignment(Element.ALIGN_CENTER);
         document.add(title);
     }
 
     private void addIntro(Document document, String name, String surname) throws DocumentException {
         Font introFont = FontFactory.getFont(FontFactory.HELVETICA, 12, BaseColor.BLACK);
-        String greeting = String.format("Dear %s %s,", name, surname);
-        String introMessage = "We hope this message finds you well. Below is a summary of all your active debt cases.";
         Paragraph intro = new Paragraph();
-        intro.add(new Phrase(greeting + "\n\n", introFont));
-        intro.add(new Phrase(introMessage + "\n\n", introFont));
+        intro.add(new Phrase(String.format(Constants.GENERATED_PDF_GREETING_MESSAGE, name, surname) + "\n\n", introFont));
+        intro.add(new Phrase(Constants.GENERATED_PDF_INTRO_MESSAGE + "\n\n", introFont));
         document.add(intro);
     }
 
@@ -135,7 +133,7 @@ public class PdfServiceImpl implements PdfService {
 
     private void addDisclaimer(Document document) throws DocumentException {
         Font disclaimerFont = FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.GRAY);
-        Paragraph disclaimer = new Paragraph("Disclaimer: Please scroll down to see the debt case type distribution.", disclaimerFont);
+        Paragraph disclaimer = new Paragraph(Constants.GENERATED_PDF_DISCLAIMER, disclaimerFont);
         disclaimer.setAlignment(Element.ALIGN_CENTER);
         document.add(disclaimer);
     }

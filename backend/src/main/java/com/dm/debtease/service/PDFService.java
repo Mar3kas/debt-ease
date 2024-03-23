@@ -8,7 +8,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
 
-public interface PdfService {
+public interface PDFService {
     ByteArrayInputStream generatePdf(String username) throws IOException, DocumentException;
     PieChart generatePieDiagram(List<DebtCase> debtCases);
 }

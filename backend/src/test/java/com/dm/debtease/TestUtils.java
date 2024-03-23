@@ -4,7 +4,9 @@ import com.dm.debtease.model.*;
 import com.dm.debtease.model.dto.CreditorDTO;
 import com.dm.debtease.model.dto.DebtorDTO;
 
+import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 public class TestUtils {
     public static Admin setupAdminTestData(String username) {
@@ -112,5 +114,23 @@ public class TestUtils {
         refreshToken.setToken(token);
         refreshToken.setExpirationDate(expirationDate);
         return refreshToken;
+    }
+
+    public static DebtCase setupDebtCaseTestData(String creditorUsername, int creditorId, String debtorName,
+                                                 String debtorSurname,
+                                                 String debtorEmail, String debtorPhoneNumber, String type, String status,
+                                                 LocalDateTime dueDate, double lateInterestRate,
+                                                 BigDecimal amountOwed) {
+        DebtCase debtCase = new DebtCase();
+        debtCase.setCreditor(setupCreditorTestData(creditorUsername, creditorId
+        ));
+        debtCase.setDebtor(setupDebtorTestData(debtorName, debtorSurname, debtorEmail, debtorPhoneNumber));
+        debtCase.setDebtCaseType(setupDebtCaseTypeTestData(type));
+        debtCase.setDebtCaseStatus(setupDebtCaseStatusTestData(status));
+        debtCase.setOutstandingBalance(BigDecimal.TEN);
+        debtCase.setDueDate(dueDate);
+        debtCase.setLateInterestRate(lateInterestRate);
+        debtCase.setAmountOwed(amountOwed);
+        return debtCase;
     }
 }

@@ -5,7 +5,7 @@ import com.dm.debtease.model.DebtCase;
 import com.dm.debtease.model.dto.DebtCaseDTO;
 import com.dm.debtease.service.CSVService;
 import com.dm.debtease.service.DebtCaseService;
-import com.dm.debtease.service.PdfService;
+import com.dm.debtease.service.PDFService;
 import com.dm.debtease.utils.Constants;
 import com.itextpdf.text.DocumentException;
 import com.opencsv.exceptions.CsvValidationException;
@@ -39,7 +39,7 @@ import java.util.List;
 public class DebtCaseController {
     private final DebtCaseService debtCaseService;
     private final CSVService csvService;
-    private final PdfService pdfService;
+    private final PDFService pdfService;
 
     @GetMapping()
     public ResponseEntity<List<DebtCase>> getAllDebtCases() {
