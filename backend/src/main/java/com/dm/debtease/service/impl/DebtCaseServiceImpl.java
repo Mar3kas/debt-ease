@@ -1,13 +1,10 @@
 package com.dm.debtease.service.impl;
 
-import com.dm.debtease.model.Creditor;
-import com.dm.debtease.model.CustomUser;
 import com.dm.debtease.model.DebtCase;
-import com.dm.debtease.model.Debtor;
 import com.dm.debtease.model.dto.DebtCaseDTO;
 import com.dm.debtease.repository.DebtCaseRepository;
-import com.dm.debtease.repository.DebtCaseTypeRepository;
 import com.dm.debtease.service.DebtCaseService;
+import com.dm.debtease.service.DebtCaseTypeService;
 import com.dm.debtease.utils.Constants;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -16,14 +13,13 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
 public class DebtCaseServiceImpl implements DebtCaseService {
     private final DebtCaseRepository debtCaseRepository;
-    private final DebtCaseTypeRepository debtCaseTypeRepository;
+    private final DebtCaseTypeService debtCaseTypeService;
 
     @Override
     public List<DebtCase> getAllDebtCases() {
@@ -33,41 +29,22 @@ public class DebtCaseServiceImpl implements DebtCaseService {
     @Override
     public DebtCase getDebtCaseById(int id) {
         Optional<DebtCase> optionalDebtCase = debtCaseRepository.findById(id);
-        return optionalDebtCase.orElseThrow(() -> new EntityNotFoundException(String.format(Constants.DEBT_CASE_NOT_FOUND, id)));
+        return optionalDebtCase.orElseThrow(
+                () -> new EntityNotFoundException(String.format(Constants.DEBT_CASE_NOT_FOUND, id)));
     }
 
     @Override
     public List<DebtCase> getDebtCasesByCreditorUsername(String username) {
-        List<DebtCase> debtCases = debtCaseRepository.findAll();
-        return debtCases.stream()
-                .filter(debtCase -> {
-                    Creditor creditor = debtCase.getCreditor();
-                    if (creditor != null) {
-                        CustomUser user = creditor.getUser();
-                        return user != null && Objects.equals(user.getUsername(), username);
-                    }
-                    return false;
-                })
-                .toList();
+        return debtCaseRepository.findByCreditor_User_Username(username);
     }
 
     @Override
     public List<DebtCase> getDebtCasesByDebtorUsername(String username) {
-        List<DebtCase> debtCases = debtCaseRepository.findAll();
-        return debtCases.stream()
-                .filter(debtCase -> {
-                    Debtor debtor = debtCase.getDebtor();
-                    if (debtor != null) {
-                        CustomUser user = debtor.getUser();
-                        return user != null && Objects.equals(user.getUsername(), username);
-                    }
-                    return false;
-                })
-                .toList();
+        return debtCaseRepository.findByDebtor_User_Username(username);
     }
 
     @Override
-    public DebtCase editDebtCaseById(DebtCaseDTO debtCaseDTO, int id, int creditorId) {
+    public DebtCase editDebtCaseByIdAndCreditorId(DebtCaseDTO debtCaseDTO, int id, int creditorId) {
         Optional<DebtCase> optionalDebtCase = debtCaseRepository.findByIdAndCreditor_Id(id, creditorId);
         if (optionalDebtCase.isPresent()) {
             DebtCase debtCase = optionalDebtCase.get();
@@ -78,23 +55,24 @@ public class DebtCaseServiceImpl implements DebtCaseService {
                 debtCase.setDueDate(debtCaseDTO.getDueDate());
             }
             if (debtCaseDTO.getTypeId() > 0) {
-                debtCase.setDebtCaseType(debtCaseTypeRepository.findById(debtCaseDTO.getTypeId())
-                        .orElseThrow(() -> new EntityNotFoundException(String.format(Constants.DEBT_CASE_TYPE_NOT_FOUND, debtCaseDTO.getTypeId()))));
+                debtCase.setDebtCaseType(debtCaseTypeService.getDebtCaseTypeById(debtCaseDTO.getTypeId()));
             }
-            debtCase.setModifiedDate(LocalDateTime.parse(LocalDateTime.now().format(Constants.DATE_TIME_FORMATTER)));
+            debtCase.setModifiedDate(LocalDateTime.now());
             return debtCaseRepository.save(debtCase);
         }
-        throw new EntityNotFoundException(String.format(Constants.DEBT_CASE_NOT_FOUND, id));
+        throw new EntityNotFoundException(
+                String.format(Constants.DEBT_CASE_NOT_FOUND_WITH_ID_CREDITOR_ID, id, creditorId));
     }
 
     @Override
-    public boolean deleteDebtCaseById(int id, int creditorId) {
+    public boolean deleteDebtCaseByIdAndCreditorId(int id, int creditorId) {
         Optional<DebtCase> optionalDebtCase = debtCaseRepository.findByIdAndCreditor_Id(id, creditorId);
         if (optionalDebtCase.isPresent()) {
             debtCaseRepository.deleteById(id);
             return true;
         }
-        throw new EntityNotFoundException(String.format(Constants.DEBT_CASE_NOT_FOUND, id));
+        throw new EntityNotFoundException(
+                String.format(Constants.DEBT_CASE_NOT_FOUND_WITH_ID_CREDITOR_ID, id, creditorId));
     }
 
     @Override
@@ -111,6 +89,9 @@ public class DebtCaseServiceImpl implements DebtCaseService {
 
     @Override
     public String getTypeToMatch(String type) {
+        if (type.isEmpty()) {
+            return "DEFAULT_DEBT";
+        }
         return type.toUpperCase().contains("_DEBT") ? type.toUpperCase() : type.toUpperCase().concat("_DEBT");
     }
 }

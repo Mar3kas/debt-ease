@@ -46,21 +46,24 @@ public class Scheduler {
         log.info("Starting cron job scheduler for email notification each month 20th day!");
         List<DebtCase> debtCases = debtCaseService.getAllDebtCases();
         for (DebtCase debtCase : debtCases) {
-            sendNotificationEmail(debtCase);
+            if (!"CLOSED".equals(debtCase.getDebtCaseStatus().getStatus())) {
+                sendNotificationEmail(debtCase);
+            }
         }
         log.info("Cron job scheduler for email notification each month 20th day has finished!");
     }
 
     @Scheduled(cron = "0 * * * * *")
     //@Scheduled(cron = "0 0 23 * * *")
-    public void calculateOutstandingBalance() {
+    public void calculateOutstandingBalanceScheduler() {
         log.info("Starting cron job scheduler for calculating outstanding balance!");
         LocalDateTime currentDate = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
         Optional<List<DebtCase>> optionalDebtCases = debtCaseRepository.findByDueDateLessThanEqual(currentDate);
         if (optionalDebtCases.isPresent()) {
             List<DebtCase> debtCases = optionalDebtCases.get();
             for (DebtCase debtCase : debtCases) {
-                BigDecimal lateInterestAmount = debtCase.getAmountOwed().multiply(BigDecimal.valueOf(debtCase.getLateInterestRate() / 100.0));
+                BigDecimal lateInterestAmount =
+                        debtCase.getAmountOwed().multiply(BigDecimal.valueOf(debtCase.getLateInterestRate() / 100.0));
                 BigDecimal updatedOutstandingBalance = debtCase.getOutstandingBalance().add(lateInterestAmount);
                 debtCase.setOutstandingBalance(updatedOutstandingBalance);
                 debtCaseRepository.save(debtCase);
@@ -72,7 +75,7 @@ public class Scheduler {
     private boolean debtCaseIsPending(DebtCase debtCase, LocalDateTime startTime, LocalDateTime endTime) {
         return debtCase.getDueDate().isAfter(startTime)
                 && debtCase.getDueDate().isBefore(endTime)
-                && "NEW".equals(debtCase.getDebtCaseType().getType());
+                && "NEW".equals(debtCase.getDebtCaseStatus().getStatus());
     }
 
     private void sendNotificationEmail(DebtCase debtCase) {
@@ -82,7 +85,9 @@ public class Scheduler {
         Creditor creditor = debtCase.getCreditor();
         mailMessage.setTo(debtor.getEmail());
         mailMessage.setSubject("Pending debt until " + debtCase.getDueDate());
-        mailMessage.setText(String.format("Dear, %s %s! %n You have an open debt case with an amount owed: %f.2f! Issued by %s. Please pay by %s!",
+        mailMessage.setText(String.format(
+                "Dear, %s %s! %n You have an open debt case with an amount owed: %f.2f! Issued by %s. Please pay by " +
+                        "%s!",
                 debtor.getName(), debtor.getSurname(),
                 debtCase.getAmountOwed(), creditor.getName(),
                 debtCase.getDueDate()));

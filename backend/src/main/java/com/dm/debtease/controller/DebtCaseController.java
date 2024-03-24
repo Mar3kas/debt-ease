@@ -88,7 +88,7 @@ public class DebtCaseController {
                                                      @Valid
                                                      @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
                                                      @PathVariable(name = "creditorId") int creditorId) {
-        DebtCase debtCase = debtCaseService.editDebtCaseById(debtCaseDTO, id, creditorId);
+        DebtCase debtCase = debtCaseService.editDebtCaseByIdAndCreditorId(debtCaseDTO, id, creditorId);
         return ResponseEntity.ok(debtCase);
     }
 
@@ -108,7 +108,7 @@ public class DebtCaseController {
                                                      @Valid
                                                      @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
                                                      @PathVariable(name = "creditorId") int creditorId) {
-        if (Boolean.TRUE.equals(debtCaseService.deleteDebtCaseById(id, creditorId))) {
+        if (Boolean.TRUE.equals(debtCaseService.deleteDebtCaseByIdAndCreditorId(id, creditorId))) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.badRequest().build();

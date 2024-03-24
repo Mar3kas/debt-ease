@@ -9,6 +9,8 @@ public class Constants {
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     public static final DateTimeFormatter DATE_TIME_FORMATTER_FOR_FILE = DateTimeFormatter.ofPattern("yyyyMMdd");
     public static final String DEBT_CASE_NOT_FOUND = "Debt case not found with id %s";
+    public static final String DEBT_CASE_NOT_FOUND_WITH_ID_CREDITOR_ID =
+            "Debt case not found with id %s or creditor id %s";
     public static final String DEBT_CASE_TYPE_NOT_FOUND = "Debt case type not found with id %s";
     public static final String DEBT_CASE_STATUS_NOT_FOUND = "Debt case status not found with id %s";
     public static final String DEBT_CASES_EMPTY = "User %s has no active debt cases";
@@ -23,6 +25,7 @@ public class Constants {
             "We hope this message finds you well. Below is a summary of all your active debt cases.";
     public static final String GENERATED_PDF_GREETING_MESSAGE = "Dear %s %s,";
     public static final String GENERATED_PDF_TITLE = "Debt Cases Report";
-    public static final String GENERATED_PDF_DISCLAIMER = "Disclaimer: Please scroll down to see the debt case type distribution.";
+    public static final String GENERATED_PDF_DISCLAIMER =
+            "Disclaimer: Please scroll down to see the debt case type distribution.";
     public static final long DELAY_BETWEEN_NUMVERIFY_REQUESTS = 1000;
 }

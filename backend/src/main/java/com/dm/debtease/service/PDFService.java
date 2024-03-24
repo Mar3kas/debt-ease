@@ -10,5 +10,6 @@ import java.util.List;
 
 public interface PDFService {
     ByteArrayInputStream generatePdf(String username) throws IOException, DocumentException;
+
     PieChart generatePieDiagram(List<DebtCase> debtCases);
 }

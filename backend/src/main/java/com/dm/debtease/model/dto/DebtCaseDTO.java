@@ -4,11 +4,13 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
+@Setter
 public class DebtCaseDTO {
     @Positive(message = "Amount Owed must be positive")
     @NotNull(message = "Amount Owed cannot be null")

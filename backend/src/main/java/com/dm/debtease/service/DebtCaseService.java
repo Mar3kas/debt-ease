@@ -15,9 +15,9 @@ public interface DebtCaseService {
 
     List<DebtCase> getDebtCasesByDebtorUsername(String username);
 
-    DebtCase editDebtCaseById(DebtCaseDTO debtCaseDTO, int id, int creditorId);
+    DebtCase editDebtCaseByIdAndCreditorId(DebtCaseDTO debtCaseDTO, int id, int creditorId);
 
-    boolean deleteDebtCaseById(int id, int creditorId);
+    boolean deleteDebtCaseByIdAndCreditorId(int id, int creditorId);
 
     Optional<DebtCase> findExistingDebtCase(String username, String... indicator);
 

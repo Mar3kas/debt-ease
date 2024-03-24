@@ -5,5 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface VerifiedPhoneNumberInformationRepository extends JpaRepository<VerifiedPhoneNumberInformation, Integer> {
+public interface VerifiedPhoneNumberInformationRepository
+        extends JpaRepository<VerifiedPhoneNumberInformation, Integer> {
 }

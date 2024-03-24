@@ -59,7 +59,7 @@ public class PDFServiceTest {
         int id = 1;
         List<DebtCase> expectedDebtCases =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, id, debtorName, debtorSurname, debtorEmail,
-                        debtorPhoneNumber, typeToMatch, status, dueDate, lateInterestRate, amountOwed));
+                        debtorPhoneNumber, typeToMatch, status, dueDate, lateInterestRate, amountOwed, debtorUsername));
         when(debtCaseService.getDebtCasesByDebtorUsername(debtorUsername)).thenReturn(expectedDebtCases);
         ByteArrayInputStream pdfStream = pdfService.generatePdf(debtorUsername);
         PdfReader pdfReader = new PdfReader(pdfStream);
@@ -80,8 +80,8 @@ public class PDFServiceTest {
     }
 
     @Test
-    void testGeneratePieChart()
-    {
+    void testGeneratePieChart() {
+        String username = "debtor";
         String debtorName = "name";
         String debtorSurname = "surname";
         String debtorEmail = "email@gmail.com";
@@ -96,7 +96,7 @@ public class PDFServiceTest {
         int id = 1;
         List<DebtCase> expectedDebtCases =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, id, debtorName, debtorSurname, debtorEmail,
-                        debtorPhoneNumber, typeToMatch, status, dueDate, lateInterestRate, amountOwed));
+                        debtorPhoneNumber, typeToMatch, status, dueDate, lateInterestRate, amountOwed, username));
         PieChart pieChart = pdfService.generatePieDiagram(expectedDebtCases);
         Assertions.assertNotNull(pieChart);
         Assertions.assertEquals(1, pieChart.getSeriesMap().size(), "There should be 1 type of debt cases.");

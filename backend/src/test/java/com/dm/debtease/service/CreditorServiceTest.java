@@ -7,7 +7,6 @@ import com.dm.debtease.model.Role;
 import com.dm.debtease.model.dto.CreditorDTO;
 import com.dm.debtease.repository.CreditorRepository;
 import com.dm.debtease.repository.CustomUserRepository;
-import com.dm.debtease.repository.DebtCaseRepository;
 import com.dm.debtease.repository.RoleRepository;
 import com.dm.debtease.service.impl.CreditorServiceImpl;
 import com.dm.debtease.utils.Constants;
@@ -27,6 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("unused")
 public class CreditorServiceTest {
     @Mock
     private CreditorRepository creditorRepository;
@@ -35,11 +35,11 @@ public class CreditorServiceTest {
     @Mock
     private RoleRepository roleRepository;
     @Mock
-    private DebtCaseRepository debtCaseRepository;
-    @Mock
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     @Mock
     private PasswordGeneratorService passwordGeneratorService;
+    @Mock
+    private DebtCaseService debtCaseService;
     @InjectMocks
     private CreditorServiceImpl creditorService;
 
@@ -103,22 +103,21 @@ public class CreditorServiceTest {
         String editedPhoneNumber = "+37067144213";
         String editedAccountNumber = "editedAccountNumber";
         int id = 1;
-        Creditor creditor = TestUtils.setupCreditorTestData(name, id);
-        Creditor editedCreditor =
+        Creditor expectedEditedCreditor =
                 TestUtils.setupEditedCreditorTestData(editedName, editedEmail, editedAddress, editedPhoneNumber,
                         editedAccountNumber);
         CreditorDTO creditorDTO =
                 TestUtils.setupCreditorDTOTestData(editedName, editedEmail, editedAddress, editedPhoneNumber,
                         editedAccountNumber);
-        when(creditorRepository.findById(anyInt())).thenReturn(Optional.of(creditor));
-        when(creditorRepository.save(creditor)).thenReturn(editedCreditor);
+        when(creditorRepository.findById(id)).thenReturn(Optional.of(new Creditor()));
+        when(creditorRepository.save(any(Creditor.class))).thenReturn(expectedEditedCreditor);
         Creditor actualEditedCreditor = creditorService.editCreditorById(creditorDTO, id);
         Assertions.assertNotNull(actualEditedCreditor);
-        Assertions.assertEquals(editedCreditor.getName(), actualEditedCreditor.getName());
-        Assertions.assertEquals(editedCreditor.getEmail(), actualEditedCreditor.getEmail());
-        Assertions.assertEquals(editedCreditor.getAddress(), actualEditedCreditor.getAddress());
-        Assertions.assertEquals(editedCreditor.getPhoneNumber(), actualEditedCreditor.getPhoneNumber());
-        Assertions.assertEquals(editedCreditor.getAccountNumber(), actualEditedCreditor.getAccountNumber());
+        Assertions.assertEquals(expectedEditedCreditor.getName(), actualEditedCreditor.getName());
+        Assertions.assertEquals(expectedEditedCreditor.getEmail(), actualEditedCreditor.getEmail());
+        Assertions.assertEquals(expectedEditedCreditor.getAddress(), actualEditedCreditor.getAddress());
+        Assertions.assertEquals(expectedEditedCreditor.getPhoneNumber(), actualEditedCreditor.getPhoneNumber());
+        Assertions.assertEquals(expectedEditedCreditor.getAccountNumber(), actualEditedCreditor.getAccountNumber());
     }
 
     @Test
@@ -155,7 +154,7 @@ public class CreditorServiceTest {
                 TestUtils.setupEditedCreditorTestData(name, email, address, phoneNumber, accountNumber);
         Role role = TestUtils.setupRoleTestData(roleName, roleId);
         when(roleRepository.findById(roleId)).thenReturn(Optional.of(role));
-        when(customUserRepository.save(any())).thenReturn(new CustomUser());
+        when(customUserRepository.save(any(CustomUser.class))).thenReturn(new CustomUser());
         when(passwordGeneratorService.generatePassword(anyInt())).thenReturn("generatedPassword");
         when(bCryptPasswordEncoder.encode(any(String.class))).thenReturn("encodedPassword");
         when(creditorRepository.save(any(Creditor.class))).thenReturn(createdCreditor);
@@ -191,5 +190,17 @@ public class CreditorServiceTest {
         when(creditorRepository.findById(id)).thenReturn(Optional.of(new Creditor()));
         doNothing().when(creditorRepository).deleteById(id);
         Assertions.assertDoesNotThrow(() -> creditorService.deleteCreditorById(id));
+    }
+
+    @Test
+    void testDeleteCreditorByNonExistingId() {
+        int id = 100;
+        when(creditorRepository.findById(id)).thenReturn(Optional.empty());
+        EntityNotFoundException thrown = Assertions.assertThrows(
+                EntityNotFoundException.class,
+                () -> creditorService.deleteCreditorById(id),
+                "Expected deleteCreditorById to throw, but it didn't"
+        );
+        Assertions.assertTrue(thrown.getMessage().contains(String.format(Constants.CREDITOR_NOT_FOUND, id)));
     }
 }

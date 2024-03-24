@@ -24,7 +24,8 @@ public class DebtorServiceImpl implements DebtorService {
 
     public Debtor getDebtorById(int id) {
         Optional<Debtor> optionalDebtor = debtorRepository.findById(id);
-        return optionalDebtor.orElseThrow(() -> new EntityNotFoundException(String.format(Constants.DEBTOR_NOT_FOUND, id)));
+        return optionalDebtor.orElseThrow(
+                () -> new EntityNotFoundException(String.format(Constants.DEBTOR_NOT_FOUND, id)));
     }
 
     @Override

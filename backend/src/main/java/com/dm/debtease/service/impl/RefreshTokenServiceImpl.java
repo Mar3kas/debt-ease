@@ -45,6 +45,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     public RefreshToken findByToken(String token) {
         return refreshTokenRepository.findByToken(token)
-                .orElseThrow(() -> new InvalidRefreshTokenException(String.format(Constants.REFRESH_TOKEN_NOT_FOUND, token)));
+                .orElseThrow(() -> new InvalidRefreshTokenException(
+                        String.format(Constants.REFRESH_TOKEN_NOT_FOUND, token)));
     }
 }

@@ -3,10 +3,13 @@ package com.dm.debtease.service.impl;
 import com.dm.debtease.model.DebtCaseType;
 import com.dm.debtease.repository.DebtCaseTypeRepository;
 import com.dm.debtease.service.DebtCaseTypeService;
+import com.dm.debtease.utils.Constants;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +19,13 @@ public class DebtCaseTypeServiceImpl implements DebtCaseTypeService {
     @Override
     public List<DebtCaseType> getAllDebtCaseTypes() {
         return debtCaseTypeRepository.findAll();
+    }
+
+    @Override
+    public DebtCaseType getDebtCaseTypeById(int id) {
+        Optional<DebtCaseType> optionalDebtCaseType = debtCaseTypeRepository.findById(id);
+        return optionalDebtCaseType.orElseThrow(
+                () -> new EntityNotFoundException(String.format(Constants.DEBT_CASE_TYPE_NOT_FOUND, id)));
     }
 
     @Override

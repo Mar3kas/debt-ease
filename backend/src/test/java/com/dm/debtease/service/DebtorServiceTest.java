@@ -39,11 +39,12 @@ public class DebtorServiceTest {
     @Test
     void testGetDebtorById() {
         int id = 1;
+        String username = "debtor";
         String name = "name";
         String surname = "surname";
         String email = "email@gmail.com";
         String phoneNumber = "+37067144213";
-        Debtor expectedDebtor = TestUtils.setupDebtorTestData(name, surname, email, phoneNumber);
+        Debtor expectedDebtor = TestUtils.setupDebtorTestData(name, surname, email, phoneNumber, username);
         when(debtorRepository.findById(id)).thenReturn(Optional.of(expectedDebtor));
         Debtor actualDebtor = debtorService.getDebtorById(id);
         Assertions.assertNotNull(actualDebtor);
@@ -70,10 +71,11 @@ public class DebtorServiceTest {
         String surname = "surname";
         String email = "email@gmail.com";
         String phoneNumber = "+37067144213";
-        Debtor expectedDebtor = TestUtils.setupDebtorTestData(name, surname, email, phoneNumber);
+        Debtor expectedDebtor = TestUtils.setupDebtorTestData(name, surname, email, phoneNumber, username);
         when(debtorRepository.findByUserUsername(username)).thenReturn(Optional.of(expectedDebtor));
         Debtor actualDebtor = debtorService.getDebtorByUsername(username);
         Assertions.assertNotNull(actualDebtor);
+        Assertions.assertEquals(expectedDebtor.getUser().getUsername(), actualDebtor.getUser().getUsername());
         Assertions.assertEquals(expectedDebtor.getName(), actualDebtor.getName());
         Assertions.assertEquals(expectedDebtor.getSurname(), actualDebtor.getSurname());
     }
@@ -88,11 +90,12 @@ public class DebtorServiceTest {
 
     @Test
     void testGetDebtorByNameAndSurname() {
+        String username = "debtor";
         String name = "name";
         String surname = "surname";
         String email = "email@gmail.com";
         String phoneNumber = "+37067144213";
-        Debtor expectedDebtor = TestUtils.setupDebtorTestData(name, surname, email, phoneNumber);
+        Debtor expectedDebtor = TestUtils.setupDebtorTestData(name, surname, email, phoneNumber, username);
         when(debtorRepository.findByNameAndSurname(name, surname)).thenReturn(Optional.of(expectedDebtor));
         Debtor actualDebtor = debtorService.getDebtorByNameAndSurname(name, surname);
         Assertions.assertNotNull(actualDebtor);
@@ -110,28 +113,23 @@ public class DebtorServiceTest {
 
     @Test
     void testEditDebtorById() {
-        String name = "name";
-        String surname = "surname";
-        String email = "email@gmail.com";
-        String phoneNumber = "+37067144213";
         String editedName = "editedName";
         String editedSurname = "editedSurname";
         String editedEmail = "editedEmail@gmail.com";
         String editedPhoneNumber = "+37067144213";
         int id = 1;
-        Debtor debtor = TestUtils.setupDebtorTestData(name, surname, email, phoneNumber);
-        Debtor editedDebtor =
+        Debtor exptectedEditedDebtor =
                 TestUtils.setupEditedDebtorTestData(editedName, editedSurname, editedEmail, editedPhoneNumber);
         DebtorDTO debtorDTO =
                 TestUtils.setupDebtorDTOTestData(editedName, editedSurname, editedEmail, editedPhoneNumber);
-        when(debtorRepository.findById(id)).thenReturn(Optional.of(debtor));
-        when(debtorRepository.save(debtor)).thenReturn(editedDebtor);
+        when(debtorRepository.findById(id)).thenReturn(Optional.of(new Debtor()));
+        when(debtorRepository.save(any(Debtor.class))).thenReturn(exptectedEditedDebtor);
         Debtor actualEditedDebtor = debtorService.editDebtorById(debtorDTO, id);
         Assertions.assertNotNull(actualEditedDebtor);
-        Assertions.assertEquals(editedDebtor.getName(), actualEditedDebtor.getName());
-        Assertions.assertEquals(editedDebtor.getSurname(), actualEditedDebtor.getSurname());
-        Assertions.assertEquals(editedDebtor.getEmail(), actualEditedDebtor.getEmail());
-        Assertions.assertEquals(editedDebtor.getPhoneNumber(), actualEditedDebtor.getPhoneNumber());
+        Assertions.assertEquals(exptectedEditedDebtor.getName(), actualEditedDebtor.getName());
+        Assertions.assertEquals(exptectedEditedDebtor.getSurname(), actualEditedDebtor.getSurname());
+        Assertions.assertEquals(exptectedEditedDebtor.getEmail(), actualEditedDebtor.getEmail());
+        Assertions.assertEquals(exptectedEditedDebtor.getPhoneNumber(), actualEditedDebtor.getPhoneNumber());
     }
 
     @Test

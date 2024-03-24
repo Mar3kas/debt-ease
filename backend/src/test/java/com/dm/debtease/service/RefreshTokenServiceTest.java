@@ -58,7 +58,9 @@ public class RefreshTokenServiceTest {
         expiredToken.setExpirationDate(Instant.now().minusMillis(1000));
         TokenRefreshException exception = Assertions.assertThrows(TokenRefreshException.class,
                 () -> refreshTokenService.validateRefreshToken(expiredToken));
-        Assertions.assertEquals(String.format("Failed for [%s]: %s", expiredToken.getToken(), Constants.REFRESH_TOKEN_EXPIRED), exception.getMessage());
+        Assertions.assertEquals(
+                String.format("Failed for [%s]: %s", expiredToken.getToken(), Constants.REFRESH_TOKEN_EXPIRED),
+                exception.getMessage());
     }
 
     @Test

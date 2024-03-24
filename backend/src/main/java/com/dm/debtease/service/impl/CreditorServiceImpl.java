@@ -7,9 +7,9 @@ import com.dm.debtease.model.Role;
 import com.dm.debtease.model.dto.CreditorDTO;
 import com.dm.debtease.repository.CreditorRepository;
 import com.dm.debtease.repository.CustomUserRepository;
-import com.dm.debtease.repository.DebtCaseRepository;
 import com.dm.debtease.repository.RoleRepository;
 import com.dm.debtease.service.CreditorService;
+import com.dm.debtease.service.DebtCaseService;
 import com.dm.debtease.service.PasswordGeneratorService;
 import com.dm.debtease.utils.Constants;
 import jakarta.persistence.EntityNotFoundException;
@@ -26,9 +26,9 @@ public class CreditorServiceImpl implements CreditorService {
     private final CreditorRepository creditorRepository;
     private final CustomUserRepository customUserRepository;
     private final RoleRepository roleRepository;
-    private final DebtCaseRepository debtCaseRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final PasswordGeneratorService passwordGeneratorService;
+    private final DebtCaseService debtCaseService;
 
     @Override
     public List<Creditor> getAllCreditors() {
@@ -38,7 +38,8 @@ public class CreditorServiceImpl implements CreditorService {
     @Override
     public Creditor getCreditorById(int id) {
         Optional<Creditor> optionalCreditor = creditorRepository.findById(id);
-        return optionalCreditor.orElseThrow(() -> new EntityNotFoundException(String.format(Constants.CREDITOR_NOT_FOUND, id)));
+        return optionalCreditor.orElseThrow(
+                () -> new EntityNotFoundException(String.format(Constants.CREDITOR_NOT_FOUND, id)));
     }
 
     @Override
@@ -80,7 +81,8 @@ public class CreditorServiceImpl implements CreditorService {
         creditor.setPhoneNumber(creditorDTO.getPhoneNumber());
         creditor.setEmail(creditorDTO.getEmail());
         creditor.setAccountNumber(creditorDTO.getAccountNumber());
-        Role role = roleRepository.findById(3).orElseThrow(() -> new EntityNotFoundException(String.format(Constants.ROLE_NOT_FOUND, "3")));
+        Role role = roleRepository.findById(3)
+                .orElseThrow(() -> new EntityNotFoundException(String.format(Constants.ROLE_NOT_FOUND, "3")));
         CustomUser customUser = new CustomUser();
         customUser.setUsername(!creditorDTO.getUsername().isEmpty() ? creditorDTO.getUsername() : creditor.getName());
         customUser.setPassword(bCryptPasswordEncoder.encode(passwordGeneratorService.generatePassword(8)));
@@ -94,7 +96,7 @@ public class CreditorServiceImpl implements CreditorService {
     public boolean deleteCreditorById(int id) {
         Optional<Creditor> optionalCreditor = creditorRepository.findById(id);
         if (optionalCreditor.isPresent()) {
-            List<DebtCase> debtCases = debtCaseRepository.findAll()
+            List<DebtCase> debtCases = debtCaseService.getAllDebtCases()
                     .stream()
                     .filter(debtCase -> debtCase.getCreditor().getId() == id).toList();
             if (!debtCases.isEmpty()) {

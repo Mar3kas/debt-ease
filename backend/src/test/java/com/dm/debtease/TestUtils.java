@@ -2,6 +2,7 @@ package com.dm.debtease;
 
 import com.dm.debtease.model.*;
 import com.dm.debtease.model.dto.CreditorDTO;
+import com.dm.debtease.model.dto.DebtCaseDTO;
 import com.dm.debtease.model.dto.DebtorDTO;
 
 import java.math.BigDecimal;
@@ -9,6 +10,14 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 
 public class TestUtils {
+    public final static String[] INDICATOR = new String[]{
+            "84.35",
+            "2024-12-12 23:00:00",
+            "TAX_DEBT",
+            "Tadas",
+            "Tadaitis"
+    };
+
     public static Admin setupAdminTestData(String username) {
         Admin admin = new Admin();
         CustomUser user = new CustomUser();
@@ -51,12 +60,16 @@ public class TestUtils {
         return creditorDTO;
     }
 
-    public static Debtor setupDebtorTestData(String name, String surname, String email, String phoneNumber) {
+    public static Debtor setupDebtorTestData(String name, String surname, String email, String phoneNumber,
+                                             String username) {
         Debtor debtor = new Debtor();
+        CustomUser user = new CustomUser();
+        user.setUsername(username);
         debtor.setName(name);
         debtor.setSurname(surname);
         debtor.setEmail(email);
         debtor.setPhoneNumber(phoneNumber);
+        debtor.setUser(user);
         return debtor;
     }
 
@@ -118,13 +131,15 @@ public class TestUtils {
 
     public static DebtCase setupDebtCaseTestData(String creditorUsername, int creditorId, String debtorName,
                                                  String debtorSurname,
-                                                 String debtorEmail, String debtorPhoneNumber, String type, String status,
+                                                 String debtorEmail, String debtorPhoneNumber, String type,
+                                                 String status,
                                                  LocalDateTime dueDate, double lateInterestRate,
-                                                 BigDecimal amountOwed) {
+                                                 BigDecimal amountOwed, String debtorUsername) {
         DebtCase debtCase = new DebtCase();
         debtCase.setCreditor(setupCreditorTestData(creditorUsername, creditorId
         ));
-        debtCase.setDebtor(setupDebtorTestData(debtorName, debtorSurname, debtorEmail, debtorPhoneNumber));
+        debtCase.setDebtor(
+                setupDebtorTestData(debtorName, debtorSurname, debtorEmail, debtorPhoneNumber, debtorUsername));
         debtCase.setDebtCaseType(setupDebtCaseTypeTestData(type));
         debtCase.setDebtCaseStatus(setupDebtCaseStatusTestData(status));
         debtCase.setOutstandingBalance(BigDecimal.TEN);
@@ -132,5 +147,13 @@ public class TestUtils {
         debtCase.setLateInterestRate(lateInterestRate);
         debtCase.setAmountOwed(amountOwed);
         return debtCase;
+    }
+
+    public static DebtCaseDTO setupDebtCaseDTOTestData(BigDecimal amountOwed, LocalDateTime dueDate, int typeId) {
+        DebtCaseDTO debtCaseDTO = new DebtCaseDTO();
+        debtCaseDTO.setAmountOwed(amountOwed);
+        debtCaseDTO.setDueDate(dueDate);
+        debtCaseDTO.setTypeId(typeId);
+        return debtCaseDTO;
     }
 }

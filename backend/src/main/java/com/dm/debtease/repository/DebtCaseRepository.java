@@ -11,9 +11,14 @@ import java.util.Optional;
 
 @Repository
 public interface DebtCaseRepository extends JpaRepository<DebtCase, Integer> {
-    Optional<DebtCase> findByAmountOwedAndDueDateAndDebtCaseType_TypeAndCreditor_User_UsernameAndDebtor_NameAndDebtor_Surname(BigDecimal amountOwed, LocalDateTime dueDate, String type, String username, String name, String surname);
+    Optional<DebtCase> findByAmountOwedAndDueDateAndDebtCaseType_TypeAndCreditor_User_UsernameAndDebtor_NameAndDebtor_Surname(
+            BigDecimal amountOwed, LocalDateTime dueDate, String type, String username, String name, String surname);
 
     Optional<DebtCase> findByIdAndCreditor_Id(int id, int creditorId);
 
     Optional<List<DebtCase>> findByDueDateLessThanEqual(LocalDateTime dueDate);
+
+    List<DebtCase> findByDebtor_User_Username(String username);
+
+    List<DebtCase> findByCreditor_User_Username(String username);
 }

@@ -4,6 +4,8 @@ import com.dm.debtease.TestUtils;
 import com.dm.debtease.model.DebtCaseType;
 import com.dm.debtease.repository.DebtCaseTypeRepository;
 import com.dm.debtease.service.impl.DebtCaseTypeServiceImpl;
+import com.dm.debtease.utils.Constants;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.Mockito.when;
 
@@ -28,6 +31,29 @@ public class DebtCaseTypeServiceTest {
         List<DebtCaseType> actualDebtCaseTypes = debtCaseTypeService.getAllDebtCaseTypes();
         Assertions.assertNotNull(actualDebtCaseTypes);
         Assertions.assertFalse(actualDebtCaseTypes.isEmpty());
+    }
+
+    @Test
+    void testGetDebtCaseTypeById() {
+        String typeToMatch = "DEFAULT_DEBT";
+        DebtCaseType expectedDebtCaseType = TestUtils.setupDebtCaseTypeTestData(typeToMatch);
+        int id = 1;
+        when(debtCaseTypeRepository.findById(id)).thenReturn(Optional.of(expectedDebtCaseType));
+        DebtCaseType actualDebtCaseType = debtCaseTypeService.getDebtCaseTypeById(id);
+        Assertions.assertNotNull(actualDebtCaseType);
+        Assertions.assertEquals(expectedDebtCaseType.getType(), actualDebtCaseType.getType());
+    }
+
+    @Test
+    void testGetDebtCaseTypeByNonExistingId() {
+        int id = -1;
+        when(debtCaseTypeRepository.findById(id)).thenReturn(Optional.empty());
+        EntityNotFoundException thrown = Assertions.assertThrows(
+                EntityNotFoundException.class,
+                () -> debtCaseTypeService.getDebtCaseTypeById(id),
+                "Expected getDebtCaseTypeById to throw, but it didn't"
+        );
+        Assertions.assertTrue(thrown.getMessage().contains(String.format(Constants.DEBT_CASE_TYPE_NOT_FOUND, id)));
     }
 
     @Test

@@ -35,7 +35,8 @@ public class JwtServiceTest {
         HashSet<GrantedAuthority> roles = new HashSet<>();
         roles.add(new SimpleGrantedAuthority("ADMIN"));
         UserDetails userDetails = new User("testUser", "password", roles);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         String token = jwtService.createToken(authentication);
         Assertions.assertNotNull(token);
     }
@@ -46,6 +47,14 @@ public class JwtServiceTest {
         when(request.getHeader("Authorization")).thenReturn(testToken);
         String resolvedToken = jwtService.resolveToken(request);
         Assertions.assertEquals("testToken", resolvedToken);
+    }
+
+    @Test
+    void testResolveTokenInvalidToken() {
+        String testToken = "Test testToken";
+        when(request.getHeader("Authorization")).thenReturn(testToken);
+        String resolvedToken = jwtService.resolveToken(request);
+        Assertions.assertNull(resolvedToken);
     }
 
     @Test
