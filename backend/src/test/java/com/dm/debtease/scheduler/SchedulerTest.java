@@ -4,6 +4,7 @@ import com.dm.debtease.TestUtils;
 import com.dm.debtease.model.DebtCase;
 import com.dm.debtease.repository.DebtCaseRepository;
 import com.dm.debtease.service.DebtCaseService;
+import com.dm.debtease.service.EmailService;
 import com.dm.debtease.utils.Constants;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -13,8 +14,6 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -33,7 +32,7 @@ public class SchedulerTest {
     @Mock
     private DebtCaseRepository debtCaseRepository;
     @Mock
-    private JavaMailSender javaMailSender;
+    private EmailService emailService;
     @InjectMocks
     private Scheduler scheduler;
     @Captor
@@ -58,10 +57,9 @@ public class SchedulerTest {
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, id, debtorName, debtorSurname, debtorEmail,
                         debtorPhoneNumber, typeToMatch, status, dueDate, lateInterestRate, amountOwed, debtorUsername));
         when(debtCaseService.getAllDebtCases()).thenReturn(expectedDebtCases);
+        when(debtCaseService.isDebtCasePending(any(DebtCase.class), any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(true);
         scheduler.emailNotificationForUpcomingDueDatePaymentScheduler();
-        for (DebtCase debtCase : expectedDebtCases) {
-            verify(javaMailSender).send(any(SimpleMailMessage.class));
-        }
+        verify(emailService, times(expectedDebtCases.size())).sendNotificationEmail(any(DebtCase.class));
     }
 
     @Test
@@ -84,9 +82,7 @@ public class SchedulerTest {
                         debtorPhoneNumber, typeToMatch, status, dueDate, lateInterestRate, amountOwed, debtorUsername));
         when(debtCaseService.getAllDebtCases()).thenReturn(expectedDebtCases);
         scheduler.emailNotificationEachMonth20DayScheduler();
-        for (DebtCase debtCase : expectedDebtCases) {
-            verify(javaMailSender).send(any(SimpleMailMessage.class));
-        }
+        verify(emailService, times(expectedDebtCases.size())).sendNotificationEmail(any(DebtCase.class));
     }
 
     @Test

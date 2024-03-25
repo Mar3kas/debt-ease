@@ -3,17 +3,9 @@ package com.dm.debtease.controller;
 import com.dm.debtease.exception.InvalidRefreshTokenException;
 import com.dm.debtease.exception.LoginException;
 import com.dm.debtease.exception.LogoutException;
-import com.dm.debtease.model.Admin;
-import com.dm.debtease.model.Creditor;
-import com.dm.debtease.model.Debtor;
-import com.dm.debtease.model.RefreshToken;
-import com.dm.debtease.model.RefreshTokenRequest;
+import com.dm.debtease.model.*;
 import com.dm.debtease.model.dto.UserDTO;
-import com.dm.debtease.service.AdminService;
-import com.dm.debtease.service.CreditorService;
-import com.dm.debtease.service.DebtorService;
-import com.dm.debtease.service.JwtService;
-import com.dm.debtease.service.RefreshTokenService;
+import com.dm.debtease.service.*;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -30,13 +22,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -58,7 +44,8 @@ public class UserController {
     private final AdminService adminService;
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> authenticateUser(@RequestBody @Valid UserDTO userDTO, BindingResult result) {
+    public ResponseEntity<Map<String, String>> authenticateUser(@RequestBody @Valid UserDTO userDTO,
+                                                                BindingResult result) {
         Authentication existingAuthentication = SecurityContextHolder.getContext().getAuthentication();
         if (existingAuthentication != null && existingAuthentication.getName().equals(userDTO.getUsername())) {
             throw new LoginException("User is already logged in");

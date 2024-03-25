@@ -3,6 +3,7 @@ package com.dm.debtease.service;
 import com.dm.debtease.model.DebtCase;
 import com.dm.debtease.model.dto.DebtCaseDTO;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,4 +23,6 @@ public interface DebtCaseService {
     Optional<DebtCase> findExistingDebtCase(String username, String... indicator);
 
     String getTypeToMatch(String type);
+
+    boolean isDebtCasePending(DebtCase debtCase, LocalDateTime startTime, LocalDateTime endTime);
 }

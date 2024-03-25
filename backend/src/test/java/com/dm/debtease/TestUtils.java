@@ -37,14 +37,15 @@ public class TestUtils {
         return creditor;
     }
 
-    public static Creditor setupEditedCreditorTestData(String name, String email, String address, String phoneNumber,
-                                                       String accountNumber) {
+    public static Creditor setupCreditorTestData(String name, String email, String address, String phoneNumber,
+                                                       String accountNumber, String username) {
         Creditor creditor = new Creditor();
         creditor.setName(name);
         creditor.setEmail(email);
         creditor.setAddress(address);
         creditor.setPhoneNumber(phoneNumber);
         creditor.setAccountNumber(accountNumber);
+        creditor.setUser(setupCustomUserTestData(username, "password", "role", 1));
         return creditor;
     }
 

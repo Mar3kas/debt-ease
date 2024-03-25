@@ -94,4 +94,11 @@ public class DebtCaseServiceImpl implements DebtCaseService {
         }
         return type.toUpperCase().contains("_DEBT") ? type.toUpperCase() : type.toUpperCase().concat("_DEBT");
     }
+
+    @Override
+    public boolean isDebtCasePending(DebtCase debtCase, LocalDateTime startTime, LocalDateTime endTime) {
+        return debtCase.getDueDate().isAfter(startTime)
+                && debtCase.getDueDate().isBefore(endTime)
+                && "NEW".equals(debtCase.getDebtCaseStatus().getStatus());
+    }
 }

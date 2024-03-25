@@ -1,14 +1,11 @@
 package com.dm.debtease.scheduler;
 
-import com.dm.debtease.model.Creditor;
 import com.dm.debtease.model.DebtCase;
-import com.dm.debtease.model.Debtor;
 import com.dm.debtease.repository.DebtCaseRepository;
 import com.dm.debtease.service.DebtCaseService;
+import com.dm.debtease.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +22,7 @@ import java.util.Optional;
 public class Scheduler {
     private final DebtCaseService debtCaseService;
     private final DebtCaseRepository debtCaseRepository;
-    private final JavaMailSender javaMailSender;
+    private final EmailService emailService;
 
     @Scheduled(cron = "0 * * * * *")
     public void emailNotificationForUpcomingDueDatePaymentScheduler() {
@@ -34,8 +31,8 @@ public class Scheduler {
         LocalDateTime tenDaysLater = now.plusDays(10);
         List<DebtCase> debtCases = debtCaseService.getAllDebtCases();
         for (DebtCase debtCase : debtCases) {
-            if (debtCaseIsPending(debtCase, now, tenDaysLater)) {
-                sendNotificationEmail(debtCase);
+            if (debtCaseService.isDebtCasePending(debtCase, now, tenDaysLater)) {
+                emailService.sendNotificationEmail(debtCase);
             }
         }
         log.info("Cron job scheduler for email notification for upcoming due date payment has finished!");
@@ -47,7 +44,7 @@ public class Scheduler {
         List<DebtCase> debtCases = debtCaseService.getAllDebtCases();
         for (DebtCase debtCase : debtCases) {
             if (!"CLOSED".equals(debtCase.getDebtCaseStatus().getStatus())) {
-                sendNotificationEmail(debtCase);
+                emailService.sendNotificationEmail(debtCase);
             }
         }
         log.info("Cron job scheduler for email notification each month 20th day has finished!");
@@ -70,27 +67,5 @@ public class Scheduler {
             }
         }
         log.info("Cron job scheduler for calculating outstanding balance has finished!");
-    }
-
-    private boolean debtCaseIsPending(DebtCase debtCase, LocalDateTime startTime, LocalDateTime endTime) {
-        return debtCase.getDueDate().isAfter(startTime)
-                && debtCase.getDueDate().isBefore(endTime)
-                && "NEW".equals(debtCase.getDebtCaseStatus().getStatus());
-    }
-
-    private void sendNotificationEmail(DebtCase debtCase) {
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setFrom("marijuspet@gmail.com");
-        Debtor debtor = debtCase.getDebtor();
-        Creditor creditor = debtCase.getCreditor();
-        mailMessage.setTo(debtor.getEmail());
-        mailMessage.setSubject("Pending debt until " + debtCase.getDueDate());
-        mailMessage.setText(String.format(
-                "Dear, %s %s! %n You have an open debt case with an amount owed: %f.2f! Issued by %s. Please pay by " +
-                        "%s!",
-                debtor.getName(), debtor.getSurname(),
-                debtCase.getAmountOwed(), creditor.getName(),
-                debtCase.getDueDate()));
-        javaMailSender.send(mailMessage);
     }
 }

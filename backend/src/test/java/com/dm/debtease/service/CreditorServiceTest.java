@@ -102,10 +102,11 @@ public class CreditorServiceTest {
         String editedAddress = "editedAddress";
         String editedPhoneNumber = "+37067144213";
         String editedAccountNumber = "editedAccountNumber";
+        String username = "username";
         int id = 1;
         Creditor expectedEditedCreditor =
-                TestUtils.setupEditedCreditorTestData(editedName, editedEmail, editedAddress, editedPhoneNumber,
-                        editedAccountNumber);
+                TestUtils.setupCreditorTestData(editedName, editedEmail, editedAddress, editedPhoneNumber,
+                        editedAccountNumber, username);
         CreditorDTO creditorDTO =
                 TestUtils.setupCreditorDTOTestData(editedName, editedEmail, editedAddress, editedPhoneNumber,
                         editedAccountNumber);
@@ -148,10 +149,11 @@ public class CreditorServiceTest {
         String phoneNumber = "+37067144213";
         String accountNumber = "accountNumber";
         String roleName = "role";
+        String username = "username";
         int roleId = 3;
         CreditorDTO creditorDTO = TestUtils.setupCreditorDTOTestData(name, email, address, phoneNumber, accountNumber);
         Creditor createdCreditor =
-                TestUtils.setupEditedCreditorTestData(name, email, address, phoneNumber, accountNumber);
+                TestUtils.setupCreditorTestData(name, email, address, phoneNumber, accountNumber, username);
         Role role = TestUtils.setupRoleTestData(roleName, roleId);
         when(roleRepository.findById(roleId)).thenReturn(Optional.of(role));
         when(customUserRepository.save(any(CustomUser.class))).thenReturn(new CustomUser());

@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -25,6 +26,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableWebMvc
 @EnableWebSecurity
 @RequiredArgsConstructor
+@SuppressWarnings("unused")
 public class SecurityConfig implements WebMvcConfigurer {
     private static final String[] AUTH_WHITELIST = {
             "/api/v1/auth/**",
@@ -66,39 +68,39 @@ public class SecurityConfig implements WebMvcConfigurer {
         http.cors(Customizer.withDefaults())
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(AUTH_WHITELIST).permitAll()
-                        .anyRequest().permitAll())
-//                        .requestMatchers(HttpMethod.GET, "/api/creditors/*").hasAnyAuthority("CREDITOR", "ADMIN")
-//                        .requestMatchers(HttpMethod.GET, "/api/creditors/profile/*").hasAnyAuthority("CREDITOR",
-//                        "ADMIN")
-//                        .requestMatchers(HttpMethod.GET, "/api/debtcases/*").hasAnyAuthority("CREDITOR", "ADMIN")
-//                        .requestMatchers(HttpMethod.GET, "/api/debtcases").hasAuthority("ADMIN")
-//                        .requestMatchers(HttpMethod.GET, "/api/creditors").hasAuthority("ADMIN")
-//                        .requestMatchers(HttpMethod.GET, "/api/debtors").hasAuthority("ADMIN")
-//                        .requestMatchers(HttpMethod.GET, "/api/creditor/*/debtcases").hasAnyAuthority("CREDITOR",
-//                        "ADMIN")
-//                        .requestMatchers(HttpMethod.GET, "/api/debtor/*/debtcases").hasAnyAuthority("DEBTOR", "ADMIN")
-//                        .requestMatchers(HttpMethod.GET, "/api/debtcases/generate/report/debtor/*").hasAnyAuthority
-//                        ("DEBTOR")
-//                        .requestMatchers(HttpMethod.GET, "/api/debtors/*").hasAnyAuthority("DEBTOR", "ADMIN")
-//                        .requestMatchers(HttpMethod.GET, "/api/debtors/profile/*").hasAnyAuthority("DEBTOR", "ADMIN")
-//                        .requestMatchers(HttpMethod.PUT, "/api/creditors/*").hasAnyAuthority("CREDITOR", "ADMIN")
-//                        .requestMatchers(HttpMethod.PUT, "/api/debtcases/*/creditors/*").hasAnyAuthority
-//                        ("CREDITOR", "ADMIN")
-//                        .requestMatchers(HttpMethod.PUT, "/api/debtors/*").hasAnyAuthority("CREDITOR", "ADMIN",
-//                        "DEBTOR")
-//                        .requestMatchers(HttpMethod.POST, "/api/debtcases/creditors/*/file").hasAnyAuthority
-//                        ("CREDITOR", "ADMIN")
-//                        .requestMatchers(HttpMethod.POST, "/api/creditors/").hasAuthority("ADMIN")
-//                        .requestMatchers(HttpMethod.POST, "/api/logout").hasAnyAuthority("ADMIN", "DEBTOR",
-//                        "CREDITOR")
-//                        .requestMatchers(HttpMethod.DELETE, "/api/debtcases/*/creditors/*").hasAnyAuthority
-//                        ("CREDITOR", "ADMIN")
-//                        .requestMatchers(HttpMethod.DELETE, "/api/creditor/* /debtcase/* /debtors/*").hasAuthority
-//                        ("ADMIN")
-//                        .requestMatchers(HttpMethod.DELETE, "/api/creditors/*").hasAuthority("ADMIN")
-//                        .requestMatchers(HttpMethod.DELETE, "/api/debtors/*").hasAuthority("ADMIN")
-//                        .anyRequest()
-//                        .authenticated())
+                        //.anyRequest().permitAll())
+                        .requestMatchers(HttpMethod.GET, "/api/creditors/*").hasAnyAuthority("CREDITOR", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/creditors/profile/*").hasAnyAuthority("CREDITOR",
+                                "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/debtcases/*").hasAnyAuthority("CREDITOR", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/debtcases").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/creditors").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/debtors").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/creditor/* /debtcases").hasAnyAuthority("CREDITOR",
+                                "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/debtor/* /debtcases").hasAnyAuthority("DEBTOR", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/debtcases/generate/report/debtor/*").hasAnyAuthority
+                                ("DEBTOR")
+                        .requestMatchers(HttpMethod.GET, "/api/debtors/*").hasAnyAuthority("DEBTOR", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/debtors/profile/*").hasAnyAuthority("DEBTOR", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/creditors/*").hasAnyAuthority("CREDITOR", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/debtcases/* /creditors/*").hasAnyAuthority
+                                ("CREDITOR", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/debtors/*").hasAnyAuthority("CREDITOR", "ADMIN",
+                                "DEBTOR")
+                        .requestMatchers(HttpMethod.POST, "/api/debtcases/creditors/* /file").hasAnyAuthority
+                                ("CREDITOR", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/creditors/").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/logout").hasAnyAuthority("ADMIN", "DEBTOR",
+                                "CREDITOR")
+                        .requestMatchers(HttpMethod.DELETE, "/api/debtcases/* /creditors/*").hasAnyAuthority
+                                ("CREDITOR", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/creditor/* /debtcase/* /debtors/*").hasAuthority
+                                ("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/creditors/*").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/debtors/*").hasAuthority("ADMIN")
+                        .anyRequest()
+                        .authenticated())
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())

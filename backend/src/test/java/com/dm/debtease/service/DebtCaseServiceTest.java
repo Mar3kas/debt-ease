@@ -2,6 +2,7 @@ package com.dm.debtease.service;
 
 import com.dm.debtease.TestUtils;
 import com.dm.debtease.model.DebtCase;
+import com.dm.debtease.model.DebtCaseStatus;
 import com.dm.debtease.model.DebtCaseType;
 import com.dm.debtease.model.dto.DebtCaseDTO;
 import com.dm.debtease.repository.DebtCaseRepository;
@@ -247,10 +248,58 @@ public class DebtCaseServiceTest {
     }
 
     @Test
-    void whenTypeIsEmpty_thenAppendsDebtInUpperCase() {
+    void testWhenTypeIsEmptyThenAppendsDebtInUpperCase() {
         String input = "";
         String expected = "DEFAULT_DEBT";
         String actual = debtCaseService.getTypeToMatch(input);
         Assertions.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testIsDebtCasePendingWithinRangeAndStatusNewShouldReturnTrue() {
+        LocalDateTime dueDate = LocalDateTime.of(2024, 3, 22, 12, 0);
+        LocalDateTime startTime = LocalDateTime.of(2024, 3, 20, 0, 0);
+        LocalDateTime endTime = LocalDateTime.of(2024, 3, 25, 23, 59);
+        DebtCaseStatus status = TestUtils.setupDebtCaseStatusTestData("NEW");
+        DebtCase debtCase = new DebtCase();
+        debtCase.setDebtCaseStatus(status);
+        debtCase.setDueDate(dueDate);
+        Assertions.assertTrue(debtCaseService.isDebtCasePending(debtCase, startTime, endTime));
+    }
+
+    @Test
+    public void testIsDebtCasePendingOutOfRangeBeforeShouldReturnFalse() {
+        LocalDateTime dueDate = LocalDateTime.of(2024, 3, 19, 23, 59);
+        LocalDateTime startTime = LocalDateTime.of(2024, 3, 20, 0, 0);
+        LocalDateTime endTime = LocalDateTime.of(2024, 3, 25, 23, 59);
+        DebtCaseStatus status = TestUtils.setupDebtCaseStatusTestData("NEW");
+        DebtCase debtCase = new DebtCase();
+        debtCase.setDebtCaseStatus(status);
+        debtCase.setDueDate(dueDate);
+        Assertions.assertFalse(debtCaseService.isDebtCasePending(debtCase, startTime, endTime));
+    }
+
+    @Test
+    public void testIsDebtCasePendingOutOfRangeAfterShouldReturnFalse() {
+        LocalDateTime dueDate = LocalDateTime.of(2024, 3, 26, 0, 1);
+        LocalDateTime startTime = LocalDateTime.of(2024, 3, 20, 0, 0);
+        LocalDateTime endTime = LocalDateTime.of(2024, 3, 25, 23, 59);
+        DebtCaseStatus status = TestUtils.setupDebtCaseStatusTestData("NEW");
+        DebtCase debtCase = new DebtCase();
+        debtCase.setDebtCaseStatus(status);
+        debtCase.setDueDate(dueDate);
+        Assertions.assertFalse(debtCaseService.isDebtCasePending(debtCase, startTime, endTime));
+    }
+
+    @Test
+    public void testIsDebtCasePendingWithinRangeButStatusNotNewShouldReturnFalse() {
+        LocalDateTime dueDate = LocalDateTime.of(2024, 3, 22, 12, 0);
+        LocalDateTime startTime = LocalDateTime.of(2024, 3, 20, 0, 0);
+        LocalDateTime endTime = LocalDateTime.of(2024, 3, 25, 23, 59);
+        DebtCaseStatus status = TestUtils.setupDebtCaseStatusTestData("CLOSED");
+        DebtCase debtCase = new DebtCase();
+        debtCase.setDebtCaseStatus(status);
+        debtCase.setDueDate(dueDate);
+        Assertions.assertFalse(debtCaseService.isDebtCasePending(debtCase, startTime, endTime));
     }
 }

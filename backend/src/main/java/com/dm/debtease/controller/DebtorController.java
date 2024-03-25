@@ -47,7 +47,7 @@ public class DebtorController {
         return ResponseEntity.ok(debtor);
     }
 
-    @PutMapping("/debtors/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<Debtor> editDebtorById(@Valid @RequestBody DebtorDTO debtorDTO, BindingResult result,
                                                  @Valid
                                                  @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
