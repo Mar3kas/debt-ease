@@ -43,7 +43,7 @@ public class CSVServiceTest {
     private MultipartFile file;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         file = new MockMultipartFile("file", "test.csv", "text/csv",
                 ("""
                         Name;Surname;Email;PhoneNumber;DebtType;AmountOwed;LateInterestRate;DueDate
@@ -52,7 +52,7 @@ public class CSVServiceTest {
     }
 
     @Test
-    void testReadCsvDataAndSendToKafkaExistingDebtor()
+    void readCsvDataAndSendToKafka_WhenDebtorExistsAndDebtCaseDoesNotExist_ShouldSendToKafka()
             throws InvalidFileFormatException, CsvValidationException,
             IOException {
         String username = "username";
@@ -61,12 +61,14 @@ public class CSVServiceTest {
         when(debtorService.getDebtorByNameAndSurname(debtorName, debtorSurname)).thenReturn(new Debtor());
         when(debtCaseService.findExistingDebtCase(username, TestUtils.INDICATOR)).thenReturn(Optional.empty());
         when(debtCaseService.getTypeToMatch("tax")).thenReturn("TAX_DEBT");
+
         csvService.readCsvDataAndSendToKafka(file, "username");
+
         verify(kafkaTemplate, times(1)).send(anyString(), any(DebtCase.class));
     }
 
     @Test
-    void testReadCsvDataAndSendToKafkaNewDebtorExistingDebtCase()
+    void readCsvDataAndSendToKafka_WhenDebtorDoesNotExistAndDebtCaseExists_ShouldSendToKafka()
             throws InvalidFileFormatException, CsvValidationException,
             IOException {
         String username = "username";
@@ -76,20 +78,24 @@ public class CSVServiceTest {
         when(debtCaseService.findExistingDebtCase(username, TestUtils.INDICATOR)).thenReturn(
                 Optional.of(new DebtCase()));
         when(debtCaseService.getTypeToMatch("tax")).thenReturn("TAX_DEBT");
+
         csvService.readCsvDataAndSendToKafka(file, "username");
+
         verify(kafkaTemplate, times(1)).send(anyString(), any(DebtCase.class));
     }
 
     @Test
-    public void testReadCsvDataAndSendToKafkaInvalidFileFormat_ShouldThrowException() {
+    void readCsvDataAndSendToKafka_WhenInvalidFileFormat_ShouldThrowInvalidFileFormatException() {
         MultipartFile invalidFile =
                 new MockMultipartFile("file", "test.txt", "text/plain", "This is not a CSV file.".getBytes());
         String username = "user";
+
         InvalidFileFormatException thrown = Assertions.assertThrows(
                 InvalidFileFormatException.class,
                 () -> csvService.readCsvDataAndSendToKafka(invalidFile, username),
                 "Expected readCsvDataAndSendToKafka to throw, but it didn't"
         );
+
         Assertions.assertTrue(thrown.getMessage().contains(Constants.NOT_CSV));
     }
 }

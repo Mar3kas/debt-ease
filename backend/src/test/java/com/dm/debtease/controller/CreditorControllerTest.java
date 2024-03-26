@@ -38,12 +38,12 @@ public class CreditorControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         mockMvc = MockMvcBuilders.standaloneSetup(creditorController).build();
     }
 
     @Test
-    void testGetAllCreditors() throws Exception {
+    void getAllCreditors_ShouldReturnListOfCreditors() throws Exception {
         String name = "name";
         String email = "email@gmail.com";
         String address = "address";
@@ -53,6 +53,7 @@ public class CreditorControllerTest {
         List<Creditor> mockedCreditors = List.of(TestUtils.setupCreditorTestData(name, email, address, phoneNumber,
                 accountNumber, username));
         when(creditorService.getAllCreditors()).thenReturn(mockedCreditors);
+
         MvcResult result = mockMvc.perform(get("/api/creditors"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -64,6 +65,7 @@ public class CreditorControllerTest {
                 .andExpect(jsonPath("$[0].accountNumber").value(accountNumber))
                 .andDo(print())
                 .andReturn();
+
         verify(creditorService).getAllCreditors();
         Assertions.assertNotNull(result);
         Assertions.assertEquals(MediaType.APPLICATION_JSON_VALUE, result.getResponse().getContentType());
@@ -72,7 +74,7 @@ public class CreditorControllerTest {
     }
 
     @Test
-    void testGetCreditorById() throws Exception {
+    void getCreditorById_ShouldReturnCreditor() throws Exception {
         int id = 1;
         String name = "name";
         String email = "email@gmail.com";
@@ -83,6 +85,7 @@ public class CreditorControllerTest {
         Creditor mockedCreditor = TestUtils.setupCreditorTestData(name, email, address, phoneNumber,
                 accountNumber, username);
         when(creditorService.getCreditorById(id)).thenReturn(mockedCreditor);
+
         MvcResult result = mockMvc.perform(get("/api/creditors/{id}", id))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -94,6 +97,7 @@ public class CreditorControllerTest {
                 .andExpect(jsonPath("$.accountNumber").value(accountNumber))
                 .andDo(print())
                 .andReturn();
+
         verify(creditorService).getCreditorById(anyInt());
         Assertions.assertNotNull(result);
         Assertions.assertEquals(MediaType.APPLICATION_JSON_VALUE, result.getResponse().getContentType());
@@ -102,7 +106,7 @@ public class CreditorControllerTest {
     }
 
     @Test
-    void testEditCreditorById() throws Exception {
+    void editCreditorById_ShouldReturnEditedCreditor() throws Exception {
         String editedName = "editedName";
         String editedEmail = "editedEmail@gmail.com";
         String editedAddress = "editedAddress";
@@ -117,6 +121,7 @@ public class CreditorControllerTest {
                 TestUtils.setupCreditorDTOTestData(editedName, editedEmail, editedAddress, editedPhoneNumber,
                         editedAccountNumber);
         when(creditorService.editCreditorById(any(CreditorDTO.class), anyInt())).thenReturn(expectedEditedCreditor);
+
         MvcResult result = mockMvc.perform(put("/api/creditors/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(mockedCreditorDTO)))
@@ -129,6 +134,7 @@ public class CreditorControllerTest {
                 .andExpect(jsonPath("$.accountNumber").value(expectedEditedCreditor.getAccountNumber()))
                 .andDo(print())
                 .andReturn();
+
         verify(creditorService).editCreditorById(any(CreditorDTO.class), anyInt());
         Assertions.assertNotNull(result);
         Assertions.assertEquals(MediaType.APPLICATION_JSON_VALUE, result.getResponse().getContentType());
@@ -137,7 +143,7 @@ public class CreditorControllerTest {
     }
 
     @Test
-    void testCreateCreditor() throws Exception {
+    void createCreditor_ShouldReturnCreatedCreditor() throws Exception {
         String name = "name";
         String email = "email@gmail.com";
         String address = "address";
@@ -149,6 +155,7 @@ public class CreditorControllerTest {
         Creditor expectedCreatedCreditor =
                 TestUtils.setupCreditorTestData(name, email, address, phoneNumber, accountNumber, username);
         when(creditorService.createCreditor(any(CreditorDTO.class))).thenReturn(expectedCreatedCreditor);
+
         MvcResult result = mockMvc.perform(post("/api/creditors")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(mockedCreditorDTO)))
@@ -161,6 +168,7 @@ public class CreditorControllerTest {
                 .andExpect(jsonPath("$.accountNumber").value(expectedCreatedCreditor.getAccountNumber()))
                 .andDo(print())
                 .andReturn();
+
         verify(creditorService).createCreditor(any(CreditorDTO.class));
         Assertions.assertNotNull(result);
         Assertions.assertEquals(MediaType.APPLICATION_JSON_VALUE, result.getResponse().getContentType());
@@ -169,28 +177,32 @@ public class CreditorControllerTest {
     }
 
     @Test
-    void testDeleteCreditorById() throws Exception {
+    void deleteCreditorById_ShouldReturnNoContent() throws Exception {
         int id = 1;
         when(creditorService.deleteCreditorById(id)).thenReturn(true);
+
         MvcResult result = mockMvc.perform(delete("/api/creditors/{id}", id))
                 .andExpect(status().isNoContent())
                 .andDo(print())
                 .andReturn();
+
         verify(creditorService).deleteCreditorById(anyInt());
         Assertions.assertNotNull(result);
         Assertions.assertEquals(HttpStatus.NO_CONTENT.value(), result.getResponse().getStatus());
     }
 
     @Test
-    void testDeleteCreditorByIdHasActiveDebtCases() throws Exception {
+    void deleteCreditorById_WithActiveDebtCases_ShouldReturnBadRequest() throws Exception {
         int id = 1;
         when(creditorService.deleteCreditorById(id)).thenReturn(false);
+
         MvcResult result = mockMvc.perform(delete("/api/creditors/{id}", id))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("Creditor has active debt cases!"))
                 .andDo(print())
                 .andReturn();
+
         verify(creditorService).deleteCreditorById(anyInt());
         Assertions.assertNotNull(result);
         Assertions.assertEquals(MediaType.APPLICATION_JSON_VALUE, result.getResponse().getContentType());

@@ -26,14 +26,16 @@ public class CustomUserDetailsServiceTest {
     private CustomUserDetailsServiceImpl userDetailsService;
 
     @Test
-    void testLoadExistingUserByUsername() {
+    void loadUserByUsername_WhenUserExists_ShouldLoadUserDetails() {
         String username = "testUser";
         String password = "testPassword";
         String roleName = "ROLE_USER";
         int roleId = 3;
         CustomUser customUser = TestUtils.setupCustomUserTestData(username, password, roleName, roleId);
         when(customUserRepository.findByUsername(username)).thenReturn(Optional.of(customUser));
+
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
         Assertions.assertNotNull(userDetails);
         Assertions.assertEquals(username, userDetails.getUsername());
         Assertions.assertEquals(password, userDetails.getPassword());
@@ -42,14 +44,16 @@ public class CustomUserDetailsServiceTest {
     }
 
     @Test
-    void testLoadNonExistingUserByUsername_ShouldThrowException() {
+    void loadUserByUsername_WhenUserDoesNotExist_ShouldThrowUsernameNotFoundException() {
         String username = "nonExistingUser";
         when(customUserRepository.findByUsername(username)).thenReturn(Optional.empty());
+
         UsernameNotFoundException thrown = Assertions.assertThrows(
                 UsernameNotFoundException.class,
                 () -> userDetailsService.loadUserByUsername(username),
                 "Expected loadUserByUsername to throw, but it didn't"
         );
+
         Assertions.assertTrue(thrown.getMessage().contains(String.format(Constants.USER_NOT_FOUND, username)));
     }
 }

@@ -26,70 +26,84 @@ public class DebtCaseTypeServiceTest {
     private DebtCaseTypeServiceImpl debtCaseTypeService;
 
     @Test
-    void testGetAllDebtCaseTypes() {
+    void getAllDebtCaseTypes_WhenTypesExist_ShouldReturnListOfTypes() {
         when(debtCaseTypeRepository.findAll()).thenReturn(List.of(new DebtCaseType()));
+
         List<DebtCaseType> actualDebtCaseTypes = debtCaseTypeService.getAllDebtCaseTypes();
+
         Assertions.assertNotNull(actualDebtCaseTypes);
         Assertions.assertFalse(actualDebtCaseTypes.isEmpty());
     }
 
     @Test
-    void testGetDebtCaseTypeById() {
+    void getDebtCaseTypeById_WhenTypeExists_ShouldReturnDebtCaseType() {
         String typeToMatch = "DEFAULT_DEBT";
         DebtCaseType expectedDebtCaseType = TestUtils.setupDebtCaseTypeTestData(typeToMatch);
         int id = 1;
         when(debtCaseTypeRepository.findById(id)).thenReturn(Optional.of(expectedDebtCaseType));
+
         DebtCaseType actualDebtCaseType = debtCaseTypeService.getDebtCaseTypeById(id);
+
         Assertions.assertNotNull(actualDebtCaseType);
         Assertions.assertEquals(expectedDebtCaseType.getType(), actualDebtCaseType.getType());
     }
 
     @Test
-    void testGetDebtCaseTypeByNonExistingId_ShouldThrowException() {
+    void getDebtCaseTypeById_WhenTypeDoesNotExist_ShouldThrowException() {
         int id = -1;
         when(debtCaseTypeRepository.findById(id)).thenReturn(Optional.empty());
+
         EntityNotFoundException thrown = Assertions.assertThrows(
                 EntityNotFoundException.class,
                 () -> debtCaseTypeService.getDebtCaseTypeById(id),
                 "Expected getDebtCaseTypeById to throw, but it didn't"
         );
+
         Assertions.assertTrue(thrown.getMessage().contains(String.format(Constants.DEBT_CASE_TYPE_NOT_FOUND, id)));
     }
 
     @Test
-    void testGetMatchingDebtCaseTypeByType() {
+    void getMatchingDebtCaseTypeByType_WhenMatchingTypeExists_ShouldReturnMatchingDebtCaseType() {
         String typeToMatch = "DEFAULT_DEBT";
         DebtCaseType expectedDebtCaseType = TestUtils.setupDebtCaseTypeTestData(typeToMatch);
         when(debtCaseTypeRepository.findAll()).thenReturn(List.of(expectedDebtCaseType));
+
         DebtCaseType actualMatchedDebtCaseType = debtCaseTypeService.findMatchingDebtCaseType(typeToMatch);
+
         Assertions.assertNotNull(actualMatchedDebtCaseType);
         Assertions.assertEquals(expectedDebtCaseType.getType(), actualMatchedDebtCaseType.getType());
     }
 
     @Test
-    void testGetMatchingDebtCaseTypeByInvalidType_ShouldThrowException() {
+    void getMatchingDebtCaseTypeByType_WhenMatchingTypeDoesNotExist_ShouldReturnNull() {
         String nonExistingDebtType = "NON_EXISTING_DEBT";
         String debtCaseType = "DEFAULT_DEBT";
         DebtCaseType expectedDebtCaseType = TestUtils.setupDebtCaseTypeTestData(debtCaseType);
         when(debtCaseTypeRepository.findAll()).thenReturn(List.of(expectedDebtCaseType));
+
         DebtCaseType actualMatchedDebtCaseType = debtCaseTypeService.findMatchingDebtCaseType(nonExistingDebtType);
+
         Assertions.assertNull(actualMatchedDebtCaseType);
     }
 
     @Test
-    void testGetDefaultDebtCaseType() {
+    void getDefaultDebtCaseType_WhenDefaultTypeExists_ShouldReturnDefaultDebtCaseType() {
         String typeToMatch = "DEFAULT_DEBT";
         DebtCaseType expectedDebtCaseType = TestUtils.setupDebtCaseTypeTestData(typeToMatch);
         when(debtCaseTypeRepository.findAll()).thenReturn(List.of(expectedDebtCaseType));
+
         DebtCaseType actualMatchedDebtCaseType = debtCaseTypeService.getDefaultDebtCaseType();
+
         Assertions.assertNotNull(actualMatchedDebtCaseType);
         Assertions.assertEquals(expectedDebtCaseType.getType(), actualMatchedDebtCaseType.getType());
     }
 
     @Test
-    void testGetMissingDefaultDebtCaseType_ShouldReturnEmpty() {
+    void getDefaultDebtCaseType_WhenDefaultTypeDoesNotExist_ShouldReturnNull() {
         when(debtCaseTypeRepository.findAll()).thenReturn(List.of());
+
         DebtCaseType actualMatchedDebtCaseType = debtCaseTypeService.getDefaultDebtCaseType();
+
         Assertions.assertNull(actualMatchedDebtCaseType);
     }
 }

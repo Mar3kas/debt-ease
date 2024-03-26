@@ -34,14 +34,15 @@ public class DebtCaseTypeControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         mockMvc = MockMvcBuilders.standaloneSetup(debtCaseTypeController).build();
     }
 
     @Test
-    public void testGetAllDebtCaseTypes() throws Exception {
+    void getAllDebtCaseTypes_ShouldReturnListOfDebtCaseTypes() throws Exception {
         List<DebtCaseType> mockDebtCaseTypes = List.of(TestUtils.setupDebtCaseTypeTestData("TAX_DEBT"));
         when(debtCaseTypeService.getAllDebtCaseTypes()).thenReturn(mockDebtCaseTypes);
+
         MvcResult result = mockMvc.perform(get("/api/debtcase/types"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -49,6 +50,7 @@ public class DebtCaseTypeControllerTest {
                 .andExpect(jsonPath("$[0].type").value("TAX_DEBT"))
                 .andDo(print())
                 .andReturn();
+
         verify(debtCaseTypeService).getAllDebtCaseTypes();
         Assertions.assertNotNull(result);
         Assertions.assertEquals(MediaType.APPLICATION_JSON_VALUE, result.getResponse().getContentType());

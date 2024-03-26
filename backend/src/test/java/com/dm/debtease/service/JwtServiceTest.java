@@ -31,81 +31,97 @@ public class JwtServiceTest {
     private JwtServiceImpl jwtService;
 
     @Test
-    void testCreateToken() {
+    void createToken_WithUserDetails_ShouldGenerateToken() {
         HashSet<GrantedAuthority> roles = new HashSet<>();
         roles.add(new SimpleGrantedAuthority("ADMIN"));
         UserDetails userDetails = new User("testUser", "password", roles);
         Authentication authentication =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
         String token = jwtService.createToken(authentication);
+
         Assertions.assertNotNull(token);
     }
 
     @Test
-    void testResolveToken() {
+    void resolveToken_WithValidTokenInRequestHeader_ShouldResolveToken() {
         String testToken = "Bearer testToken";
         when(request.getHeader("Authorization")).thenReturn(testToken);
+
         String resolvedToken = jwtService.resolveToken(request);
+
         Assertions.assertEquals("testToken", resolvedToken);
     }
 
     @Test
-    void testResolveTokenInvalidToken() {
+    void resolveToken_WithInvalidTokenInRequestHeader_ShouldReturnNull() {
         String testToken = "Test testToken";
         when(request.getHeader("Authorization")).thenReturn(testToken);
+
         String resolvedToken = jwtService.resolveToken(request);
+
         Assertions.assertNull(resolvedToken);
     }
 
     @Test
-    void testGetUsername() {
+    void getUsername_WithValidToken_ShouldExtractUsername() {
         String token = Jwts.builder()
                 .setSubject("testUser")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 3600000))
                 .signWith(jwtService.getKey())
                 .compact();
+
         String username = jwtService.getUsername(token);
+
         Assertions.assertEquals("testUser", username);
     }
 
     @Test
-    void testValidateToken() {
+    void validateToken_WithValidToken_ShouldReturnTrue() {
         String token = Jwts.builder()
                 .setSubject("testUser")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 3600000))
                 .signWith(jwtService.getKey())
                 .compact();
+
         boolean isValid = jwtService.validateToken(token);
+
         Assertions.assertTrue(isValid);
     }
 
     @Test
-    void testParseClaims() {
+    void parseClaims_WithValidToken_ShouldParseClaims() {
         String token = Jwts.builder()
                 .setSubject("testUser")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 3600000))
                 .signWith(jwtService.getKey())
                 .compact();
+
         Claims claims = jwtService.parseClaims(token);
+
         Assertions.assertNotNull(claims);
         Assertions.assertEquals("testUser", claims.getSubject());
     }
 
     @Test
-    void testAddToRevokedTokens() {
+    void addToRevokedTokens_WithValidToken_ShouldAddToRevokedTokens() {
         String token = "testToken";
+
         jwtService.addToRevokedTokens(token);
+
         Assertions.assertTrue(jwtService.isTokenRevoked(token));
     }
 
     @Test
-    void testIsTokenRevoked() {
+    void isTokenRevoked_WithRevokedToken_ShouldReturnTrue() {
         String token = "testToken";
+
         jwtService.addToRevokedTokens(token);
         boolean isRevoked = jwtService.isTokenRevoked(token);
+
         Assertions.assertTrue(isRevoked);
     }
 }

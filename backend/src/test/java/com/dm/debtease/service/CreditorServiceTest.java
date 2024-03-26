@@ -44,58 +44,68 @@ public class CreditorServiceTest {
     private CreditorServiceImpl creditorService;
 
     @Test
-    void testGetAllCreditors() {
+    void getAllCreditors_WhenCreditorsExist_ShouldReturnListOfCreditors() {
         when(creditorRepository.findAll()).thenReturn(List.of(new Creditor()));
+
         List<Creditor> actualCreditors = creditorService.getAllCreditors();
+
         Assertions.assertNotNull(actualCreditors);
         Assertions.assertFalse(actualCreditors.isEmpty());
     }
 
     @Test
-    void testGetCreditorById() {
+    void getCreditorById_WhenCreditorExists_ShouldReturnCreditor() {
         String username = "creditor123";
         int id = 1;
         Creditor expectedCreditor = TestUtils.setupCreditorTestData(username, id);
         when(creditorRepository.findById(id)).thenReturn(Optional.of(expectedCreditor));
+
         Creditor actualCreditor = creditorService.getCreditorById(id);
+
         Assertions.assertNotNull(actualCreditor);
         Assertions.assertEquals(expectedCreditor.getUser().getUsername(), actualCreditor.getUser().getUsername());
     }
 
     @Test
-    void testGetCreditorByNonExistingId_ShouldThrowException() {
+    void getCreditorById_WhenCreditorDoesNotExist_ShouldThrowException() {
         int id = -1;
         when(creditorRepository.findById(id)).thenReturn(Optional.empty());
+
         EntityNotFoundException thrown = Assertions.assertThrows(
                 EntityNotFoundException.class,
                 () -> creditorService.getCreditorById(id),
                 "Expected getCreditorById to throw, but it didn't"
         );
+
         Assertions.assertTrue(thrown.getMessage().contains(String.format(Constants.CREDITOR_NOT_FOUND, id)));
     }
 
     @Test
-    void testGetCreditorByUsername() {
+    void getCreditorByUsername_WhenCreditorExists_ShouldReturnCreditor() {
         String username = "creditor123";
         int id = 1;
         Creditor expectedCreditor = TestUtils.setupCreditorTestData(username, id);
         when(creditorRepository.findByUserUsername(username)).thenReturn(Optional.of(expectedCreditor));
+
         Creditor actualCreditor = creditorService.getCreditorByUsername(username);
+
         Assertions.assertNotNull(actualCreditor);
         Assertions.assertEquals(expectedCreditor.getUser().getUsername(), actualCreditor.getUser().getUsername());
         Assertions.assertEquals(expectedCreditor.getId(), actualCreditor.getId());
     }
 
     @Test
-    void testGetCreditorByNonExistingUsername_ShouldReturnEmpty() {
+    void getCreditorByUsername_WhenCreditorDoesNotExist_ShouldReturnNull() {
         String username = "random";
         when(creditorRepository.findByUserUsername(username)).thenReturn(Optional.empty());
+
         Creditor actualCreditor = creditorService.getCreditorByUsername(username);
+
         Assertions.assertNull(actualCreditor);
     }
 
     @Test
-    void testEditCreditorById() {
+    void editCreditorById_WhenCreditorExists_ShouldEditAndReturnCreditor() {
         String name = "name";
         String editedName = "editedName";
         String editedEmail = "editedEmail@gmail.com";
@@ -112,7 +122,9 @@ public class CreditorServiceTest {
                         editedAccountNumber);
         when(creditorRepository.findById(id)).thenReturn(Optional.of(new Creditor()));
         when(creditorRepository.save(any(Creditor.class))).thenReturn(expectedEditedCreditor);
+
         Creditor actualEditedCreditor = creditorService.editCreditorById(creditorDTO, id);
+
         Assertions.assertNotNull(actualEditedCreditor);
         Assertions.assertEquals(expectedEditedCreditor.getName(), actualEditedCreditor.getName());
         Assertions.assertEquals(expectedEditedCreditor.getEmail(), actualEditedCreditor.getEmail());
@@ -122,7 +134,7 @@ public class CreditorServiceTest {
     }
 
     @Test
-    void testEditCreditorByNonExistingId_ShouldThrowException() {
+    void editCreditorById_WhenCreditorDoesNotExist_ShouldThrowException() {
         int id = -1;
         String editedName = "editedName";
         String editedEmail = "editedEmail@gmail.com";
@@ -133,16 +145,18 @@ public class CreditorServiceTest {
                 TestUtils.setupCreditorDTOTestData(editedName, editedEmail, editedAddress, editedPhoneNumber,
                         editedAccountNumber);
         when(creditorRepository.findById(id)).thenReturn(Optional.empty());
+
         EntityNotFoundException thrown = Assertions.assertThrows(
                 EntityNotFoundException.class,
                 () -> creditorService.editCreditorById(creditorDTO, id),
                 "Expected getCreditorById to throw, but it didn't"
         );
+
         Assertions.assertTrue(thrown.getMessage().contains(String.format(Constants.CREDITOR_NOT_FOUND, id)));
     }
 
     @Test
-    void testCreateCreditor() {
+    void createCreditor_WhenRoleIsFound_ShouldCreateAndReturnCreditor() {
         String name = "name";
         String email = "email@gmail.com";
         String address = "address";
@@ -160,7 +174,9 @@ public class CreditorServiceTest {
         when(passwordGeneratorService.generatePassword(anyInt())).thenReturn("generatedPassword");
         when(bCryptPasswordEncoder.encode(any(String.class))).thenReturn("encodedPassword");
         when(creditorRepository.save(any(Creditor.class))).thenReturn(createdCreditor);
+
         Creditor actualCreatedCreditor = creditorService.createCreditor(creditorDTO);
+
         Assertions.assertNotNull(actualCreatedCreditor);
         Assertions.assertEquals(createdCreditor.getName(), actualCreatedCreditor.getName());
         Assertions.assertEquals(createdCreditor.getEmail(), actualCreatedCreditor.getEmail());
@@ -170,7 +186,7 @@ public class CreditorServiceTest {
     }
 
     @Test
-    void testCreateCreditorWhenRoleNotFound_ShouldThrowException() {
+    void createCreditor_WhenRoleIsNotFound_ShouldThrowException() {
         String name = "name";
         String email = "email@gmail.com";
         String address = "address";
@@ -178,31 +194,36 @@ public class CreditorServiceTest {
         String accountNumber = "accountNumber";
         CreditorDTO creditorDTO = TestUtils.setupCreditorDTOTestData(name, email, address, phoneNumber, accountNumber);
         when(roleRepository.findById(3)).thenReturn(Optional.empty());
+
         EntityNotFoundException thrown = Assertions.assertThrows(
                 EntityNotFoundException.class,
                 () -> creditorService.createCreditor(creditorDTO),
                 "Expected createCreditor to throw EntityNotFoundException when role not found"
         );
+
         Assertions.assertTrue(thrown.getMessage().contains(String.format(Constants.ROLE_NOT_FOUND, "3")));
     }
 
     @Test
-    void testDeleteCreditorById() {
+    void deleteCreditorById_WhenCreditorExists_ShouldNotThrowException() {
         int id = 1;
         when(creditorRepository.findById(id)).thenReturn(Optional.of(new Creditor()));
         doNothing().when(creditorRepository).deleteById(id);
+
         Assertions.assertDoesNotThrow(() -> creditorService.deleteCreditorById(id));
     }
 
     @Test
-    void testDeleteCreditorByNonExistingId_ShouldThrowException() {
+    void deleteCreditorById_WhenCreditorDoesNotExist_ShouldThrowException() {
         int id = 100;
         when(creditorRepository.findById(id)).thenReturn(Optional.empty());
+
         EntityNotFoundException thrown = Assertions.assertThrows(
                 EntityNotFoundException.class,
                 () -> creditorService.deleteCreditorById(id),
                 "Expected deleteCreditorById to throw, but it didn't"
         );
+
         Assertions.assertTrue(thrown.getMessage().contains(String.format(Constants.CREDITOR_NOT_FOUND, id)));
     }
 }

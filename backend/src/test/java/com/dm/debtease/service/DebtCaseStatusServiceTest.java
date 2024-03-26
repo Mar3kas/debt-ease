@@ -25,25 +25,29 @@ public class DebtCaseStatusServiceTest {
     private DebtCaseStatusServiceImpl debtCaseStatusService;
 
     @Test
-    void testGetDebtCaseStatusById() {
+    void getDebtCaseStatusById_WhenStatusExists_ShouldReturnDebtCaseStatus() {
         int id = 1;
         String status = "status";
         DebtCaseStatus expectedDebtCaseStatus = TestUtils.setupDebtCaseStatusTestData(status);
         when(debtCaseStatusRepository.findById(id)).thenReturn(Optional.of(expectedDebtCaseStatus));
+
         DebtCaseStatus actualDebtCaseStatus = debtCaseStatusService.getDebtCaseStatusById(id);
+
         Assertions.assertNotNull(actualDebtCaseStatus);
         Assertions.assertEquals(expectedDebtCaseStatus.getStatus(), actualDebtCaseStatus.getStatus());
     }
 
     @Test
-    void testGetDebtCaseStatusByInvalidId_ShouldThrowException() {
+    void getDebtCaseStatusById_WhenStatusDoesNotExist_ShouldThrowException() {
         int id = -1;
         when(debtCaseStatusRepository.findById(id)).thenReturn(Optional.empty());
+
         EntityNotFoundException thrown = Assertions.assertThrows(
                 EntityNotFoundException.class,
                 () -> debtCaseStatusService.getDebtCaseStatusById(id),
                 "Expected getDebtCaseStatusById to throw, but it didn't"
         );
+
         Assertions.assertTrue(thrown.getMessage().contains(String.format(Constants.DEBT_CASE_STATUS_NOT_FOUND, id)));
     }
 }

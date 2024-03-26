@@ -34,15 +34,17 @@ public class DebtCaseServiceTest {
     DebtCaseServiceImpl debtCaseService;
 
     @Test
-    void testGetAllDebtCases() {
+    void getAllDebtCases_WhenDebtCasesExist_ShouldReturnNonEmptyList() {
         when(debtCaseRepository.findAll()).thenReturn(List.of(new DebtCase()));
+
         List<DebtCase> actualDebtCases = debtCaseService.getAllDebtCases();
+
         Assertions.assertNotNull(actualDebtCases);
         Assertions.assertFalse(actualDebtCases.isEmpty());
     }
 
     @Test
-    void testGetDebtCaseById() {
+    void getDebtCaseById_WhenDebtCaseExists_ShouldReturnCorrectDebtCase() {
         int creditorId = 1;
         int id = 1;
         String debtorUsername = "userWithDebts";
@@ -61,7 +63,9 @@ public class DebtCaseServiceTest {
                 TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname, debtorEmail,
                         debtorPhoneNumber, typeToMatch, status, dueDate, lateInterestRate, amountOwed, debtorUsername);
         when(debtCaseRepository.findById(id)).thenReturn(Optional.of(expectedDebtCase));
+
         DebtCase actualDebtCase = debtCaseService.getDebtCaseById(id);
+
         Assertions.assertNotNull(actualDebtCase);
         Assertions.assertEquals(expectedDebtCase.getDebtor().getName(), actualDebtCase.getDebtor().getName());
         Assertions.assertEquals(expectedDebtCase.getAmountOwed(), actualDebtCase.getAmountOwed());
@@ -74,19 +78,21 @@ public class DebtCaseServiceTest {
     }
 
     @Test
-    void testGetCreditorByNonExistingId_ShouldThrowException() {
+    void getDebtCaseById_WhenDebtCaseDoesNotExist_ShouldThrowException() {
         int id = -1;
         when(debtCaseRepository.findById(id)).thenReturn(Optional.empty());
+
         EntityNotFoundException thrown = Assertions.assertThrows(
                 EntityNotFoundException.class,
                 () -> debtCaseService.getDebtCaseById(id),
                 "Expected getDebtCaseById to throw, but it didn't"
         );
+
         Assertions.assertTrue(thrown.getMessage().contains(String.format(Constants.DEBT_CASE_NOT_FOUND, id)));
     }
 
     @Test
-    void testGetDebtCasesByCreditorUsername() {
+    void getDebtCasesByCreditorUsername_WhenDebtCasesExist_ShouldReturnDebtCases() {
         int creditorId = 1;
         int id = 1;
         String debtorUsername = "userWithDebts";
@@ -105,7 +111,9 @@ public class DebtCaseServiceTest {
                 TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname, debtorEmail,
                         debtorPhoneNumber, typeToMatch, status, dueDate, lateInterestRate, amountOwed, debtorUsername);
         when(debtCaseRepository.findByCreditor_User_Username(creditorUsername)).thenReturn(List.of(expectedDebtCase));
+
         List<DebtCase> actualDebtCases = debtCaseService.getDebtCasesByCreditorUsername(creditorUsername);
+
         Assertions.assertNotNull(actualDebtCases);
         for (DebtCase debtCase : actualDebtCases) {
             Assertions.assertEquals(expectedDebtCase.getCreditor().getUser().getUsername(),
@@ -114,7 +122,7 @@ public class DebtCaseServiceTest {
     }
 
     @Test
-    void testGetDebtCasesByDebtorUsername() {
+    void getDebtCasesByDebtorUsername_WhenDebtCasesExist_ShouldReturnDebtCases() {
         int creditorId = 1;
         int id = 1;
         String debtorUsername = "userWithDebts";
@@ -133,7 +141,9 @@ public class DebtCaseServiceTest {
                 TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname, debtorEmail,
                         debtorPhoneNumber, typeToMatch, status, dueDate, lateInterestRate, amountOwed, debtorUsername);
         when(debtCaseRepository.findByDebtor_User_Username(debtorUsername)).thenReturn(List.of(expectedDebtCase));
+
         List<DebtCase> actualDebtCases = debtCaseService.getDebtCasesByDebtorUsername(debtorUsername);
+
         Assertions.assertNotNull(actualDebtCases);
         for (DebtCase debtCase : actualDebtCases) {
             Assertions.assertEquals(expectedDebtCase.getDebtor().getUser().getUsername(),
@@ -142,7 +152,7 @@ public class DebtCaseServiceTest {
     }
 
     @Test
-    void testEditDebtCaseByIdAndCreditorId() {
+    void editDebtCaseByIdAndCreditorId_WhenDebtCaseExists_ShouldReturnEditedDebtCase() {
         BigDecimal editedAmountOwed = BigDecimal.ONE;
         LocalDateTime editedDueDate = LocalDateTime.now();
         int typeId = 1;
@@ -168,7 +178,9 @@ public class DebtCaseServiceTest {
         when(debtCaseRepository.findByIdAndCreditor_Id(id, creditorId)).thenReturn(Optional.of(new DebtCase()));
         when(debtCaseTypeService.getDebtCaseTypeById(typeId)).thenReturn(expectedDebtCaseType);
         when(debtCaseRepository.save(any(DebtCase.class))).thenReturn(expectedDebtCase);
+
         DebtCase actualEditedDebtCase = debtCaseService.editDebtCaseByIdAndCreditorId(debtCaseDTO, id, creditorId);
+
         Assertions.assertEquals(expectedDebtCase.getAmountOwed(), actualEditedDebtCase.getAmountOwed());
         Assertions.assertEquals(expectedDebtCase.getDueDate(), actualEditedDebtCase.getDueDate());
         Assertions.assertEquals(expectedDebtCase.getDebtCaseType().getType(),
@@ -176,43 +188,49 @@ public class DebtCaseServiceTest {
     }
 
     @Test
-    void testEditCreditorByNonExistingIdAndCreditorId_ShouldThrowException() {
+    void editDebtCaseByIdAndCreditorId_WhenDebtCaseDoesNotExist_ShouldThrowException() {
         int id = -1;
         int creditorId = 1;
         when(debtCaseRepository.findByIdAndCreditor_Id(id, creditorId)).thenReturn(Optional.empty());
+
         EntityNotFoundException thrown = Assertions.assertThrows(
                 EntityNotFoundException.class,
                 () -> debtCaseService.editDebtCaseByIdAndCreditorId(new DebtCaseDTO(), id, creditorId),
                 "Expected editDebtCaseByIdAndCreditorId to throw, but it didn't"
         );
+
         Assertions.assertTrue(thrown.getMessage()
                 .contains(String.format(Constants.DEBT_CASE_NOT_FOUND_WITH_ID_CREDITOR_ID, id, creditorId)));
     }
 
     @Test
-    void testDeleteDebtCaseByIdAndCreditorId() {
+    void deleteDebtCaseByIdAndCreditorId_WhenDebtCaseExists_ShouldNotThrowException() {
         int id = 1;
         int creditorId = 1;
         when(debtCaseRepository.findByIdAndCreditor_Id(id, creditorId)).thenReturn(Optional.of(new DebtCase()));
+
         doNothing().when(debtCaseRepository).deleteById(id);
+
         Assertions.assertDoesNotThrow(() -> debtCaseService.deleteDebtCaseByIdAndCreditorId(id, creditorId));
     }
 
     @Test
-    void testDeleteCreditorByNonExistingId_ShouldThrowException() {
+    void deleteDebtCaseByIdAndCreditorId_WhenDebtCaseDoesNotExist_ShouldThrowException() {
         int id = -1;
         int creditorId = 1;
         when(debtCaseRepository.findByIdAndCreditor_Id(id, creditorId)).thenReturn(Optional.empty());
+
         EntityNotFoundException thrown = Assertions.assertThrows(
                 EntityNotFoundException.class,
                 () -> debtCaseService.deleteDebtCaseByIdAndCreditorId(id, creditorId),
                 "Expected deleteDebtCaseByIdAndCreditorId to throw, but it didn't"
         );
+
         Assertions.assertTrue(thrown.getMessage().contains(String.format(Constants.DEBT_CASE_NOT_FOUND, id)));
     }
 
     @Test
-    void testFindExistingDebtCase() {
+    void findExistingDebtCase_WhenDebtCaseExists_ShouldReturnOptionalContainingDebtCase() {
         BigDecimal amountOwed = new BigDecimal(TestUtils.INDICATOR[0]);
         LocalDateTime dueDate = LocalDateTime.parse(TestUtils.INDICATOR[1], Constants.DATE_TIME_FORMATTER);
         String debtCaseType = debtCaseService.getTypeToMatch(TestUtils.INDICATOR[2]);
@@ -223,7 +241,9 @@ public class DebtCaseServiceTest {
         when(debtCaseRepository.findByAmountOwedAndDueDateAndDebtCaseType_TypeAndCreditor_User_UsernameAndDebtor_NameAndDebtor_Surname(
                 amountOwed, dueDate, debtCaseType, username, debtorName, debtorSurname))
                 .thenReturn(Optional.of(expectedDebtCase));
+
         Optional<DebtCase> optionalActualDebtCase = debtCaseService.findExistingDebtCase(username, TestUtils.INDICATOR);
+
         Assertions.assertTrue(optionalActualDebtCase.isPresent());
         Assertions.assertEquals(expectedDebtCase, optionalActualDebtCase.get());
         verify(debtCaseRepository,
@@ -232,31 +252,37 @@ public class DebtCaseServiceTest {
     }
 
     @Test
-    void testGetTypeToMatch() {
+    void getTypeToMatch_WhenTypeExists_ShouldReturnMatchedType() {
         String input = "personal_debt";
         String expected = "PERSONAL_DEBT";
+
         String actual = debtCaseService.getTypeToMatch(input);
+
         Assertions.assertEquals(expected, actual);
     }
 
     @Test
-    void testGetTypeToMatchNoDebt() {
+    void getTypeToMatch_WhenTypeExists_NoDebtWord_ShouldReturnMatchedType() {
         String input = "personal";
         String expected = "PERSONAL_DEBT";
+
         String actual = debtCaseService.getTypeToMatch(input);
+
         Assertions.assertEquals(expected, actual);
     }
 
     @Test
-    void testWhenTypeIsEmptyThenAppendsDebtInUpperCase() {
+    void getTypeToMatch_WhenTypeDoesNotExist_ShouldReturnDefaultType() {
         String input = "";
         String expected = "DEFAULT_DEBT";
+
         String actual = debtCaseService.getTypeToMatch(input);
+
         Assertions.assertEquals(expected, actual);
     }
 
     @Test
-    public void testIsDebtCasePendingWithinRangeAndStatusNew_ShouldReturnTrue() {
+    void isDebtCasePending_WhenWithinRangeAndStatusNew_ShouldReturnTrue() {
         LocalDateTime dueDate = LocalDateTime.of(2024, 3, 22, 12, 0);
         LocalDateTime startTime = LocalDateTime.of(2024, 3, 20, 0, 0);
         LocalDateTime endTime = LocalDateTime.of(2024, 3, 25, 23, 59);
@@ -264,11 +290,12 @@ public class DebtCaseServiceTest {
         DebtCase debtCase = new DebtCase();
         debtCase.setDebtCaseStatus(status);
         debtCase.setDueDate(dueDate);
+
         Assertions.assertTrue(debtCaseService.isDebtCasePending(debtCase, startTime, endTime));
     }
 
     @Test
-    public void testIsDebtCasePendingOutOfRangeBefore_ShouldReturnFalse() {
+    void isDebtCasePending_WhenOutOfRangeBeforeDueDate_ShouldReturnFalse() {
         LocalDateTime dueDate = LocalDateTime.of(2024, 3, 19, 23, 59);
         LocalDateTime startTime = LocalDateTime.of(2024, 3, 20, 0, 0);
         LocalDateTime endTime = LocalDateTime.of(2024, 3, 25, 23, 59);
@@ -276,11 +303,12 @@ public class DebtCaseServiceTest {
         DebtCase debtCase = new DebtCase();
         debtCase.setDebtCaseStatus(status);
         debtCase.setDueDate(dueDate);
+
         Assertions.assertFalse(debtCaseService.isDebtCasePending(debtCase, startTime, endTime));
     }
 
     @Test
-    public void testIsDebtCasePendingOutOfRangeAfter_ShouldReturnFalse() {
+    void isDebtCasePending_WhenOutOfRangeAfterDueDate_ShouldReturnFalse() {
         LocalDateTime dueDate = LocalDateTime.of(2024, 3, 26, 0, 1);
         LocalDateTime startTime = LocalDateTime.of(2024, 3, 20, 0, 0);
         LocalDateTime endTime = LocalDateTime.of(2024, 3, 25, 23, 59);
@@ -288,11 +316,12 @@ public class DebtCaseServiceTest {
         DebtCase debtCase = new DebtCase();
         debtCase.setDebtCaseStatus(status);
         debtCase.setDueDate(dueDate);
+
         Assertions.assertFalse(debtCaseService.isDebtCasePending(debtCase, startTime, endTime));
     }
 
     @Test
-    public void testIsDebtCasePendingWithinRangeButStatusNotNew_ShouldReturnFalse() {
+    void isDebtCasePending_WhenWithinRangeButStatusNotNew_ShouldReturnFalse() {
         LocalDateTime dueDate = LocalDateTime.of(2024, 3, 22, 12, 0);
         LocalDateTime startTime = LocalDateTime.of(2024, 3, 20, 0, 0);
         LocalDateTime endTime = LocalDateTime.of(2024, 3, 25, 23, 59);
@@ -300,6 +329,7 @@ public class DebtCaseServiceTest {
         DebtCase debtCase = new DebtCase();
         debtCase.setDebtCaseStatus(status);
         debtCase.setDueDate(dueDate);
+
         Assertions.assertFalse(debtCaseService.isDebtCasePending(debtCase, startTime, endTime));
     }
 }

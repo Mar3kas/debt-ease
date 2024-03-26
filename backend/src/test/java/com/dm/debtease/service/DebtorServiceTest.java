@@ -29,15 +29,17 @@ public class DebtorServiceTest {
     private DebtorServiceImpl debtorService;
 
     @Test
-    void testGetAllCDebtors() {
+    void getAllDebtors_WhenDebtorsExist_ShouldReturnListOfDebtors() {
         when(debtorRepository.findAll()).thenReturn(List.of(new Debtor()));
+
         List<Debtor> actualDebtors = debtorService.getAllDebtors();
+
         Assertions.assertNotNull(actualDebtors);
         Assertions.assertFalse(actualDebtors.isEmpty());
     }
 
     @Test
-    void testGetDebtorById() {
+    void getDebtorById_WhenDebtorExists_ShouldReturnDebtor() {
         int id = 1;
         String username = "debtor";
         String name = "name";
@@ -46,26 +48,30 @@ public class DebtorServiceTest {
         String phoneNumber = "+37067144213";
         Debtor expectedDebtor = TestUtils.setupDebtorTestData(name, surname, email, phoneNumber, username);
         when(debtorRepository.findById(id)).thenReturn(Optional.of(expectedDebtor));
+
         Debtor actualDebtor = debtorService.getDebtorById(id);
+
         Assertions.assertNotNull(actualDebtor);
         Assertions.assertEquals(expectedDebtor.getName(), actualDebtor.getName());
         Assertions.assertEquals(expectedDebtor.getSurname(), actualDebtor.getSurname());
     }
 
     @Test
-    void testGetDebtorByNonExistingId_ShouldThrowException() {
+    void getDebtorById_WhenDebtorDoesNotExist_ShouldThrowException() {
         int id = -1;
         when(debtorRepository.findById(id)).thenReturn(Optional.empty());
+
         EntityNotFoundException thrown = Assertions.assertThrows(
                 EntityNotFoundException.class,
                 () -> debtorService.getDebtorById(id),
                 "Expected getDebtorById to throw, but it didn't"
         );
+
         Assertions.assertTrue(thrown.getMessage().contains(String.format(Constants.DEBTOR_NOT_FOUND, id)));
     }
 
     @Test
-    void testGetDebtorByUsername() {
+    void getDebtorByUsername_WhenDebtorExists_ShouldReturnDebtor() {
         String username = "debtor123";
         String name = "name";
         String surname = "surname";
@@ -73,7 +79,9 @@ public class DebtorServiceTest {
         String phoneNumber = "+37067144213";
         Debtor expectedDebtor = TestUtils.setupDebtorTestData(name, surname, email, phoneNumber, username);
         when(debtorRepository.findByUserUsername(username)).thenReturn(Optional.of(expectedDebtor));
+
         Debtor actualDebtor = debtorService.getDebtorByUsername(username);
+
         Assertions.assertNotNull(actualDebtor);
         Assertions.assertEquals(expectedDebtor.getUser().getUsername(), actualDebtor.getUser().getUsername());
         Assertions.assertEquals(expectedDebtor.getName(), actualDebtor.getName());
@@ -81,15 +89,17 @@ public class DebtorServiceTest {
     }
 
     @Test
-    void testGetDebtorByNonExistingUsername_ShouldReturnEmpty() {
+    void getDebtorByUsername_WhenDebtorDoesNotExist_ShouldReturnNull() {
         String username = "random";
         when(debtorRepository.findByUserUsername(username)).thenReturn(Optional.empty());
+
         Debtor actualDebtor = debtorService.getDebtorByUsername(username);
+
         Assertions.assertNull(actualDebtor);
     }
 
     @Test
-    void testGetDebtorByNameAndSurname() {
+    void getDebtorByNameAndSurname_WhenDebtorExists_ShouldReturnDebtor() {
         String username = "debtor";
         String name = "name";
         String surname = "surname";
@@ -97,22 +107,26 @@ public class DebtorServiceTest {
         String phoneNumber = "+37067144213";
         Debtor expectedDebtor = TestUtils.setupDebtorTestData(name, surname, email, phoneNumber, username);
         when(debtorRepository.findByNameAndSurname(name, surname)).thenReturn(Optional.of(expectedDebtor));
+
         Debtor actualDebtor = debtorService.getDebtorByNameAndSurname(name, surname);
+
         Assertions.assertNotNull(actualDebtor);
         Assertions.assertEquals(expectedDebtor.getName(), actualDebtor.getName());
         Assertions.assertEquals(expectedDebtor.getSurname(), actualDebtor.getSurname());
     }
 
     @Test
-    void testGetDebtorByNonExistingNameAndSurname_ShouldReturnEmpty() {
+    void getDebtorByNameAndSurname_WhenDebtorDoesNotExist_ShouldReturnNull() {
         String username = "random";
         when(debtorRepository.findByUserUsername(username)).thenReturn(Optional.empty());
+
         Debtor actualDebtor = debtorService.getDebtorByUsername(username);
+
         Assertions.assertNull(actualDebtor);
     }
 
     @Test
-    void testEditDebtorById() {
+    void editDebtorById_WhenDebtorExists_ShouldEditAndReturnDebtor() {
         String editedName = "editedName";
         String editedSurname = "editedSurname";
         String editedEmail = "editedEmail@gmail.com";
@@ -124,7 +138,9 @@ public class DebtorServiceTest {
                 TestUtils.setupDebtorDTOTestData(editedName, editedSurname, editedEmail, editedPhoneNumber);
         when(debtorRepository.findById(id)).thenReturn(Optional.of(new Debtor()));
         when(debtorRepository.save(any(Debtor.class))).thenReturn(exptectedEditedDebtor);
+
         Debtor actualEditedDebtor = debtorService.editDebtorById(debtorDTO, id);
+
         Assertions.assertNotNull(actualEditedDebtor);
         Assertions.assertEquals(exptectedEditedDebtor.getName(), actualEditedDebtor.getName());
         Assertions.assertEquals(exptectedEditedDebtor.getSurname(), actualEditedDebtor.getSurname());
@@ -133,7 +149,7 @@ public class DebtorServiceTest {
     }
 
     @Test
-    void testEditDebtorByNonExistingId_ShouldThrowException() {
+    void editDebtorById_WhenDebtorDoesNotExist_ShouldThrowException() {
         int id = -1;
         String editedName = "editedName";
         String editedSurname = "editedSurname";
@@ -142,16 +158,18 @@ public class DebtorServiceTest {
         DebtorDTO debtorDTO =
                 TestUtils.setupDebtorDTOTestData(editedName, editedSurname, editedEmail, editedPhoneNumber);
         when(debtorRepository.findById(id)).thenReturn(Optional.empty());
+
         EntityNotFoundException thrown = Assertions.assertThrows(
                 EntityNotFoundException.class,
                 () -> debtorService.editDebtorById(debtorDTO, id),
                 "Expected editDebtorById to throw, but it didn't"
         );
+
         Assertions.assertTrue(thrown.getMessage().contains(String.format(Constants.DEBTOR_NOT_FOUND, id)));
     }
 
     @Test
-    void testCreateDebtor() {
+    void createDebtor_WhenCalled_ShouldCreateAndReturnDebtor() {
         String editedName = "editedName";
         String editedSurname = "editedSurname";
         String editedEmail = "editedEmail@gmail.com";
@@ -161,7 +179,9 @@ public class DebtorServiceTest {
         Debtor createdDebtor =
                 TestUtils.setupEditedDebtorTestData(editedName, editedSurname, editedEmail, editedPhoneNumber);
         when(debtorRepository.save(any(Debtor.class))).thenReturn(createdDebtor);
+
         Debtor actualCreatedDebtor = debtorService.createDebtor(debtorDTO);
+
         Assertions.assertNotNull(actualCreatedDebtor);
         Assertions.assertEquals(createdDebtor.getName(), actualCreatedDebtor.getName());
         Assertions.assertEquals(createdDebtor.getSurname(), actualCreatedDebtor.getSurname());
@@ -170,22 +190,26 @@ public class DebtorServiceTest {
     }
 
     @Test
-    void testDeleteDebtorById() {
+    void deleteDebtorById_WhenDebtorExists_ShouldDeleteDebtor() {
         int id = 1;
         when(debtorRepository.findById(id)).thenReturn(Optional.of(new Debtor()));
+
         doNothing().when(debtorRepository).deleteById(id);
+
         Assertions.assertDoesNotThrow(() -> debtorService.deleteDebtorById(id));
     }
 
     @Test
-    void testDeleteCreditorById_ShouldThrowException() {
+    void deleteDebtorById_WhenDebtorDoesNotExist_ShouldThrowException() {
         int id = -1;
         when(debtorRepository.findById(id)).thenReturn(Optional.empty());
+
         EntityNotFoundException thrown = Assertions.assertThrows(
                 EntityNotFoundException.class,
                 () -> debtorService.deleteDebtorById(id),
                 "Expected deleteDebtorById to throw, but it didn't"
         );
+
         Assertions.assertTrue(thrown.getMessage().contains(String.format(Constants.DEBTOR_NOT_FOUND, id)));
     }
 }

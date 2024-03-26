@@ -30,7 +30,7 @@ public class RefreshTokenServiceTest {
     private RefreshTokenServiceImpl refreshTokenService;
 
     @Test
-    void testCreateRefreshToken() {
+    void createRefreshToken_ShouldGenerateUniqueToken() {
         final String id = "493410b3-dd0b-4b78-97bf-289f50f6e74f";
         UUID uuid = UUID.fromString(id);
         mockStatic(UUID.class);
@@ -40,48 +40,57 @@ public class RefreshTokenServiceTest {
         RefreshToken expectedRefreshToken = TestUtils.setupRefreshTokenTestData(refreshTokenId, username, id, null);
         when(refreshTokenRepository.findByUsername(username)).thenReturn(Optional.empty());
         when(refreshTokenRepository.save(any(RefreshToken.class))).thenReturn(expectedRefreshToken);
+
         String actualGeneratedToken = refreshTokenService.createRefreshToken(username);
+
         Assertions.assertNotNull(actualGeneratedToken);
         Assertions.assertEquals(id, actualGeneratedToken);
     }
 
     @Test
-    void testValidateRefreshToken_ValidToken() {
+    void validateRefreshToken_WithValidToken_ShouldReturnTrue() {
         RefreshToken validToken = new RefreshToken();
         validToken.setExpirationDate(Instant.now().plusMillis(1000));
+
         Assertions.assertTrue(refreshTokenService.validateRefreshToken(validToken));
     }
 
     @Test
-    void testValidateRefreshToken_ExpiredToken_ShouldThrowException() {
+    void validateRefreshToken_WithExpiredToken_ShouldThrowException() {
         RefreshToken expiredToken = new RefreshToken();
         expiredToken.setExpirationDate(Instant.now().minusMillis(1000));
+
         TokenRefreshException exception = Assertions.assertThrows(TokenRefreshException.class,
                 () -> refreshTokenService.validateRefreshToken(expiredToken));
+
         Assertions.assertEquals(
                 String.format("Failed for [%s]: %s", expiredToken.getToken(), Constants.REFRESH_TOKEN_EXPIRED),
                 exception.getMessage());
     }
 
     @Test
-    void testFindByValidToken() {
+    void findByToken_WithValidToken_ShouldReturnRefreshToken() {
         String username = "testUser";
         String token = UUID.randomUUID().toString();
         int id = 1;
         RefreshToken expectedRefreshToken = TestUtils.setupRefreshTokenTestData(id, username, token, null);
         when(refreshTokenRepository.findByToken(token)).thenReturn(Optional.of(expectedRefreshToken));
+
         RefreshToken actualRefreshToken = refreshTokenService.findByToken(token);
+
         Assertions.assertNotNull(actualRefreshToken);
         Assertions.assertEquals(expectedRefreshToken.getToken(), actualRefreshToken.getToken());
         Assertions.assertEquals(expectedRefreshToken.getUsername(), actualRefreshToken.getUsername());
     }
 
     @Test
-    void testFindByInvalidToken_ShouldThrowException() {
+    void findByToken_WithInvalidToken_ShouldThrowException() {
         String token = UUID.randomUUID().toString();
         when(refreshTokenRepository.findByToken(token)).thenReturn(Optional.empty());
+
         InvalidRefreshTokenException exception = Assertions.assertThrows(InvalidRefreshTokenException.class,
                 () -> refreshTokenService.findByToken(token));
+
         Assertions.assertEquals(String.format(Constants.REFRESH_TOKEN_NOT_FOUND, token), exception.getMessage());
     }
 }

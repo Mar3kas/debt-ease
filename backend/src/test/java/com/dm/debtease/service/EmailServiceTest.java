@@ -27,7 +27,7 @@ public class EmailServiceTest {
     private EmailServiceImpl emailService;
 
     @Test
-    void testSendEmailNotification() {
+    void sendNotificationEmail_WhenCalled_ShouldSendEmailNotification() {
         int creditorId = 1;
         String debtorUsername = "userWithDebts";
         String debtorName = "name";
@@ -44,7 +44,9 @@ public class EmailServiceTest {
         DebtCase expectedDebtCase =
                 TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname, debtorEmail,
                         debtorPhoneNumber, typeToMatch, status, dueDate, lateInterestRate, amountOwed, debtorUsername);
+
         emailService.sendNotificationEmail(expectedDebtCase);
+
         verify(javaMailSender).send(any(SimpleMailMessage.class));
     }
 }

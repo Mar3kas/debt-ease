@@ -31,19 +31,21 @@ public class PDFServiceTest {
     private PDFServiceImpl pdfService;
 
     @Test
-    void generatePDFNoDebtCases_ShouldThrowException() {
+    void generatePdf_WithNoDebtCases_ShouldThrowException() {
         String username = "userWithoutDebts";
         when(debtCaseService.getDebtCasesByDebtorUsername(username)).thenReturn(Collections.emptyList());
+
         EntityNotFoundException thrown = Assertions.assertThrows(
                 EntityNotFoundException.class,
                 () -> pdfService.generatePdf(username),
                 "Expected generatePdf to throw, but it didn't"
         );
+
         Assertions.assertTrue(thrown.getMessage().contains(String.format(Constants.DEBT_CASES_EMPTY, username)));
     }
 
     @Test
-    void generatePPDFWithDebtCases() throws Exception {
+    void generatePdf_WithDebtCases_ShouldGeneratePDF() throws Exception {
         String debtorUsername = "userWithDebts";
         String debtorName = "name";
         String debtorSurname = "surname";
@@ -60,8 +62,10 @@ public class PDFServiceTest {
         List<DebtCase> expectedDebtCases =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, id, debtorName, debtorSurname, debtorEmail,
                         debtorPhoneNumber, typeToMatch, status, dueDate, lateInterestRate, amountOwed, debtorUsername));
+
         when(debtCaseService.getDebtCasesByDebtorUsername(debtorUsername)).thenReturn(expectedDebtCases);
         ByteArrayInputStream pdfStream = pdfService.generatePdf(debtorUsername);
+
         PdfReader pdfReader = new PdfReader(pdfStream);
         StringBuilder pdfText = new StringBuilder();
         for (int i = 1; i <= pdfReader.getNumberOfPages(); i++) {
@@ -80,7 +84,7 @@ public class PDFServiceTest {
     }
 
     @Test
-    void testGeneratePieChart() {
+    void generatePieDiagram_WithDebtCases_ShouldGeneratePieChart() {
         String username = "debtor";
         String debtorName = "name";
         String debtorSurname = "surname";
@@ -97,7 +101,9 @@ public class PDFServiceTest {
         List<DebtCase> expectedDebtCases =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, id, debtorName, debtorSurname, debtorEmail,
                         debtorPhoneNumber, typeToMatch, status, dueDate, lateInterestRate, amountOwed, username));
+
         PieChart pieChart = pdfService.generatePieDiagram(expectedDebtCases);
+
         Assertions.assertNotNull(pieChart);
         Assertions.assertEquals(1, pieChart.getSeriesMap().size(), "There should be 1 type of debt cases.");
         Assertions.assertTrue(pieChart.getSeriesMap().containsKey("Default Debt"), "Default debt series is missing.");

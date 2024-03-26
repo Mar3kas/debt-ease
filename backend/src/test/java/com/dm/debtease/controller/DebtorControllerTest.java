@@ -38,12 +38,12 @@ public class DebtorControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         mockMvc = MockMvcBuilders.standaloneSetup(debtorController).build();
     }
 
     @Test
-    void testGetAllDebtors() throws Exception {
+    void getAllDebtors_ShouldReturnListOfDebtors() throws Exception {
         String username = "debtor";
         String name = "name";
         String surname = "surname";
@@ -51,6 +51,7 @@ public class DebtorControllerTest {
         String phoneNumber = "+37067144213";
         List<Debtor> mockedDebtor = List.of(TestUtils.setupDebtorTestData(name, surname, email, phoneNumber, username));
         when(debtorService.getAllDebtors()).thenReturn(mockedDebtor);
+
         MvcResult result = mockMvc.perform(get("/api/debtors"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -61,6 +62,7 @@ public class DebtorControllerTest {
                 .andExpect(jsonPath("$[0].phoneNumber").value(phoneNumber))
                 .andDo(print())
                 .andReturn();
+
         verify(debtorService).getAllDebtors();
         Assertions.assertNotNull(result);
         Assertions.assertEquals(MediaType.APPLICATION_JSON_VALUE, result.getResponse().getContentType());
@@ -69,7 +71,7 @@ public class DebtorControllerTest {
     }
 
     @Test
-    void testGetDebtorById() throws Exception {
+    void getDebtorById_ShouldReturnDebtor() throws Exception {
         int id = 1;
         String username = "debtor";
         String name = "name";
@@ -78,6 +80,7 @@ public class DebtorControllerTest {
         String phoneNumber = "+37067144213";
         Debtor mockedDebtor = TestUtils.setupDebtorTestData(name, surname, email, phoneNumber, username);
         when(debtorService.getDebtorById(id)).thenReturn(mockedDebtor);
+
         MvcResult result = mockMvc.perform(get("/api/debtors/{id}", id))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -88,6 +91,7 @@ public class DebtorControllerTest {
                 .andExpect(jsonPath("$.phoneNumber").value(phoneNumber))
                 .andDo(print())
                 .andReturn();
+
         verify(debtorService).getDebtorById(anyInt());
         Assertions.assertNotNull(result);
         Assertions.assertEquals(MediaType.APPLICATION_JSON_VALUE, result.getResponse().getContentType());
@@ -96,7 +100,7 @@ public class DebtorControllerTest {
     }
 
     @Test
-    void testEditDebtorById() throws Exception {
+    void editDebtorById_ShouldReturnEditedDebtor() throws Exception {
         String editedName = "editedName";
         String editedSurname = "editedSurname";
         String editedEmail = "editedEmail@gmail.com";
@@ -107,6 +111,7 @@ public class DebtorControllerTest {
         DebtorDTO mockedDebtorDTO =
                 TestUtils.setupDebtorDTOTestData(editedName, editedSurname, editedEmail, editedPhoneNumber);
         when(debtorService.editDebtorById(any(DebtorDTO.class), anyInt())).thenReturn(expectedEditedDebtor);
+
         MvcResult result = mockMvc.perform(put("/api/debtors/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(mockedDebtorDTO)))
@@ -118,6 +123,7 @@ public class DebtorControllerTest {
                 .andExpect(jsonPath("$.phoneNumber").value(expectedEditedDebtor.getPhoneNumber()))
                 .andDo(print())
                 .andReturn();
+
         verify(debtorService).editDebtorById(any(DebtorDTO.class), anyInt());
         Assertions.assertNotNull(result);
         Assertions.assertEquals(MediaType.APPLICATION_JSON_VALUE, result.getResponse().getContentType());
@@ -126,28 +132,32 @@ public class DebtorControllerTest {
     }
 
     @Test
-    void testDeleteDebtorById() throws Exception {
+    void deleteDebtorById_ShouldReturnNoContent() throws Exception {
         int id = 1;
         when(debtorService.deleteDebtorById(id)).thenReturn(true);
+
         MvcResult result = mockMvc.perform(delete("/api/debtors/{id}", id))
                 .andExpect(status().isNoContent())
                 .andDo(print())
                 .andReturn();
+
         verify(debtorService).deleteDebtorById(anyInt());
         Assertions.assertNotNull(result);
         Assertions.assertEquals(HttpStatus.NO_CONTENT.value(), result.getResponse().getStatus());
     }
 
     @Test
-    void testDeleteDebtorByIdError() throws Exception {
+    void deleteDebtorByIdError_ShouldReturnBadRequest() throws Exception {
         int id = 1;
         when(debtorService.deleteDebtorById(id)).thenReturn(false);
+
         MvcResult result = mockMvc.perform(delete("/api/debtors/{id}", id))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("Error deleting debtor!"))
                 .andDo(print())
                 .andReturn();
+
         verify(debtorService).deleteDebtorById(anyInt());
         Assertions.assertNotNull(result);
         Assertions.assertEquals(MediaType.APPLICATION_JSON_VALUE, result.getResponse().getContentType());

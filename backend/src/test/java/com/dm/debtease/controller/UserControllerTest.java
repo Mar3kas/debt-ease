@@ -58,12 +58,12 @@ public class UserControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
     }
 
     @Test
-    public void testAuthenticateUserWhenUserIsValidShouldReturnTokens() throws Exception {
+    void authenticateUser_WhenValidUser_ShouldReturnTokens() throws Exception {
         UserDTO userDTO = new UserDTO();
         userDTO.setUsername("user");
         userDTO.setPassword("password");
@@ -72,6 +72,7 @@ public class UserControllerTest {
         given(authenticationManager.authenticate(any(Authentication.class))).willReturn(mockedAuthentication);
         when(jwtService.createToken(any(Authentication.class))).thenReturn("accessToken");
         given(refreshTokenService.createRefreshToken(any(String.class))).willReturn("refreshToken");
+
         MvcResult result = mockMvc.perform(post("/api/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(userDTO)))
@@ -80,6 +81,7 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.refreshToken").value("refreshToken"))
                 .andDo(print())
                 .andReturn();
+
         verify(jwtService).createToken(any(Authentication.class));
         verify(refreshTokenService).createRefreshToken(userDTO.getUsername());
         Assertions.assertNotNull(result);
@@ -89,7 +91,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void testRefreshAccessToken() throws Exception {
+    void refreshAccessToken_WhenValidRefreshToken_ShouldReturnNewAccessToken() throws Exception {
         RefreshTokenRequest mockedRequest = new RefreshTokenRequest();
         mockedRequest.setRefreshToken("valid_refresh_token");
         RefreshToken mockedRefreshToken = new RefreshToken();
@@ -101,6 +103,7 @@ public class UserControllerTest {
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null);
         String accessToken = "new_access_token";
         when(jwtService.createToken(authentication)).thenReturn(accessToken);
+
         MvcResult result = mockMvc.perform(post("/api/refresh")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(mockedRequest)))
@@ -108,6 +111,7 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.accessToken").value(accessToken))
                 .andDo(print())
                 .andReturn();
+
         verify(refreshTokenService).findByToken(mockedRequest.getRefreshToken());
         verify(refreshTokenService).validateRefreshToken(mockedRefreshToken);
         verify(userDetailsService).loadUserByUsername(userDetails.getUsername());
@@ -119,16 +123,18 @@ public class UserControllerTest {
     }
 
     @Test
-    void testLogout() throws Exception {
+    void logout_WhenValidAccessToken_ShouldReturnLogoutMessage() throws Exception {
         String accessToken = "valid_access_token";
         when(jwtService.resolveToken(any(HttpServletRequest.class))).thenReturn(accessToken);
         when(jwtService.isTokenRevoked(accessToken)).thenReturn(false);
+
         MvcResult result = mockMvc.perform(post("/api/logout"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("Logout successful"))
                 .andDo(print())
                 .andReturn();
+
         verify(jwtService).resolveToken(any(HttpServletRequest.class));
         verify(jwtService).isTokenRevoked(accessToken);
         Assertions.assertNotNull(result);
@@ -138,17 +144,19 @@ public class UserControllerTest {
     }
 
     @Test
-    public void testGetCreditorUserByUsername() throws Exception {
+    void getCreditorUserByUsername_WhenUsernameExists_ShouldReturnCreditor() throws Exception {
         String username = "test_creditor";
         int id = 1;
         Creditor mockedCreditor = TestUtils.setupCreditorTestData(username, id);
         when(creditorService.getCreditorByUsername(anyString())).thenReturn(mockedCreditor);
+
         MvcResult result = mockMvc.perform(get("/api/users/{username}", username))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.user.username").value(username))
                 .andDo(print())
                 .andReturn();
+
         verify(creditorService).getCreditorByUsername(anyString());
         Assertions.assertNotNull(result);
         Assertions.assertEquals(MediaType.APPLICATION_JSON_VALUE, result.getResponse().getContentType());
@@ -157,7 +165,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void testGetDebtorUserByUsername() throws Exception {
+    void getDebtorUserByUsername_WhenUsernameExists_ShouldReturnDebtor() throws Exception {
         String username = "debtor";
         String name = "name";
         String surname = "surname";
@@ -165,12 +173,14 @@ public class UserControllerTest {
         String phoneNumber = "+37067144213";
         Debtor mockedDebtor = TestUtils.setupDebtorTestData(name, surname, email, phoneNumber, username);
         when(debtorService.getDebtorByUsername(anyString())).thenReturn(mockedDebtor);
+
         MvcResult result = mockMvc.perform(get("/api/users/{username}", username))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.user.username").value(username))
                 .andDo(print())
                 .andReturn();
+
         verify(debtorService).getDebtorByUsername(anyString());
         Assertions.assertNotNull(result);
         Assertions.assertEquals(MediaType.APPLICATION_JSON_VALUE, result.getResponse().getContentType());
@@ -179,16 +189,18 @@ public class UserControllerTest {
     }
 
     @Test
-    public void testGetAdminUserByUsername() throws Exception {
+    void getAdminUserByUsername_WhenUsernameExists_ShouldReturnAdmin() throws Exception {
         String username = "test_admin";
         Admin mockedAdmin = TestUtils.setupAdminTestData(username);
         when(adminService.getAdminByUsername(anyString())).thenReturn(mockedAdmin);
+
         MvcResult result = mockMvc.perform(get("/api/users/{username}", username))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.user.username").value(username))
                 .andDo(print())
                 .andReturn();
+
         verify(adminService).getAdminByUsername(anyString());
         Assertions.assertNotNull(result);
         Assertions.assertEquals(MediaType.APPLICATION_JSON_VALUE, result.getResponse().getContentType());

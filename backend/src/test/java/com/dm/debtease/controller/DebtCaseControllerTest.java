@@ -48,12 +48,12 @@ public class DebtCaseControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         mockMvc = MockMvcBuilders.standaloneSetup(debtCaseController).build();
     }
 
     @Test
-    void testGetAllDebtCases() throws Exception {
+    void getAllDebtCases_ShouldReturnListOfDebtCases() throws Exception {
         int creditorId = 1;
         String debtorUsername = "userWithDebts";
         String debtorName = "name";
@@ -72,6 +72,7 @@ public class DebtCaseControllerTest {
                         debtorEmail,
                         debtorPhoneNumber, typeToMatch, status, dueDate, lateInterestRate, amountOwed, debtorUsername));
         when(debtCaseService.getAllDebtCases()).thenReturn(mockedDebtCases);
+
         MvcResult result = mockMvc.perform(get("/api/debtcases"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -81,6 +82,7 @@ public class DebtCaseControllerTest {
                 .andExpect(jsonPath("$[0].amountOwed").value(amountOwed))
                 .andDo(print())
                 .andReturn();
+
         verify(debtCaseService).getAllDebtCases();
         Assertions.assertNotNull(result);
         Assertions.assertEquals(MediaType.APPLICATION_JSON_VALUE, result.getResponse().getContentType());
@@ -89,7 +91,7 @@ public class DebtCaseControllerTest {
     }
 
     @Test
-    void testGetDebtCaseById() throws Exception {
+    void getDebtCaseById_ShouldReturnDebtCase() throws Exception {
         int id = 1;
         int creditorId = 1;
         String debtorUsername = "userWithDebts";
@@ -109,6 +111,7 @@ public class DebtCaseControllerTest {
                         debtorEmail,
                         debtorPhoneNumber, typeToMatch, status, dueDate, lateInterestRate, amountOwed, debtorUsername);
         when(debtCaseService.getDebtCaseById(id)).thenReturn(mockedDebtCase);
+
         MvcResult result = mockMvc.perform(get("/api/debtcases/{id}", id))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -117,6 +120,7 @@ public class DebtCaseControllerTest {
                 .andExpect(jsonPath("$.amountOwed").value(amountOwed))
                 .andDo(print())
                 .andReturn();
+
         verify(debtCaseService).getDebtCaseById(anyInt());
         Assertions.assertNotNull(result);
         Assertions.assertEquals(MediaType.APPLICATION_JSON_VALUE, result.getResponse().getContentType());
@@ -125,7 +129,7 @@ public class DebtCaseControllerTest {
     }
 
     @Test
-    void testGetDebtCaseByCreditorUsername() throws Exception {
+    void getDebtCasesByCreditorUsername_ShouldReturnListOfDebtCases() throws Exception {
         int id = 1;
         int creditorId = 1;
         String debtorUsername = "userWithDebts";
@@ -145,6 +149,7 @@ public class DebtCaseControllerTest {
                         debtorEmail,
                         debtorPhoneNumber, typeToMatch, status, dueDate, lateInterestRate, amountOwed, debtorUsername));
         when(debtCaseService.getDebtCasesByCreditorUsername(creditorUsername)).thenReturn(mockedDebtCase);
+
         MvcResult result = mockMvc.perform(get("/api/debtcases/creditor/{username}", creditorUsername))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -155,6 +160,7 @@ public class DebtCaseControllerTest {
                 .andExpect(jsonPath("$[0].amountOwed").value(amountOwed))
                 .andDo(print())
                 .andReturn();
+
         verify(debtCaseService).getDebtCasesByCreditorUsername(any(String.class));
         Assertions.assertNotNull(result);
         Assertions.assertEquals(MediaType.APPLICATION_JSON_VALUE, result.getResponse().getContentType());
@@ -163,7 +169,7 @@ public class DebtCaseControllerTest {
     }
 
     @Test
-    void testGetDebtCaseByDebtorUsername() throws Exception {
+    void getDebtCasesByDebtorUsername_ShouldReturnListOfDebtCases() throws Exception {
         int id = 1;
         int creditorId = 1;
         String debtorUsername = "userWithDebts";
@@ -183,6 +189,7 @@ public class DebtCaseControllerTest {
                         debtorEmail,
                         debtorPhoneNumber, typeToMatch, status, dueDate, lateInterestRate, amountOwed, debtorUsername));
         when(debtCaseService.getDebtCasesByDebtorUsername(debtorUsername)).thenReturn(mockedDebtCase);
+
         MvcResult result = mockMvc.perform(get("/api/debtcases/debtor/{username}", debtorUsername))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -193,6 +200,7 @@ public class DebtCaseControllerTest {
                 .andExpect(jsonPath("$[0].amountOwed").value(amountOwed))
                 .andDo(print())
                 .andReturn();
+
         verify(debtCaseService).getDebtCasesByDebtorUsername(any(String.class));
         Assertions.assertNotNull(result);
         Assertions.assertEquals(MediaType.APPLICATION_JSON_VALUE, result.getResponse().getContentType());
@@ -201,7 +209,7 @@ public class DebtCaseControllerTest {
     }
 
     @Test
-    void testEditDebtCaseByIdAndCreditorId() throws Exception {
+    void editDebtCaseByIdAndCreditorId_ShouldReturnEditedDebtCase() throws Exception {
         BigDecimal editedAmountOwed = BigDecimal.ONE;
         int typeId = 1;
         int creditorId = 1;
@@ -223,6 +231,7 @@ public class DebtCaseControllerTest {
                 TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname, debtorEmail,
                         debtorPhoneNumber, typeToMatch, status, dueDate, lateInterestRate, amountOwed, debtorUsername);
         when(debtCaseService.editDebtCaseByIdAndCreditorId(any(DebtCaseDTO.class), anyInt(), anyInt())).thenReturn(expectedDebtCase);
+
         MvcResult result = mockMvc.perform(put("/api/debtcases/{id}/creditors/{creditorId}", id, creditorId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(mockedDebtCaseDTO)))
@@ -235,6 +244,7 @@ public class DebtCaseControllerTest {
                 .andExpect(jsonPath("$.amountOwed").value(amountOwed))
                 .andDo(print())
                 .andReturn();
+
         verify(debtCaseService).editDebtCaseByIdAndCreditorId(any(DebtCaseDTO.class), anyInt(), anyInt());
         Assertions.assertNotNull(result);
         Assertions.assertEquals(MediaType.APPLICATION_JSON_VALUE, result.getResponse().getContentType());
@@ -243,28 +253,32 @@ public class DebtCaseControllerTest {
     }
 
     @Test
-    void testDeleteDebtCaseByIdAndCreditorId() throws Exception {
+    void deleteDebtCaseByIdAndCreditorId_ShouldReturnNoContent() throws Exception {
         int id = 1;
         int creditorID = 1;
         when(debtCaseService.deleteDebtCaseByIdAndCreditorId(id, creditorID)).thenReturn(true);
+
         MvcResult result = mockMvc.perform(delete("/api/debtcases/{id}/creditors/{creditorId}", id, creditorID))
                 .andExpect(status().isNoContent())
                 .andDo(print())
                 .andReturn();
+
         verify(debtCaseService).deleteDebtCaseByIdAndCreditorId(anyInt(), anyInt());
         Assertions.assertNotNull(result);
         Assertions.assertEquals(HttpStatus.NO_CONTENT.value(), result.getResponse().getStatus());
     }
 
     @Test
-    void testDeleteDebtCaseByInvalidIdAndCreditorId() throws Exception {
+    void deleteDebtCaseByInvalidIdAndCreditorId_ShouldReturnBadRequest() throws Exception {
         int id = -1;
         int creditorID = 1;
         when(debtCaseService.deleteDebtCaseByIdAndCreditorId(id, creditorID)).thenReturn(false);
+
         MvcResult result = mockMvc.perform(delete("/api/debtcases/{id}/creditors/{creditorId}", id, creditorID))
                 .andExpect(status().isBadRequest())
                 .andDo(print())
                 .andReturn();
+
         verify(debtCaseService).deleteDebtCaseByIdAndCreditorId(anyInt(), anyInt());
         Assertions.assertNotNull(result);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());

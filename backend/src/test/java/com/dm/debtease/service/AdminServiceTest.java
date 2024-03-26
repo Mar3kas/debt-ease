@@ -23,20 +23,24 @@ public class AdminServiceTest {
     private AdminServiceImpl adminService;
 
     @Test
-    void testGetAdminByUsername() {
+    void getAdminByUsername_WhenAdminExists_ShouldReturnAdmin() {
         String username = "admin123";
         Admin expectedAdmin = TestUtils.setupAdminTestData(username);
         when(adminRepository.findByUserUsername(username)).thenReturn(Optional.of(expectedAdmin));
+
         Admin actualAdmin = adminService.getAdminByUsername(username);
+
         Assertions.assertNotNull(actualAdmin);
         Assertions.assertEquals(expectedAdmin.getUser().getUsername(), actualAdmin.getUser().getUsername());
     }
 
     @Test
-    void testGetAdminByInvalidUsername_ShouldReturnEmpty() {
+    void getAdminByUsername_WhenAdminDoesNotExist_ShouldReturnNull() {
         String username = "nonexistent";
         when(adminRepository.findByUserUsername(username)).thenReturn(Optional.empty());
+
         Admin actualAdmin = adminService.getAdminByUsername(username);
+
         Assertions.assertNull(actualAdmin);
     }
 }
