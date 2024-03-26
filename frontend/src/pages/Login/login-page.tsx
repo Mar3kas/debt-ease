@@ -56,7 +56,7 @@ const LoginPage: FC<IPage> = (props): ReactElement => {
         setForm(updatedForm);
       }
     }
-  }, [data, error, openSnackbar, navigate]);
+  }, [data, error, openSnackbar, navigate, form]);
 
   const handleLogin = async (): Promise<void> => {
     const request: IUserDTO = {

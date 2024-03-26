@@ -51,7 +51,7 @@ const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
       localStorage.clear();
       navigate("/");
     }
-  }, [data, error]);
+  }, [data, error, navigate]);
 
   return (
     <>

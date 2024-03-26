@@ -109,7 +109,7 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
       navigate("/login");
       openSnackbar("You need to login again", "warning");
     }
-  }, [error, openSnackbar]);
+  }, [error, handleErrorResponse, navigate, openSnackbar]);
 
   useEffect(() => {
     if (!debtCaseLoading) {
@@ -132,7 +132,7 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
         setCreditorId(userWithSameUsername.creditor.id);
       }
     }
-  }, [debtCaseData]);
+  }, [creditorId, debtCaseData, role, username]);
 
   useEffect(() => {
     const webSocketService = WebSocketService.getInstance(
@@ -168,7 +168,7 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
         });
       }
     );
-  }, []);
+  }, [openSnackbar, username]);
 
   useEffect(() => {
     if (downloadPdf && !fileLoading && !pdfError) {
@@ -188,7 +188,7 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
       openSnackbar("Error generating Debt Case report", "error");
       setDownloadPdf(false);
     }
-  }, [pdfData, fileLoading, pdfError, downloadPdf, openSnackbar]);
+  }, [pdfData, fileLoading, pdfError, downloadPdf, openSnackbar, fileError]);
 
   useEffect(() => {
     if (fileData) {
@@ -224,7 +224,13 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
       openSnackbar(deleteError.description, "error");
     }
     setDebtCaseToDelete(null);
-  }, [deleteError, deletedData, openSnackbar, setCurrentDebtCases]);
+  }, [
+    debtCaseToDelete?.id,
+    deleteError,
+    deletedData,
+    openSnackbar,
+    setCurrentDebtCases,
+  ]);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

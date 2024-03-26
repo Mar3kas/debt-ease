@@ -72,7 +72,7 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
       navigate("/login");
       openSnackbar("You need to login again", "warning");
     }
-  }, [error, openSnackbar]);
+  }, [error, handleErrorResponse, navigate, openSnackbar]);
 
   useEffect(() => {
     if (editError !== null && editError.statusCode === 422) {
@@ -87,7 +87,7 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
       setShouldRefetch((prev) => !prev);
       openSnackbar("Profile edited successfully", "success");
     }
-  }, [editError, editCompleted, openSnackbar]);
+  }, [editError, editCompleted, openSnackbar, handleErrorResponse]);
 
   const handleSaveChanges = async () => {
     if (!editedData) {

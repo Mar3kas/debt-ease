@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from "react";
+import React, { FC } from "react";
 import "./App.css";
 import { useSnackbar } from "./Components";
 import { routes as appRoutes } from "./routes";
