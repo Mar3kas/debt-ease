@@ -36,7 +36,7 @@ public class DebtCaseStatusServiceTest {
     }
 
     @Test
-    void testGetDebtCaseStatusByInvalidId() {
+    void testGetDebtCaseStatusByInvalidId_ShouldThrowException() {
         int id = -1;
         when(debtCaseStatusRepository.findById(id)).thenReturn(Optional.empty());
         EntityNotFoundException thrown = Assertions.assertThrows(

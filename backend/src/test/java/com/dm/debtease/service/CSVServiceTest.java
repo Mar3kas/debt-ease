@@ -81,7 +81,7 @@ public class CSVServiceTest {
     }
 
     @Test
-    public void testReadCsvDataAndSendToKafkaInvalidFileFormat() {
+    public void testReadCsvDataAndSendToKafkaInvalidFileFormat_ShouldThrowException() {
         MultipartFile invalidFile =
                 new MockMultipartFile("file", "test.txt", "text/plain", "This is not a CSV file.".getBytes());
         String username = "user";

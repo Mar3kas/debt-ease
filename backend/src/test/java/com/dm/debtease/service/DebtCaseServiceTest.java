@@ -74,7 +74,7 @@ public class DebtCaseServiceTest {
     }
 
     @Test
-    void testGetCreditorByNonExistingId() {
+    void testGetCreditorByNonExistingId_ShouldThrowException() {
         int id = -1;
         when(debtCaseRepository.findById(id)).thenReturn(Optional.empty());
         EntityNotFoundException thrown = Assertions.assertThrows(
@@ -176,7 +176,7 @@ public class DebtCaseServiceTest {
     }
 
     @Test
-    void testEditCreditorByNonExistingIdAndCreditorId() {
+    void testEditCreditorByNonExistingIdAndCreditorId_ShouldThrowException() {
         int id = -1;
         int creditorId = 1;
         when(debtCaseRepository.findByIdAndCreditor_Id(id, creditorId)).thenReturn(Optional.empty());
@@ -199,7 +199,7 @@ public class DebtCaseServiceTest {
     }
 
     @Test
-    void testDeleteCreditorByNonExistingId() {
+    void testDeleteCreditorByNonExistingId_ShouldThrowException() {
         int id = -1;
         int creditorId = 1;
         when(debtCaseRepository.findByIdAndCreditor_Id(id, creditorId)).thenReturn(Optional.empty());
@@ -256,7 +256,7 @@ public class DebtCaseServiceTest {
     }
 
     @Test
-    public void testIsDebtCasePendingWithinRangeAndStatusNewShouldReturnTrue() {
+    public void testIsDebtCasePendingWithinRangeAndStatusNew_ShouldReturnTrue() {
         LocalDateTime dueDate = LocalDateTime.of(2024, 3, 22, 12, 0);
         LocalDateTime startTime = LocalDateTime.of(2024, 3, 20, 0, 0);
         LocalDateTime endTime = LocalDateTime.of(2024, 3, 25, 23, 59);
@@ -268,7 +268,7 @@ public class DebtCaseServiceTest {
     }
 
     @Test
-    public void testIsDebtCasePendingOutOfRangeBeforeShouldReturnFalse() {
+    public void testIsDebtCasePendingOutOfRangeBefore_ShouldReturnFalse() {
         LocalDateTime dueDate = LocalDateTime.of(2024, 3, 19, 23, 59);
         LocalDateTime startTime = LocalDateTime.of(2024, 3, 20, 0, 0);
         LocalDateTime endTime = LocalDateTime.of(2024, 3, 25, 23, 59);
@@ -280,7 +280,7 @@ public class DebtCaseServiceTest {
     }
 
     @Test
-    public void testIsDebtCasePendingOutOfRangeAfterShouldReturnFalse() {
+    public void testIsDebtCasePendingOutOfRangeAfter_ShouldReturnFalse() {
         LocalDateTime dueDate = LocalDateTime.of(2024, 3, 26, 0, 1);
         LocalDateTime startTime = LocalDateTime.of(2024, 3, 20, 0, 0);
         LocalDateTime endTime = LocalDateTime.of(2024, 3, 25, 23, 59);
@@ -292,7 +292,7 @@ public class DebtCaseServiceTest {
     }
 
     @Test
-    public void testIsDebtCasePendingWithinRangeButStatusNotNewShouldReturnFalse() {
+    public void testIsDebtCasePendingWithinRangeButStatusNotNew_ShouldReturnFalse() {
         LocalDateTime dueDate = LocalDateTime.of(2024, 3, 22, 12, 0);
         LocalDateTime startTime = LocalDateTime.of(2024, 3, 20, 0, 0);
         LocalDateTime endTime = LocalDateTime.of(2024, 3, 25, 23, 59);

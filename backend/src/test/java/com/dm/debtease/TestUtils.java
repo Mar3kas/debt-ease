@@ -40,6 +40,7 @@ public class TestUtils {
     public static Creditor setupCreditorTestData(String name, String email, String address, String phoneNumber,
                                                        String accountNumber, String username) {
         Creditor creditor = new Creditor();
+        creditor.setId(1);
         creditor.setName(name);
         creditor.setEmail(email);
         creditor.setAddress(address);
@@ -65,6 +66,7 @@ public class TestUtils {
                                              String username) {
         Debtor debtor = new Debtor();
         CustomUser user = new CustomUser();
+        debtor.setId(1);
         user.setUsername(username);
         debtor.setName(name);
         debtor.setSurname(surname);
@@ -137,6 +139,7 @@ public class TestUtils {
                                                  LocalDateTime dueDate, double lateInterestRate,
                                                  BigDecimal amountOwed, String debtorUsername) {
         DebtCase debtCase = new DebtCase();
+        debtCase.setId(1);
         debtCase.setCreditor(setupCreditorTestData(creditorUsername, creditorId
         ));
         debtCase.setDebtor(

@@ -31,7 +31,7 @@ public class PDFServiceTest {
     private PDFServiceImpl pdfService;
 
     @Test
-    void generatePDFNoDebtCases() {
+    void generatePDFNoDebtCases_ShouldThrowException() {
         String username = "userWithoutDebts";
         when(debtCaseService.getDebtCasesByDebtorUsername(username)).thenReturn(Collections.emptyList());
         EntityNotFoundException thrown = Assertions.assertThrows(

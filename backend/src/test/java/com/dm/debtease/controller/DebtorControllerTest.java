@@ -56,6 +56,9 @@ public class DebtorControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].name").value(name))
+                .andExpect(jsonPath("$[0].surname").value(surname))
+                .andExpect(jsonPath("$[0].email").value(email))
+                .andExpect(jsonPath("$[0].phoneNumber").value(phoneNumber))
                 .andDo(print())
                 .andReturn();
         verify(debtorService).getAllDebtors();
@@ -78,7 +81,11 @@ public class DebtorControllerTest {
         MvcResult result = mockMvc.perform(get("/api/debtors/{id}", id))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(id))
                 .andExpect(jsonPath("$.name").value(name))
+                .andExpect(jsonPath("$.surname").value(surname))
+                .andExpect(jsonPath("$.email").value(email))
+                .andExpect(jsonPath("$.phoneNumber").value(phoneNumber))
                 .andDo(print())
                 .andReturn();
         verify(debtorService).getDebtorById(anyInt());
@@ -107,6 +114,8 @@ public class DebtorControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.email").value(expectedEditedDebtor.getEmail()))
                 .andExpect(jsonPath("$.name").value(expectedEditedDebtor.getName()))
+                .andExpect(jsonPath("$.surname").value(expectedEditedDebtor.getSurname()))
+                .andExpect(jsonPath("$.phoneNumber").value(expectedEditedDebtor.getPhoneNumber()))
                 .andDo(print())
                 .andReturn();
         verify(debtorService).editDebtorById(any(DebtorDTO.class), anyInt());

@@ -53,7 +53,7 @@ public class DebtorServiceTest {
     }
 
     @Test
-    void testGetDebtorByNonExistingId() {
+    void testGetDebtorByNonExistingId_ShouldThrowException() {
         int id = -1;
         when(debtorRepository.findById(id)).thenReturn(Optional.empty());
         EntityNotFoundException thrown = Assertions.assertThrows(
@@ -81,7 +81,7 @@ public class DebtorServiceTest {
     }
 
     @Test
-    void testGetDebtorByNonExistingUsername() {
+    void testGetDebtorByNonExistingUsername_ShouldReturnEmpty() {
         String username = "random";
         when(debtorRepository.findByUserUsername(username)).thenReturn(Optional.empty());
         Debtor actualDebtor = debtorService.getDebtorByUsername(username);
@@ -104,7 +104,7 @@ public class DebtorServiceTest {
     }
 
     @Test
-    void testGetDebtorByNonExistingNameAndSurname() {
+    void testGetDebtorByNonExistingNameAndSurname_ShouldReturnEmpty() {
         String username = "random";
         when(debtorRepository.findByUserUsername(username)).thenReturn(Optional.empty());
         Debtor actualDebtor = debtorService.getDebtorByUsername(username);
@@ -133,7 +133,7 @@ public class DebtorServiceTest {
     }
 
     @Test
-    void testEditDebtorByNonExistingId() {
+    void testEditDebtorByNonExistingId_ShouldThrowException() {
         int id = -1;
         String editedName = "editedName";
         String editedSurname = "editedSurname";
@@ -178,7 +178,7 @@ public class DebtorServiceTest {
     }
 
     @Test
-    void testDeleteCreditorById() {
+    void testDeleteCreditorById_ShouldThrowException() {
         int id = -1;
         when(debtorRepository.findById(id)).thenReturn(Optional.empty());
         EntityNotFoundException thrown = Assertions.assertThrows(

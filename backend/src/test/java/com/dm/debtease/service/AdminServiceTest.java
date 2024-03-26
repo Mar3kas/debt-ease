@@ -33,7 +33,7 @@ public class AdminServiceTest {
     }
 
     @Test
-    void testGetAdminByInvalidUsername() {
+    void testGetAdminByInvalidUsername_ShouldReturnEmpty() {
         String username = "nonexistent";
         when(adminRepository.findByUserUsername(username)).thenReturn(Optional.empty());
         Admin actualAdmin = adminService.getAdminByUsername(username);

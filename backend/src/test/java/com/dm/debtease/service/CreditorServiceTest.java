@@ -63,7 +63,7 @@ public class CreditorServiceTest {
     }
 
     @Test
-    void testGetCreditorByNonExistingId() {
+    void testGetCreditorByNonExistingId_ShouldThrowException() {
         int id = -1;
         when(creditorRepository.findById(id)).thenReturn(Optional.empty());
         EntityNotFoundException thrown = Assertions.assertThrows(
@@ -87,7 +87,7 @@ public class CreditorServiceTest {
     }
 
     @Test
-    void testGetCreditorByNonExistingUsername() {
+    void testGetCreditorByNonExistingUsername_ShouldReturnEmpty() {
         String username = "random";
         when(creditorRepository.findByUserUsername(username)).thenReturn(Optional.empty());
         Creditor actualCreditor = creditorService.getCreditorByUsername(username);
@@ -122,7 +122,7 @@ public class CreditorServiceTest {
     }
 
     @Test
-    void testEditCreditorByNonExistingId() {
+    void testEditCreditorByNonExistingId_ShouldThrowException() {
         int id = -1;
         String editedName = "editedName";
         String editedEmail = "editedEmail@gmail.com";
@@ -170,7 +170,7 @@ public class CreditorServiceTest {
     }
 
     @Test
-    void testCreateCreditorWhenRoleNotFound() {
+    void testCreateCreditorWhenRoleNotFound_ShouldThrowException() {
         String name = "name";
         String email = "email@gmail.com";
         String address = "address";
@@ -195,7 +195,7 @@ public class CreditorServiceTest {
     }
 
     @Test
-    void testDeleteCreditorByNonExistingId() {
+    void testDeleteCreditorByNonExistingId_ShouldThrowException() {
         int id = 100;
         when(creditorRepository.findById(id)).thenReturn(Optional.empty());
         EntityNotFoundException thrown = Assertions.assertThrows(

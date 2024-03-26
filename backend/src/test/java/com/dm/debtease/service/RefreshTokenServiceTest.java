@@ -53,7 +53,7 @@ public class RefreshTokenServiceTest {
     }
 
     @Test
-    void testValidateRefreshToken_ExpiredToken() {
+    void testValidateRefreshToken_ExpiredToken_ShouldThrowException() {
         RefreshToken expiredToken = new RefreshToken();
         expiredToken.setExpirationDate(Instant.now().minusMillis(1000));
         TokenRefreshException exception = Assertions.assertThrows(TokenRefreshException.class,
@@ -77,7 +77,7 @@ public class RefreshTokenServiceTest {
     }
 
     @Test
-    void testFindByInvalidToken() {
+    void testFindByInvalidToken_ShouldThrowException() {
         String token = UUID.randomUUID().toString();
         when(refreshTokenRepository.findByToken(token)).thenReturn(Optional.empty());
         InvalidRefreshTokenException exception = Assertions.assertThrows(InvalidRefreshTokenException.class,

@@ -58,6 +58,10 @@ public class CreditorControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].name").value(name))
+                .andExpect(jsonPath("$[0].email").value(email))
+                .andExpect(jsonPath("$[0].address").value(address))
+                .andExpect(jsonPath("$[0].phoneNumber").value(phoneNumber))
+                .andExpect(jsonPath("$[0].accountNumber").value(accountNumber))
                 .andDo(print())
                 .andReturn();
         verify(creditorService).getAllCreditors();
@@ -82,7 +86,12 @@ public class CreditorControllerTest {
         MvcResult result = mockMvc.perform(get("/api/creditors/{id}", id))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(id))
                 .andExpect(jsonPath("$.name").value(name))
+                .andExpect(jsonPath("$.email").value(email))
+                .andExpect(jsonPath("$.address").value(address))
+                .andExpect(jsonPath("$.phoneNumber").value(phoneNumber))
+                .andExpect(jsonPath("$.accountNumber").value(accountNumber))
                 .andDo(print())
                 .andReturn();
         verify(creditorService).getCreditorById(anyInt());
@@ -115,6 +124,9 @@ public class CreditorControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.email").value(expectedEditedCreditor.getEmail()))
                 .andExpect(jsonPath("$.name").value(expectedEditedCreditor.getName()))
+                .andExpect(jsonPath("$.address").value(expectedEditedCreditor.getAddress()))
+                .andExpect(jsonPath("$.phoneNumber").value(expectedEditedCreditor.getPhoneNumber()))
+                .andExpect(jsonPath("$.accountNumber").value(expectedEditedCreditor.getAccountNumber()))
                 .andDo(print())
                 .andReturn();
         verify(creditorService).editCreditorById(any(CreditorDTO.class), anyInt());
@@ -144,6 +156,9 @@ public class CreditorControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.email").value(expectedCreatedCreditor.getEmail()))
                 .andExpect(jsonPath("$.name").value(expectedCreatedCreditor.getName()))
+                .andExpect(jsonPath("$.address").value(expectedCreatedCreditor.getAddress()))
+                .andExpect(jsonPath("$.phoneNumber").value(expectedCreatedCreditor.getPhoneNumber()))
+                .andExpect(jsonPath("$.accountNumber").value(expectedCreatedCreditor.getAccountNumber()))
                 .andDo(print())
                 .andReturn();
         verify(creditorService).createCreditor(any(CreditorDTO.class));

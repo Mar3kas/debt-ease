@@ -146,6 +146,7 @@ public class UserControllerTest {
         MvcResult result = mockMvc.perform(get("/api/users/{username}", username))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.user.username").value(username))
                 .andDo(print())
                 .andReturn();
         verify(creditorService).getCreditorByUsername(anyString());
@@ -166,6 +167,8 @@ public class UserControllerTest {
         when(debtorService.getDebtorByUsername(anyString())).thenReturn(mockedDebtor);
         MvcResult result = mockMvc.perform(get("/api/users/{username}", username))
                 .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.user.username").value(username))
                 .andDo(print())
                 .andReturn();
         verify(debtorService).getDebtorByUsername(anyString());
@@ -177,11 +180,13 @@ public class UserControllerTest {
 
     @Test
     public void testGetAdminUserByUsername() throws Exception {
-        String username = "test_creditor";
+        String username = "test_admin";
         Admin mockedAdmin = TestUtils.setupAdminTestData(username);
         when(adminService.getAdminByUsername(anyString())).thenReturn(mockedAdmin);
         MvcResult result = mockMvc.perform(get("/api/users/{username}", username))
                 .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.user.username").value(username))
                 .andDo(print())
                 .andReturn();
         verify(adminService).getAdminByUsername(anyString());

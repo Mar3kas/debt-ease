@@ -45,7 +45,7 @@ public class DebtCaseTypeServiceTest {
     }
 
     @Test
-    void testGetDebtCaseTypeByNonExistingId() {
+    void testGetDebtCaseTypeByNonExistingId_ShouldThrowException() {
         int id = -1;
         when(debtCaseTypeRepository.findById(id)).thenReturn(Optional.empty());
         EntityNotFoundException thrown = Assertions.assertThrows(
@@ -67,7 +67,7 @@ public class DebtCaseTypeServiceTest {
     }
 
     @Test
-    void testGetMatchingDebtCaseTypeByInvalidType() {
+    void testGetMatchingDebtCaseTypeByInvalidType_ShouldThrowException() {
         String nonExistingDebtType = "NON_EXISTING_DEBT";
         String debtCaseType = "DEFAULT_DEBT";
         DebtCaseType expectedDebtCaseType = TestUtils.setupDebtCaseTypeTestData(debtCaseType);
@@ -87,7 +87,7 @@ public class DebtCaseTypeServiceTest {
     }
 
     @Test
-    void testGetMissingDefaultDebtCaseType() {
+    void testGetMissingDefaultDebtCaseType_ShouldReturnEmpty() {
         when(debtCaseTypeRepository.findAll()).thenReturn(List.of());
         DebtCaseType actualMatchedDebtCaseType = debtCaseTypeService.getDefaultDebtCaseType();
         Assertions.assertNull(actualMatchedDebtCaseType);

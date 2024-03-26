@@ -60,7 +60,7 @@ public class SecurityConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry corsRegistry) {
-        corsRegistry.addMapping("/**").allowedOrigins("*").allowedMethods("*");
+        corsRegistry.addMapping("/**").allowedOrigins("http://localhost:3000").allowedMethods("*");
     }
 
     @Bean

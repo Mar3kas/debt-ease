@@ -42,7 +42,7 @@ public class CustomUserDetailsServiceTest {
     }
 
     @Test
-    void testLoadNonExistingUserByUsername() {
+    void testLoadNonExistingUserByUsername_ShouldThrowException() {
         String username = "nonExistingUser";
         when(customUserRepository.findByUsername(username)).thenReturn(Optional.empty());
         UsernameNotFoundException thrown = Assertions.assertThrows(
