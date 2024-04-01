@@ -3,7 +3,10 @@ package com.dm.debtease.service;
 import com.dm.debtease.TestUtils;
 import com.dm.debtease.exception.InvalidRefreshTokenException;
 import com.dm.debtease.exception.TokenRefreshException;
+import com.dm.debtease.model.CustomUser;
 import com.dm.debtease.model.RefreshToken;
+import com.dm.debtease.model.Role;
+import com.dm.debtease.repository.CustomUserRepository;
 import com.dm.debtease.repository.RefreshTokenRepository;
 import com.dm.debtease.service.impl.RefreshTokenServiceImpl;
 import com.dm.debtease.utils.Constants;
@@ -13,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -26,6 +30,8 @@ import static org.mockito.Mockito.when;
 public class RefreshTokenServiceTest {
     @Mock
     private RefreshTokenRepository refreshTokenRepository;
+    @Mock
+    private CustomUserRepository customUserRepository;
     @InjectMocks
     private RefreshTokenServiceImpl refreshTokenService;
 
@@ -37,14 +43,29 @@ public class RefreshTokenServiceTest {
         when(UUID.randomUUID()).thenReturn(uuid);
         String username = "testUser";
         int refreshTokenId = 1;
-        RefreshToken expectedRefreshToken = TestUtils.setupRefreshTokenTestData(refreshTokenId, username, id, null);
-        when(refreshTokenRepository.findByUsername(username)).thenReturn(Optional.empty());
+        String password = "testPassword";
+        CustomUser customUser = TestUtils.setupCustomUserTestData(username, password, Role.ADMIN);
+        RefreshToken expectedRefreshToken = TestUtils.setupRefreshTokenTestData(refreshTokenId, id, null);
+        expectedRefreshToken.setCustomUser(customUser);
+        when(customUserRepository.findByUsername(username)).thenReturn(Optional.of(customUser));
+        when(refreshTokenRepository.findByCustomUser_Username(username)).thenReturn(Optional.empty());
         when(refreshTokenRepository.save(any(RefreshToken.class))).thenReturn(expectedRefreshToken);
 
         String actualGeneratedToken = refreshTokenService.createRefreshToken(username);
 
         Assertions.assertNotNull(actualGeneratedToken);
         Assertions.assertEquals(id, actualGeneratedToken);
+    }
+
+    @Test
+    void createRefreshToken_InvalidUsername_ShouldThrowException() {
+        String invalidUsername = "invalid";
+        when(customUserRepository.findByUsername(invalidUsername)).thenReturn(Optional.empty());
+
+        UsernameNotFoundException exception = Assertions.assertThrows(UsernameNotFoundException.class,
+                () -> refreshTokenService.createRefreshToken(invalidUsername));
+
+        Assertions.assertEquals(String.format(Constants.USER_NOT_FOUND, invalidUsername), exception.getMessage());
     }
 
     @Test
@@ -71,16 +92,19 @@ public class RefreshTokenServiceTest {
     @Test
     void findByToken_WithValidToken_ShouldReturnRefreshToken() {
         String username = "testUser";
+        String password = "testPassword";
         String token = UUID.randomUUID().toString();
         int id = 1;
-        RefreshToken expectedRefreshToken = TestUtils.setupRefreshTokenTestData(id, username, token, null);
+        CustomUser customUser = TestUtils.setupCustomUserTestData(username, password, Role.ADMIN);
+        RefreshToken expectedRefreshToken = TestUtils.setupRefreshTokenTestData(id, token, null);
+        expectedRefreshToken.setCustomUser(customUser);
         when(refreshTokenRepository.findByToken(token)).thenReturn(Optional.of(expectedRefreshToken));
 
         RefreshToken actualRefreshToken = refreshTokenService.findByToken(token);
 
         Assertions.assertNotNull(actualRefreshToken);
         Assertions.assertEquals(expectedRefreshToken.getToken(), actualRefreshToken.getToken());
-        Assertions.assertEquals(expectedRefreshToken.getUsername(), actualRefreshToken.getUsername());
+        Assertions.assertEquals(expectedRefreshToken.getCustomUser().getUsername(), actualRefreshToken.getCustomUser().getUsername());
     }
 
     @Test

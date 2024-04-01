@@ -1,11 +1,6 @@
 package com.dm.debtease.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,6 +25,7 @@ public class RefreshToken {
     @Column(name = "expiration_date", nullable = false)
     Instant expirationDate;
 
-    @Column(name = "username", nullable = false)
-    String username;
+    @OneToOne()
+    @JoinColumn(name = "user_id", nullable = false)
+    CustomUser customUser;
 }

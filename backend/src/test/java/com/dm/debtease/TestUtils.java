@@ -109,11 +109,10 @@ public class TestUtils {
         return debtCaseType;
     }
 
-    public static RefreshToken setupRefreshTokenTestData(int id, String username, String token,
+    public static RefreshToken setupRefreshTokenTestData(int id, String token,
                                                          Instant expirationDate) {
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setId(id);
-        refreshToken.setUsername(username);
         refreshToken.setToken(token);
         refreshToken.setExpirationDate(expirationDate);
         return refreshToken;

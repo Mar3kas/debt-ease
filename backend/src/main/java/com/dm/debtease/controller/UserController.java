@@ -67,7 +67,7 @@ public class UserController {
                                                                   BindingResult result) {
         RefreshToken refreshToken = refreshTokenService.findByToken(request.getRefreshToken());
         if (refreshTokenService.validateRefreshToken(refreshToken)) {
-            UserDetails user = userDetailsService.loadUserByUsername(refreshToken.getUsername());
+            UserDetails user = userDetailsService.loadUserByUsername(refreshToken.getCustomUser().getUsername());
             Authentication authentication = new UsernamePasswordAuthenticationToken(user, null);
             String accessToken = jwtService.createToken(authentication);
             Map<String, String> tokenMap = new HashMap<>();

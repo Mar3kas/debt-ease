@@ -95,7 +95,9 @@ public class UserControllerTest {
         RefreshTokenRequest mockedRequest = new RefreshTokenRequest();
         mockedRequest.setRefreshToken("valid_refresh_token");
         RefreshToken mockedRefreshToken = new RefreshToken();
-        mockedRefreshToken.setUsername("user");
+        CustomUser customUser = new CustomUser();
+        customUser.setUsername("user");
+        mockedRefreshToken.setCustomUser(customUser);
         when(refreshTokenService.findByToken(mockedRequest.getRefreshToken())).thenReturn(mockedRefreshToken);
         when(refreshTokenService.validateRefreshToken(mockedRefreshToken)).thenReturn(true);
         UserDetails userDetails = new User("user", "", new ArrayList<>());
