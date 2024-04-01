@@ -46,12 +46,12 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
     shouldRefetch,
     true
   );
-  const canEditProfile = data?.user?.role.name !== "ADMIN";
+  const canEditProfile = data?.user?.role !== "ADMIN";
 
   const roleSpecificEndpoint =
-    data?.user?.role.name === "CREDITOR"
+    data?.user?.role === "CREDITOR"
       ? "creditors/{id}"
-      : data?.user?.role.name === "DEBTOR"
+      : data?.user?.role === "DEBTOR"
       ? "debtors/{id}"
       : "";
 
@@ -153,7 +153,7 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
       let additionalFields;
 
       if (data.user?.username === username) {
-        if (data.user?.role.name === "CREDITOR") {
+        if (data.user?.role === "CREDITOR") {
           const editedData = data as ICreditor;
           additionalFields = (
             <>
@@ -183,7 +183,7 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
               </Typography>
             </>
           );
-        } else if (data.user.role.name === "DEBTOR") {
+        } else if (data.user.role === "DEBTOR") {
           const editedData = data as IDebtor;
           additionalFields = (
             <>
@@ -243,7 +243,7 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
       let additionalContent;
 
       if (data.user?.username === username) {
-        if (data.user?.role.name === "CREDITOR") {
+        if (data.user?.role === "CREDITOR") {
           const creditorData = data as ICreditor;
           icon = <BusinessIcon sx={{ fontSize: "3rem" }} />;
           title = "Creditor";
@@ -264,7 +264,7 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
               </Typography>
             </>
           );
-        } else if (data.user?.role.name === "DEBTOR") {
+        } else if (data.user?.role === "DEBTOR") {
           const debtorData = data as IDebtor;
           icon = <PersonIcon sx={{ fontSize: "3rem" }} />;
           title = "Debtor";
@@ -281,7 +281,7 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
               </Typography>
             </>
           );
-        } else if (data.user?.role.name === "ADMIN") {
+        } else if (data.user?.role === "ADMIN") {
           const adminData = data as IAdmin;
           icon = <AccountCircleIcon sx={{ fontSize: "3rem" }} />;
           title = "Admin";

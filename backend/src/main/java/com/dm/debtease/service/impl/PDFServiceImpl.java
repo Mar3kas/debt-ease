@@ -1,6 +1,7 @@
 package com.dm.debtease.service.impl;
 
 import com.dm.debtease.model.DebtCase;
+import com.dm.debtease.model.DebtCaseStatus;
 import com.dm.debtease.service.DebtCaseService;
 import com.dm.debtease.service.PDFService;
 import com.dm.debtease.utils.Constants;
@@ -36,7 +37,7 @@ public class PDFServiceImpl implements PDFService {
     public ByteArrayInputStream generatePdf(String username) throws IOException, DocumentException {
         List<DebtCase> debtCases = debtCaseService.getDebtCasesByDebtorUsername(username)
                 .stream()
-                .filter(debtCase -> !"CLOSED".equals(debtCase.getDebtCaseStatus().getStatus()))
+                .filter(debtCase -> !DebtCaseStatus.CLOSED.equals(debtCase.getDebtCaseStatus()))
                 .collect(Collectors.toList());
         if (debtCases.isEmpty()) {
             throw new EntityNotFoundException(String.format(Constants.DEBT_CASES_EMPTY, username));

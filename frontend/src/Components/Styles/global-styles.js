@@ -10,7 +10,6 @@ const useStyles = makeStyles((theme) => ({
     lineHeight: 1.6,
   },
 
-  // Header Styles
   header: {
     backgroundColor: "#ffffff",
     color: theme.palette.common.white,
@@ -29,7 +28,6 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
   },
 
-  // Footer Styles
   footer: {
     backgroundColor: "#2E8B57",
     color: theme.palette.common.white,
@@ -104,6 +102,38 @@ const useStyles = makeStyles((theme) => ({
     },
     "& .MuiInputLabel-root.Mui-focused": {
       color: "black",
+    },
+  },
+
+  scrollToTop: {
+    position: "fixed",
+    bottom: theme.spacing(-1),
+    left: "50%",
+    transform: "translateX(-50%)",
+    width: "40px",
+    height: "40px",
+  },
+
+  pagination: {
+    marginTop: theme.spacing(3),
+    marginBottom: theme.spacing(3),
+    "& .MuiPagination-root": {
+      display: "inline-block",
+    },
+    "& .MuiPagination-ul": {
+      justifyContent: "center",
+    },
+    "& .MuiPaginationItem-root": {
+      borderRadius: "50%",
+      backgroundColor: "white",
+      border: "1px solid black",
+      "&:hover": {
+        backgroundColor: "#F8DE7E",
+      },
+    },
+    "& .Mui-selected": {
+      backgroundColor: "#2E8B57",
+      color: "white",
     },
   },
 

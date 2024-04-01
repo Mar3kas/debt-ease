@@ -2,6 +2,7 @@ package com.dm.debtease.service;
 
 import com.dm.debtease.TestUtils;
 import com.dm.debtease.model.CustomUser;
+import com.dm.debtease.model.Role;
 import com.dm.debtease.repository.CustomUserRepository;
 import com.dm.debtease.service.impl.CustomUserDetailsServiceImpl;
 import com.dm.debtease.utils.Constants;
@@ -29,9 +30,7 @@ public class CustomUserDetailsServiceTest {
     void loadUserByUsername_WhenUserExists_ShouldLoadUserDetails() {
         String username = "testUser";
         String password = "testPassword";
-        String roleName = "ROLE_USER";
-        int roleId = 3;
-        CustomUser customUser = TestUtils.setupCustomUserTestData(username, password, roleName, roleId);
+        CustomUser customUser = TestUtils.setupCustomUserTestData(username, password, Role.ADMIN);
         when(customUserRepository.findByUsername(username)).thenReturn(Optional.of(customUser));
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -40,7 +39,7 @@ public class CustomUserDetailsServiceTest {
         Assertions.assertEquals(username, userDetails.getUsername());
         Assertions.assertEquals(password, userDetails.getPassword());
         Assertions.assertTrue(userDetails.getAuthorities().stream()
-                .anyMatch(auth -> auth.getAuthority().equals(roleName)));
+                .anyMatch(auth -> auth.getAuthority().equals(Role.ADMIN.name())));
     }
 
     @Test

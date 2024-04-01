@@ -11,6 +11,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Pagination,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import useStyles from "../../Components/Styles/global-styles";
@@ -42,6 +43,19 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
   );
   const [highlightedCases, setHighlightedCases] = useState<number[]>([]);
   const [downloadPdf, setDownloadPdf] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [casesPerPage] = useState(5);
+  const totalCases = currentDebtCases?.length || 0;
+  const totalPages = Math.ceil(totalCases / casesPerPage);
+  const startIndex = (currentPage - 1) * casesPerPage;
+  const endIndex = Math.min(startIndex + casesPerPage, totalCases);
+  const paginatedCases = currentDebtCases?.slice(startIndex, endIndex);
+  const groupedDebtCases = paginatedCases?.reduce((acc, debtCase) => {
+    const status = debtCase.debtCaseStatus.toLowerCase();
+    acc[status] = acc[status] || [];
+    acc[status].push(debtCase);
+    return acc;
+  }, {} as Record<string, IDebtCase[]>);
   const { handleErrorResponse } = useErrorHandling();
   const { openSnackbar } = props;
 
@@ -220,17 +234,12 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
         return updatedDebtCases;
       });
       setConfirmationDialogOpen(false);
+      setShouldRefetch(false);
     } else if (deleteError && deleteError.statusCode !== 204) {
       openSnackbar(deleteError.description, "error");
     }
     setDebtCaseToDelete(null);
-  }, [
-    debtCaseToDelete?.id,
-    deleteError,
-    deletedData,
-    openSnackbar,
-    setCurrentDebtCases,
-  ]);
+  }, [deleteError, deletedData, openSnackbar, setCurrentDebtCases]);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -257,6 +266,11 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
 
   const handleDeleteConfirmed = async () => {
     deleteData();
+    setShouldRefetch(true);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
   const handleDeleteCancelled = () => {
@@ -299,12 +313,17 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
     </Grid>
   );
 
-  const groupedDebtCases = debtCaseData?.reduce((acc, debtCase) => {
-    const status = debtCase.debtCaseStatus.status.toLowerCase();
-    acc[status] = acc[status] || [];
-    acc[status].push(debtCase);
-    return acc;
-  }, {} as Record<string, IDebtCase[]>);
+  const renderPaginationControls = () => (
+    <Pagination
+      className={classes.pagination}
+      count={totalPages}
+      page={currentPage}
+      onChange={(event, page) => handlePageChange(page)}
+      variant="outlined"
+      shape="rounded"
+      size="large"
+    />
+  );
 
   const renderAccordionSection = (
     title: string,
@@ -535,7 +554,7 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
             <Typography>Loading...</Typography>
           ) : (
             <Box>
-              {currentDebtCases &&
+              {paginatedCases &&
                 groupedDebtCases &&
                 Object.entries(groupedDebtCases).map(([status, cases]) =>
                   renderAccordionSection(
@@ -544,14 +563,14 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
                       : status.charAt(0).toUpperCase() +
                           status.slice(1) +
                           " Debt Cases",
-                    currentDebtCases.filter(
-                      (debtCase) =>
-                        debtCase.debtCaseStatus.status.toLowerCase() === status
-                    ),
+                    cases,
                     status,
                     highlightedCases
                   )
                 )}
+              <Box sx={{ textAlign: "center", marginTop: "20px" }}>
+                {renderPaginationControls()}
+              </Box>
             </Box>
           )}
           {debtCaseToDelete && (

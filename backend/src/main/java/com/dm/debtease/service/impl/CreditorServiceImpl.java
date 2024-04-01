@@ -7,7 +7,6 @@ import com.dm.debtease.model.Role;
 import com.dm.debtease.model.dto.CreditorDTO;
 import com.dm.debtease.repository.CreditorRepository;
 import com.dm.debtease.repository.CustomUserRepository;
-import com.dm.debtease.repository.RoleRepository;
 import com.dm.debtease.service.CreditorService;
 import com.dm.debtease.service.DebtCaseService;
 import com.dm.debtease.service.PasswordGeneratorService;
@@ -25,7 +24,6 @@ import java.util.Optional;
 public class CreditorServiceImpl implements CreditorService {
     private final CreditorRepository creditorRepository;
     private final CustomUserRepository customUserRepository;
-    private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final PasswordGeneratorService passwordGeneratorService;
     private final DebtCaseService debtCaseService;
@@ -81,12 +79,10 @@ public class CreditorServiceImpl implements CreditorService {
         creditor.setPhoneNumber(creditorDTO.getPhoneNumber());
         creditor.setEmail(creditorDTO.getEmail());
         creditor.setAccountNumber(creditorDTO.getAccountNumber());
-        Role role = roleRepository.findById(3)
-                .orElseThrow(() -> new EntityNotFoundException(String.format(Constants.ROLE_NOT_FOUND, "3")));
         CustomUser customUser = new CustomUser();
         customUser.setUsername(!creditorDTO.getUsername().isEmpty() ? creditorDTO.getUsername() : creditor.getName());
         customUser.setPassword(bCryptPasswordEncoder.encode(passwordGeneratorService.generatePassword(8)));
-        customUser.setRole(role);
+        customUser.setRole(Role.ADMIN);
         customUserRepository.save(customUser);
         creditor.setUser(customUser);
         return creditorRepository.save(creditor);

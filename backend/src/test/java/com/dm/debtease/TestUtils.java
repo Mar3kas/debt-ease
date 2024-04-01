@@ -46,7 +46,7 @@ public class TestUtils {
         creditor.setAddress(address);
         creditor.setPhoneNumber(phoneNumber);
         creditor.setAccountNumber(accountNumber);
-        creditor.setUser(setupCustomUserTestData(username, "password", "role", 1));
+        creditor.setUser(setupCustomUserTestData(username, "password", Role.CREDITOR));
         return creditor;
     }
 
@@ -94,25 +94,12 @@ public class TestUtils {
         return debtorDTO;
     }
 
-    public static CustomUser setupCustomUserTestData(String username, String password, String role, int roleId) {
+    public static CustomUser setupCustomUserTestData(String username, String password, Role role) {
         CustomUser customUser = new CustomUser();
         customUser.setUsername(username);
         customUser.setPassword(password);
-        customUser.setRole(setupRoleTestData(role, roleId));
+        customUser.setRole(role);
         return customUser;
-    }
-
-    public static Role setupRoleTestData(String roleName, int roleId) {
-        Role role = new Role();
-        role.setId(roleId);
-        role.setName(roleName);
-        return role;
-    }
-
-    public static DebtCaseStatus setupDebtCaseStatusTestData(String status) {
-        DebtCaseStatus debtCaseStatus = new DebtCaseStatus();
-        debtCaseStatus.setStatus(status);
-        return debtCaseStatus;
     }
 
     public static DebtCaseType setupDebtCaseTypeTestData(String type) {
@@ -135,7 +122,7 @@ public class TestUtils {
     public static DebtCase setupDebtCaseTestData(String creditorUsername, int creditorId, String debtorName,
                                                  String debtorSurname,
                                                  String debtorEmail, String debtorPhoneNumber, String type,
-                                                 String status,
+                                                 DebtCaseStatus status,
                                                  LocalDateTime dueDate, double lateInterestRate,
                                                  BigDecimal amountOwed, String debtorUsername) {
         DebtCase debtCase = new DebtCase();
@@ -145,7 +132,7 @@ public class TestUtils {
         debtCase.setDebtor(
                 setupDebtorTestData(debtorName, debtorSurname, debtorEmail, debtorPhoneNumber, debtorUsername));
         debtCase.setDebtCaseType(setupDebtCaseTypeTestData(type));
-        debtCase.setDebtCaseStatus(setupDebtCaseStatusTestData(status));
+        debtCase.setDebtCaseStatus(status);
         debtCase.setOutstandingBalance(BigDecimal.TEN);
         debtCase.setDueDate(dueDate);
         debtCase.setLateInterestRate(lateInterestRate);

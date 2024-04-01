@@ -53,7 +53,6 @@ public class DebtCaseServiceTest {
         String debtorEmail = "email@gmail.com";
         String debtorPhoneNumber = "+37067144213";
         String creditorUsername = "creditor123";
-        String status = "NEW";
         String typeToMatch = "DEFAULT_DEBT";
         LocalDateTime dueDate = LocalDateTime.parse(LocalDateTime.now().format(Constants.DATE_TIME_FORMATTER),
                 Constants.DATE_TIME_FORMATTER);
@@ -61,7 +60,7 @@ public class DebtCaseServiceTest {
         BigDecimal amountOwed = BigDecimal.valueOf(35.53);
         DebtCase expectedDebtCase =
                 TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname, debtorEmail,
-                        debtorPhoneNumber, typeToMatch, status, dueDate, lateInterestRate, amountOwed, debtorUsername);
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed, debtorUsername);
         when(debtCaseRepository.findById(id)).thenReturn(Optional.of(expectedDebtCase));
 
         DebtCase actualDebtCase = debtCaseService.getDebtCaseById(id);
@@ -72,8 +71,8 @@ public class DebtCaseServiceTest {
         Assertions.assertEquals(expectedDebtCase.getLateInterestRate(), actualDebtCase.getLateInterestRate());
         Assertions.assertEquals(expectedDebtCase.getDebtCaseType().getType(),
                 actualDebtCase.getDebtCaseType().getType());
-        Assertions.assertEquals(expectedDebtCase.getDebtCaseStatus().getStatus(),
-                actualDebtCase.getDebtCaseStatus().getStatus());
+        Assertions.assertEquals(expectedDebtCase.getDebtCaseStatus(),
+                actualDebtCase.getDebtCaseStatus());
         Assertions.assertEquals(expectedDebtCase.getDueDate(), actualDebtCase.getDueDate());
     }
 
@@ -101,7 +100,6 @@ public class DebtCaseServiceTest {
         String debtorEmail = "email@gmail.com";
         String debtorPhoneNumber = "+37067144213";
         String creditorUsername = "creditor123";
-        String status = "NEW";
         String typeToMatch = "DEFAULT_DEBT";
         LocalDateTime dueDate = LocalDateTime.parse(LocalDateTime.now().format(Constants.DATE_TIME_FORMATTER),
                 Constants.DATE_TIME_FORMATTER);
@@ -109,7 +107,7 @@ public class DebtCaseServiceTest {
         BigDecimal amountOwed = BigDecimal.valueOf(35.53);
         DebtCase expectedDebtCase =
                 TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname, debtorEmail,
-                        debtorPhoneNumber, typeToMatch, status, dueDate, lateInterestRate, amountOwed, debtorUsername);
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed, debtorUsername);
         when(debtCaseRepository.findByCreditor_User_Username(creditorUsername)).thenReturn(List.of(expectedDebtCase));
 
         List<DebtCase> actualDebtCases = debtCaseService.getDebtCasesByCreditorUsername(creditorUsername);
@@ -131,7 +129,6 @@ public class DebtCaseServiceTest {
         String debtorEmail = "email@gmail.com";
         String debtorPhoneNumber = "+37067144213";
         String creditorUsername = "creditor123";
-        String status = "NEW";
         String typeToMatch = "DEFAULT_DEBT";
         LocalDateTime dueDate = LocalDateTime.parse(LocalDateTime.now().format(Constants.DATE_TIME_FORMATTER),
                 Constants.DATE_TIME_FORMATTER);
@@ -139,7 +136,7 @@ public class DebtCaseServiceTest {
         BigDecimal amountOwed = BigDecimal.valueOf(35.53);
         DebtCase expectedDebtCase =
                 TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname, debtorEmail,
-                        debtorPhoneNumber, typeToMatch, status, dueDate, lateInterestRate, amountOwed, debtorUsername);
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed, debtorUsername);
         when(debtCaseRepository.findByDebtor_User_Username(debtorUsername)).thenReturn(List.of(expectedDebtCase));
 
         List<DebtCase> actualDebtCases = debtCaseService.getDebtCasesByDebtorUsername(debtorUsername);
@@ -164,7 +161,6 @@ public class DebtCaseServiceTest {
         String debtorEmail = "email@gmail.com";
         String debtorPhoneNumber = "+37067144213";
         String creditorUsername = "creditor123";
-        String status = "NEW";
         String typeToMatch = "DEFAULT_DEBT";
         LocalDateTime dueDate = LocalDateTime.parse(LocalDateTime.now().format(Constants.DATE_TIME_FORMATTER),
                 Constants.DATE_TIME_FORMATTER);
@@ -173,7 +169,7 @@ public class DebtCaseServiceTest {
         DebtCaseDTO debtCaseDTO = TestUtils.setupDebtCaseDTOTestData(editedAmountOwed, editedDueDate, typeId);
         DebtCase expectedDebtCase =
                 TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname, debtorEmail,
-                        debtorPhoneNumber, typeToMatch, status, dueDate, lateInterestRate, amountOwed, debtorUsername);
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed, debtorUsername);
         DebtCaseType expectedDebtCaseType = TestUtils.setupDebtCaseTypeTestData(typeToMatch);
         when(debtCaseRepository.findByIdAndCreditor_Id(id, creditorId)).thenReturn(Optional.of(new DebtCase()));
         when(debtCaseTypeService.getDebtCaseTypeById(typeId)).thenReturn(expectedDebtCaseType);
@@ -286,9 +282,8 @@ public class DebtCaseServiceTest {
         LocalDateTime dueDate = LocalDateTime.of(2024, 3, 22, 12, 0);
         LocalDateTime startTime = LocalDateTime.of(2024, 3, 20, 0, 0);
         LocalDateTime endTime = LocalDateTime.of(2024, 3, 25, 23, 59);
-        DebtCaseStatus status = TestUtils.setupDebtCaseStatusTestData("NEW");
         DebtCase debtCase = new DebtCase();
-        debtCase.setDebtCaseStatus(status);
+        debtCase.setDebtCaseStatus(DebtCaseStatus.NEW);
         debtCase.setDueDate(dueDate);
 
         Assertions.assertTrue(debtCaseService.isDebtCasePending(debtCase, startTime, endTime));
@@ -299,9 +294,8 @@ public class DebtCaseServiceTest {
         LocalDateTime dueDate = LocalDateTime.of(2024, 3, 19, 23, 59);
         LocalDateTime startTime = LocalDateTime.of(2024, 3, 20, 0, 0);
         LocalDateTime endTime = LocalDateTime.of(2024, 3, 25, 23, 59);
-        DebtCaseStatus status = TestUtils.setupDebtCaseStatusTestData("NEW");
         DebtCase debtCase = new DebtCase();
-        debtCase.setDebtCaseStatus(status);
+        debtCase.setDebtCaseStatus(DebtCaseStatus.NEW);
         debtCase.setDueDate(dueDate);
 
         Assertions.assertFalse(debtCaseService.isDebtCasePending(debtCase, startTime, endTime));
@@ -312,9 +306,8 @@ public class DebtCaseServiceTest {
         LocalDateTime dueDate = LocalDateTime.of(2024, 3, 26, 0, 1);
         LocalDateTime startTime = LocalDateTime.of(2024, 3, 20, 0, 0);
         LocalDateTime endTime = LocalDateTime.of(2024, 3, 25, 23, 59);
-        DebtCaseStatus status = TestUtils.setupDebtCaseStatusTestData("NEW");
         DebtCase debtCase = new DebtCase();
-        debtCase.setDebtCaseStatus(status);
+        debtCase.setDebtCaseStatus(DebtCaseStatus.NEW);
         debtCase.setDueDate(dueDate);
 
         Assertions.assertFalse(debtCaseService.isDebtCasePending(debtCase, startTime, endTime));
@@ -325,9 +318,8 @@ public class DebtCaseServiceTest {
         LocalDateTime dueDate = LocalDateTime.of(2024, 3, 22, 12, 0);
         LocalDateTime startTime = LocalDateTime.of(2024, 3, 20, 0, 0);
         LocalDateTime endTime = LocalDateTime.of(2024, 3, 25, 23, 59);
-        DebtCaseStatus status = TestUtils.setupDebtCaseStatusTestData("CLOSED");
         DebtCase debtCase = new DebtCase();
-        debtCase.setDebtCaseStatus(status);
+        debtCase.setDebtCaseStatus(DebtCaseStatus.CLOSED);
         debtCase.setDueDate(dueDate);
 
         Assertions.assertFalse(debtCaseService.isDebtCasePending(debtCase, startTime, endTime));

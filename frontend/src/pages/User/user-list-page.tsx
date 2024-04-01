@@ -23,6 +23,7 @@ import { useDelete, useGet } from "../../services/api-service";
 import useErrorHandling from "../../services/handle-responses";
 import { ICreditor } from "../../shared/models/Creditor";
 import { IDebtor } from "../../shared/models/Debtor";
+import ScrollToTopButton from "../../Components/ScrollTotop/scroll-top";
 
 const UserListPage: FC<IPage> = (props): ReactElement => {
   const navigate = useNavigate();
@@ -211,10 +212,17 @@ const UserListPage: FC<IPage> = (props): ReactElement => {
           backgroundColor: "#F8DE7E",
         },
       }}
-      onClick={() => setShowMore(showMore + 5)}
-      disabled={showMore >= data.length}
+      onClick={() =>
+        setShowMore((prev) => {
+          if (prev === data.length) {
+            return 3;
+          } else {
+            return data.length;
+          }
+        })
+      }
     >
-      Show More {label}
+      {showMore === data.length ? `Show Less ${label}` : `Show More ${label}`}
     </Button>
   );
 
@@ -370,6 +378,7 @@ const UserListPage: FC<IPage> = (props): ReactElement => {
                   </AccordionDetails>
                 </Accordion>
               ))}
+              <ScrollToTopButton />
             </Box>
           )}
           {userToDelete && (

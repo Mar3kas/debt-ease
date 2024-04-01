@@ -32,11 +32,11 @@ public class Creditor {
     @Column(name = "account_number", nullable = false)
     String accountNumber;
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @OneToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     CustomUser user;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne()
     @JoinColumn(name = "company_id", nullable = false)
     CompanyInformation company;
 }

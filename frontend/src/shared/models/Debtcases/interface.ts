@@ -1,5 +1,4 @@
 import { ICreditor } from "../Creditor";
-import { IDebtCaseStatus } from "../DebtCaseStatus";
 import { IDebtCaseType } from "../DebtCaseType";
 import { IDebtor } from "../Debtor";
 
@@ -12,7 +11,7 @@ export interface IDebtCase {
   createdDate: string;
   modifiedDate?: string;
   debtCaseType: IDebtCaseType;
-  debtCaseStatus: IDebtCaseStatus;
+  debtCaseStatus: string;
   creditor: ICreditor;
   debtor: IDebtor;
 }

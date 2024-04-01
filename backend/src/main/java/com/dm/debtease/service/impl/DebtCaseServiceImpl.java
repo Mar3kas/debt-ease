@@ -1,6 +1,7 @@
 package com.dm.debtease.service.impl;
 
 import com.dm.debtease.model.DebtCase;
+import com.dm.debtease.model.DebtCaseStatus;
 import com.dm.debtease.model.dto.DebtCaseDTO;
 import com.dm.debtease.repository.DebtCaseRepository;
 import com.dm.debtease.service.DebtCaseService;
@@ -99,6 +100,6 @@ public class DebtCaseServiceImpl implements DebtCaseService {
     public boolean isDebtCasePending(DebtCase debtCase, LocalDateTime startTime, LocalDateTime endTime) {
         return debtCase.getDueDate().isAfter(startTime)
                 && debtCase.getDueDate().isBefore(endTime)
-                && "NEW".equals(debtCase.getDebtCaseStatus().getStatus());
+                && DebtCaseStatus.NEW.equals(debtCase.getDebtCaseStatus());
     }
 }

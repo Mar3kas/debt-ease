@@ -2,6 +2,7 @@ package com.dm.debtease.service;
 
 import com.dm.debtease.TestUtils;
 import com.dm.debtease.model.DebtCase;
+import com.dm.debtease.model.DebtCaseStatus;
 import com.dm.debtease.service.impl.PDFServiceImpl;
 import com.dm.debtease.utils.Constants;
 import com.itextpdf.text.pdf.PdfReader;
@@ -52,7 +53,6 @@ public class PDFServiceTest {
         String debtorEmail = "email@gmail.com";
         String debtorPhoneNumber = "+37067144213";
         String creditorUsername = "creditor123";
-        String status = "NEW";
         String typeToMatch = "DEFAULT_DEBT";
         LocalDateTime dueDate = LocalDateTime.parse(LocalDateTime.now().format(Constants.DATE_TIME_FORMATTER),
                 Constants.DATE_TIME_FORMATTER);
@@ -61,7 +61,7 @@ public class PDFServiceTest {
         int id = 1;
         List<DebtCase> expectedDebtCases =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, id, debtorName, debtorSurname, debtorEmail,
-                        debtorPhoneNumber, typeToMatch, status, dueDate, lateInterestRate, amountOwed, debtorUsername));
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed, debtorUsername));
 
         when(debtCaseService.getDebtCasesByDebtorUsername(debtorUsername)).thenReturn(expectedDebtCases);
         ByteArrayInputStream pdfStream = pdfService.generatePdf(debtorUsername);
@@ -91,7 +91,6 @@ public class PDFServiceTest {
         String debtorEmail = "email@gmail.com";
         String debtorPhoneNumber = "+37067144213";
         String creditorUsername = "creditor123";
-        String status = "NEW";
         String typeToMatch = "DEFAULT_DEBT";
         LocalDateTime dueDate = LocalDateTime.parse(LocalDateTime.now().format(Constants.DATE_TIME_FORMATTER),
                 Constants.DATE_TIME_FORMATTER);
@@ -100,7 +99,7 @@ public class PDFServiceTest {
         int id = 1;
         List<DebtCase> expectedDebtCases =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, id, debtorName, debtorSurname, debtorEmail,
-                        debtorPhoneNumber, typeToMatch, status, dueDate, lateInterestRate, amountOwed, username));
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed, username));
 
         PieChart pieChart = pdfService.generatePieDiagram(expectedDebtCases);
 

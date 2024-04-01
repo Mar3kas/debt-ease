@@ -1,6 +1,7 @@
 package com.dm.debtease.scheduler;
 
 import com.dm.debtease.model.DebtCase;
+import com.dm.debtease.model.DebtCaseStatus;
 import com.dm.debtease.repository.DebtCaseRepository;
 import com.dm.debtease.service.DebtCaseService;
 import com.dm.debtease.service.EmailService;
@@ -43,7 +44,7 @@ public class Scheduler {
         log.info("Starting cron job scheduler for email notification each month 20th day!");
         List<DebtCase> debtCases = debtCaseService.getAllDebtCases();
         for (DebtCase debtCase : debtCases) {
-            if (!"CLOSED".equals(debtCase.getDebtCaseStatus().getStatus())) {
+            if (!DebtCaseStatus.CLOSED.equals(debtCase.getDebtCaseStatus())) {
                 emailService.sendNotificationEmail(debtCase);
             }
         }

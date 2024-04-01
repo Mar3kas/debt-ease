@@ -3,11 +3,9 @@ package com.dm.debtease.service;
 import com.dm.debtease.TestUtils;
 import com.dm.debtease.model.Creditor;
 import com.dm.debtease.model.CustomUser;
-import com.dm.debtease.model.Role;
 import com.dm.debtease.model.dto.CreditorDTO;
 import com.dm.debtease.repository.CreditorRepository;
 import com.dm.debtease.repository.CustomUserRepository;
-import com.dm.debtease.repository.RoleRepository;
 import com.dm.debtease.service.impl.CreditorServiceImpl;
 import com.dm.debtease.utils.Constants;
 import jakarta.persistence.EntityNotFoundException;
@@ -32,8 +30,6 @@ public class CreditorServiceTest {
     private CreditorRepository creditorRepository;
     @Mock
     private CustomUserRepository customUserRepository;
-    @Mock
-    private RoleRepository roleRepository;
     @Mock
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     @Mock
@@ -168,8 +164,6 @@ public class CreditorServiceTest {
         CreditorDTO creditorDTO = TestUtils.setupCreditorDTOTestData(name, email, address, phoneNumber, accountNumber);
         Creditor createdCreditor =
                 TestUtils.setupCreditorTestData(name, email, address, phoneNumber, accountNumber, username);
-        Role role = TestUtils.setupRoleTestData(roleName, roleId);
-        when(roleRepository.findById(roleId)).thenReturn(Optional.of(role));
         when(customUserRepository.save(any(CustomUser.class))).thenReturn(new CustomUser());
         when(passwordGeneratorService.generatePassword(anyInt())).thenReturn("generatedPassword");
         when(bCryptPasswordEncoder.encode(any(String.class))).thenReturn("encodedPassword");
@@ -183,25 +177,6 @@ public class CreditorServiceTest {
         Assertions.assertEquals(createdCreditor.getAddress(), actualCreatedCreditor.getAddress());
         Assertions.assertEquals(createdCreditor.getPhoneNumber(), actualCreatedCreditor.getPhoneNumber());
         Assertions.assertEquals(createdCreditor.getAccountNumber(), actualCreatedCreditor.getAccountNumber());
-    }
-
-    @Test
-    void createCreditor_WhenRoleIsNotFound_ShouldThrowException() {
-        String name = "name";
-        String email = "email@gmail.com";
-        String address = "address";
-        String phoneNumber = "+37067144213";
-        String accountNumber = "accountNumber";
-        CreditorDTO creditorDTO = TestUtils.setupCreditorDTOTestData(name, email, address, phoneNumber, accountNumber);
-        when(roleRepository.findById(3)).thenReturn(Optional.empty());
-
-        EntityNotFoundException thrown = Assertions.assertThrows(
-                EntityNotFoundException.class,
-                () -> creditorService.createCreditor(creditorDTO),
-                "Expected createCreditor to throw EntityNotFoundException when role not found"
-        );
-
-        Assertions.assertTrue(thrown.getMessage().contains(String.format(Constants.ROLE_NOT_FOUND, "3")));
     }
 
     @Test

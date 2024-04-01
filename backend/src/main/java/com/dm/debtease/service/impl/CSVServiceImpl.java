@@ -29,7 +29,6 @@ import java.util.Optional;
 @Service
 public class CSVServiceImpl implements CSVService {
     private final DebtCaseTypeService debtCaseTypeService;
-    private final DebtCaseStatusService debtCaseStatusService;
     private final DebtCaseService debtCaseService;
     private final CreditorService creditorService;
     private final DebtorService debtorService;
@@ -41,7 +40,6 @@ public class CSVServiceImpl implements CSVService {
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         validateCsvFile(fileName);
         Creditor creditor = creditorService.getCreditorByUsername(username);
-        DebtCaseStatus debtCaseStatus = debtCaseStatusService.getDebtCaseStatusById(1);
         log.info("Reading csv file");
         try (CSVReader reader = buildCsvReader(file)) {
             String[] line;
@@ -60,7 +58,7 @@ public class CSVServiceImpl implements CSVService {
                 Optional<DebtCase> existingDebtCase =
                         debtCaseService.findExistingDebtCase(username, line[5], line[7], typeToMatch, line[0], line[1]);
                 DebtCase debtCase =
-                        createOrUpdateDebtCase(debtor, creditor, debtCaseStatus, line, existingDebtCase, typeToMatch);
+                        createOrUpdateDebtCase(debtor, creditor, line, existingDebtCase, typeToMatch);
                 log.info(String.format("sending %s to kafka topic", debtCase));
                 kafkaTemplate.send("base-debt-case-topic", debtCase);
             }
@@ -81,8 +79,8 @@ public class CSVServiceImpl implements CSVService {
                 .build();
     }
 
-    private DebtCase createOrUpdateDebtCase(Debtor debtor, Creditor creditor, DebtCaseStatus debtCaseStatus,
-                                            String[] line, Optional<DebtCase> existingDebtCase, String typeToMatch) {
+    private DebtCase createOrUpdateDebtCase(Debtor debtor, Creditor creditor, String[] line,
+                                            Optional<DebtCase> existingDebtCase, String typeToMatch) {
         DebtCase debtCase;
         if (existingDebtCase.isPresent()) {
             debtCase = existingDebtCase.get();
@@ -95,7 +93,7 @@ public class CSVServiceImpl implements CSVService {
             debtCase = new DebtCase();
             debtCase.setCreditor(creditor);
             debtCase.setDebtor(debtor);
-            debtCase.setDebtCaseStatus(debtCaseStatus);
+            debtCase.setDebtCaseStatus(DebtCaseStatus.NEW);
             debtCase.setAmountOwed(new BigDecimal(line[5]));
             debtCase.setOutstandingBalance(BigDecimal.ZERO);
             debtCase.setLateInterestRate(Double.parseDouble(line[6]));

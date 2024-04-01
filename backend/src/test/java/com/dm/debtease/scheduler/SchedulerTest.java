@@ -2,6 +2,7 @@ package com.dm.debtease.scheduler;
 
 import com.dm.debtease.TestUtils;
 import com.dm.debtease.model.DebtCase;
+import com.dm.debtease.model.DebtCaseStatus;
 import com.dm.debtease.repository.DebtCaseRepository;
 import com.dm.debtease.service.DebtCaseService;
 import com.dm.debtease.service.EmailService;
@@ -46,7 +47,6 @@ public class SchedulerTest {
         String debtorEmail = "email@gmail.com";
         String debtorPhoneNumber = "+37067144213";
         String creditorUsername = "creditor123";
-        String status = "NEW";
         String typeToMatch = "DEFAULT_DEBT";
         LocalDateTime dueDate =
                 LocalDateTime.parse(LocalDateTime.now().plusDays(1).format(Constants.DATE_TIME_FORMATTER),
@@ -56,7 +56,7 @@ public class SchedulerTest {
         int id = 1;
         List<DebtCase> expectedDebtCases =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, id, debtorName, debtorSurname, debtorEmail,
-                        debtorPhoneNumber, typeToMatch, status, dueDate, lateInterestRate, amountOwed, debtorUsername));
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed, debtorUsername));
         when(debtCaseService.getAllDebtCases()).thenReturn(expectedDebtCases);
         when(debtCaseService.isDebtCasePending(any(DebtCase.class), any(LocalDateTime.class),
                 any(LocalDateTime.class))).thenReturn(true);
@@ -74,7 +74,6 @@ public class SchedulerTest {
         String debtorEmail = "email@gmail.com";
         String debtorPhoneNumber = "+37067144213";
         String creditorUsername = "creditor123";
-        String status = "NEW";
         String typeToMatch = "DEFAULT_DEBT";
         LocalDateTime dueDate =
                 LocalDateTime.parse(LocalDateTime.now().plusDays(1).format(Constants.DATE_TIME_FORMATTER),
@@ -84,7 +83,7 @@ public class SchedulerTest {
         int id = 1;
         List<DebtCase> expectedDebtCases =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, id, debtorName, debtorSurname, debtorEmail,
-                        debtorPhoneNumber, typeToMatch, status, dueDate, lateInterestRate, amountOwed, debtorUsername));
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed, debtorUsername));
         when(debtCaseService.getAllDebtCases()).thenReturn(expectedDebtCases);
 
         scheduler.emailNotificationEachMonth20DayScheduler();
@@ -100,7 +99,6 @@ public class SchedulerTest {
         String debtorEmail = "email@gmail.com";
         String debtorPhoneNumber = "+37067144213";
         String creditorUsername = "creditor123";
-        String status = "NEW";
         String typeToMatch = "DEFAULT_DEBT";
         LocalDateTime currentDate = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
         LocalDateTime dueDate =
@@ -111,7 +109,7 @@ public class SchedulerTest {
         int id = 1;
         List<DebtCase> expectedDebtCases =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, id, debtorName, debtorSurname, debtorEmail,
-                        debtorPhoneNumber, typeToMatch, status, dueDate, lateInterestRate, amountOwed, debtorUsername));
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed, debtorUsername));
         when(debtCaseRepository.findByDueDateLessThanEqual(currentDate)).thenReturn(Optional.of(expectedDebtCases));
 
         scheduler.calculateOutstandingBalanceScheduler();

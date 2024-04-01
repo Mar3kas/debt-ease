@@ -59,7 +59,10 @@ public class DebtCaseConsumer {
 
     private DebtCase enrich(DebtCase debtCase) {
         CompanyInformation companyInformation = companyInformationRepository.findByNameContainingIgnoreCase(debtCase.getCreditor().getName());
-        debtCase.getCreditor().setCompany(companyInformation);
+        if (debtCase.getCreditor().getCompany() == null)
+        {
+            debtCase.getCreditor().setCompany(companyInformation);
+        }
         String phoneNumber = fixPhoneNumberFormat(debtCase.getDebtor().getPhoneNumber());
         return validatePhoneNumber(phoneNumber, debtCase);
     }

@@ -26,7 +26,7 @@ public class CustomUser {
     @JsonIgnore
     String password;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "role_id", nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
     Role role;
 }

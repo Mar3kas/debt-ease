@@ -29,8 +29,6 @@ public class CSVServiceTest {
     @Mock
     DebtCaseTypeService debtCaseTypeService;
     @Mock
-    DebtCaseStatusService debtCaseStatusService;
-    @Mock
     DebtCaseService debtCaseService;
     @Mock
     CreditorService creditorService;
