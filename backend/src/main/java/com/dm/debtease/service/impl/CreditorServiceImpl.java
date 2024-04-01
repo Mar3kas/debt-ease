@@ -82,7 +82,7 @@ public class CreditorServiceImpl implements CreditorService {
         CustomUser customUser = new CustomUser();
         customUser.setUsername(!creditorDTO.getUsername().isEmpty() ? creditorDTO.getUsername() : creditor.getName());
         customUser.setPassword(bCryptPasswordEncoder.encode(passwordGeneratorService.generatePassword(8)));
-        customUser.setRole(Role.ADMIN);
+        customUser.setRole(Role.CREDITOR);
         customUserRepository.save(customUser);
         creditor.setUser(customUser);
         return creditorRepository.save(creditor);
