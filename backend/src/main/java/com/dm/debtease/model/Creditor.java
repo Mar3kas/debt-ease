@@ -32,7 +32,7 @@ public class Creditor {
     @Column(name = "account_number", nullable = false)
     String accountNumber;
 
-    @OneToOne(cascade = CascadeType.REMOVE)
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     CustomUser user;
 

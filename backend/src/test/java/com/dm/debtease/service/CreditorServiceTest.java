@@ -2,10 +2,8 @@ package com.dm.debtease.service;
 
 import com.dm.debtease.TestUtils;
 import com.dm.debtease.model.Creditor;
-import com.dm.debtease.model.CustomUser;
 import com.dm.debtease.model.dto.CreditorDTO;
 import com.dm.debtease.repository.CreditorRepository;
-import com.dm.debtease.repository.CustomUserRepository;
 import com.dm.debtease.service.impl.CreditorServiceImpl;
 import com.dm.debtease.utils.Constants;
 import jakarta.persistence.EntityNotFoundException;
@@ -21,15 +19,14 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("unused")
 public class CreditorServiceTest {
     @Mock
     private CreditorRepository creditorRepository;
-    @Mock
-    private CustomUserRepository customUserRepository;
     @Mock
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     @Mock
@@ -162,7 +159,6 @@ public class CreditorServiceTest {
         CreditorDTO creditorDTO = TestUtils.setupCreditorDTOTestData(name, email, address, phoneNumber, accountNumber);
         Creditor createdCreditor =
                 TestUtils.setupCreditorTestData(name, email, address, phoneNumber, accountNumber, username);
-        when(customUserRepository.save(any(CustomUser.class))).thenReturn(new CustomUser());
         when(bCryptPasswordEncoder.encode(any(String.class))).thenReturn("encodedPassword");
         when(creditorRepository.save(any(Creditor.class))).thenReturn(createdCreditor);
 

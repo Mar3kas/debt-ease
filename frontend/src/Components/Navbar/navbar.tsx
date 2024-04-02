@@ -135,7 +135,7 @@ const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
                   Users
                 </Button>
               )}
-              {currentPageUrl !== "/debtcases" && !isMobile && (
+              {currentPageUrl !== "/debt/cases" && !isMobile && (
                 <Button
                   sx={{
                     color: "black",
@@ -148,7 +148,7 @@ const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
                     },
                   }}
                   onClick={() => {
-                    navigate("/debtcases");
+                    navigate("/debt/cases");
                   }}
                 >
                   DebtCases

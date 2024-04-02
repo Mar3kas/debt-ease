@@ -45,7 +45,7 @@ const DebtCaseFormPage: FC<IPage> = (props): ReactElement => {
   const navigate = useNavigate();
 
   const { data: debtCaseData, error: debtCaseError } = useGet<IDebtCase>(
-    "debtcases/{id}",
+    "debt/cases/{id}",
     { id: Number(debtcaseId) },
     false,
     true
@@ -53,13 +53,13 @@ const DebtCaseFormPage: FC<IPage> = (props): ReactElement => {
 
   const { data: debtCaseTypeData, error: debtCaseTypeError } = useGet<
     IDebtCaseType[]
-  >("debtcase/types", {}, false, true);
+  >("debt/case/types", {}, false, true);
 
   const {
     data: editDebtCaseData,
     error: editDebtCaseError,
     editData: editDataDebtCase,
-  } = useEdit<IDebtCaseDTO>("debtcases/{debtcaseId}/creditors/{creditorId}", {
+  } = useEdit<IDebtCaseDTO>("debt/cases/{debtcaseId}/creditors/{creditorId}", {
     debtcaseId: Number(debtcaseId),
     creditorId: Number(creditorId),
   });
@@ -135,7 +135,7 @@ const DebtCaseFormPage: FC<IPage> = (props): ReactElement => {
       snackbar(error.message, "error");
     } else if (Object.keys(fieldErrors).length === 0 && editCompleted) {
       setFieldErrors({});
-      navigate("/debtcases");
+      navigate("/debt/cases");
       openSnackbar("Debt Case edited successfully", "success");
     }
   };
@@ -439,7 +439,7 @@ const DebtCaseFormPage: FC<IPage> = (props): ReactElement => {
                   backgroundColor: "#F8DE7E",
                 },
               }}
-              onClick={() => navigate("/debtcases")}
+              onClick={() => navigate("/debt/cases")}
             >
               Cancel
             </Button>

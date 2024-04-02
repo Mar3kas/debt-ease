@@ -34,7 +34,7 @@ import java.util.List;
 @CrossOrigin
 @RequiredArgsConstructor
 @SecurityRequirement(name = "dmapi")
-@RequestMapping(value = "/api/debtcases")
+@RequestMapping(value = "/api/debt/cases")
 @SuppressWarnings("unused")
 public class DebtCaseController {
     private final DebtCaseService debtCaseService;

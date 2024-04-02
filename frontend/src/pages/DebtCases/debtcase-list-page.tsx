@@ -62,11 +62,11 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
   const roleSpecificEndpoint = (() => {
     switch (role) {
       case "CREDITOR":
-        return `debtcases/creditor/${username}`;
+        return `debt/cases/creditor/${username}`;
       case "DEBTOR":
-        return `debtcases/debtor/${username}`;
+        return `debt/cases/debtor/${username}`;
       case "ADMIN":
-        return "debtcases";
+        return "debt/cases";
       default:
         return "";
     }
@@ -76,7 +76,7 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
     data: deletedData,
     error: deleteError,
     deleteData,
-  } = useDelete<any>("debtcases/{id}/creditors/{creditorId}", {
+  } = useDelete<any>("debt/cases/{id}/creditors/{creditorId}", {
     creditorId: debtCaseToDelete?.creditorId,
     id: debtCaseToDelete?.id,
   });
@@ -85,7 +85,7 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
     data: fileData,
     error: fileError,
     postData,
-  } = usePost<FormData>("debtcases/creditors/{username}/file", {
+  } = usePost<FormData>("debt/cases/creditors/{username}/file", {
     username: username,
   });
 
@@ -106,7 +106,7 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
     error: pdfError,
     getData,
   } = useGet<any>(
-    "debtcases/generate/report/debtor/{username}",
+    "debt/cases/generate/report/debtor/{username}",
     {
       username: username,
     },
@@ -149,40 +149,42 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
   }, [creditorId, debtCaseData, role, username]);
 
   useEffect(() => {
-    const webSocketService = WebSocketService.getInstance(
-      "http://localhost:8080/ws"
-    );
-    webSocketService.subscribe(
-      `/user/${username}/topic/enriched-debt-cases`,
-      (message) => {
-        const debtCase: IDebtCase = message;
-        setCurrentDebtCases((prevDebtCases) => {
-          const caseExists = prevDebtCases?.some(
-            (existingCase) => existingCase.id === debtCase.id
-          );
-          if (!caseExists) {
-            setHighlightedCases((prevCases) => [...prevCases, debtCase.id]);
-            setTimeout(() => {
-              setHighlightedCases((prevCases) =>
-                prevCases.filter((id) => id !== debtCase.id)
-              );
-            }, 5000);
-            return [...(prevDebtCases || []), debtCase];
-          } else {
-            openSnackbar(
-              `Enriched ${transformDebtType(
-                debtCase.debtCaseType.type
-              )} debt case for ${debtCase.debtor.name} ${
-                debtCase.debtor.surname
-              } already exists`,
-              "warning"
+    if (role === "CREDITOR") {
+      const webSocketService = WebSocketService.getInstance(
+        "http://localhost:8080/ws"
+      );
+      webSocketService.subscribe(
+        `/user/${username}/topic/enriched-debt-cases`,
+        (message) => {
+          const debtCase: IDebtCase = message;
+          setCurrentDebtCases((prevDebtCases) => {
+            const caseExists = prevDebtCases?.some(
+              (existingCase) => existingCase.id === debtCase.id
             );
-          }
-          return prevDebtCases;
-        });
-      }
-    );
-  }, [openSnackbar, username]);
+            if (!caseExists) {
+              setHighlightedCases((prevCases) => [...prevCases, debtCase.id]);
+              setTimeout(() => {
+                setHighlightedCases((prevCases) =>
+                  prevCases.filter((id) => id !== debtCase.id)
+                );
+              }, 5000);
+              return [...(prevDebtCases || []), debtCase];
+            } else {
+              openSnackbar(
+                `Enriched ${transformDebtType(
+                  debtCase.debtCaseType.type
+                )} debt case for ${debtCase.debtor.name} ${
+                  debtCase.debtor.surname
+                } already exists`,
+                "warning"
+              );
+            }
+            return prevDebtCases;
+          });
+        }
+      );
+    }
+  }, [openSnackbar, role, username]);
 
   useEffect(() => {
     if (downloadPdf && !fileLoading && !pdfError) {
@@ -256,7 +258,7 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
   };
 
   const handleEdit = (creditorId: number, id: number) => {
-    navigate(`/debtcases/${id}/creditor/${creditorId}`);
+    navigate(`/debt/cases/${id}/creditor/${creditorId}`);
   };
 
   const handleDelete = (creditorId: number, id: number) => {

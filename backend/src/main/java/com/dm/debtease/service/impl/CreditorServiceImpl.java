@@ -6,7 +6,6 @@ import com.dm.debtease.model.DebtCase;
 import com.dm.debtease.model.Role;
 import com.dm.debtease.model.dto.CreditorDTO;
 import com.dm.debtease.repository.CreditorRepository;
-import com.dm.debtease.repository.CustomUserRepository;
 import com.dm.debtease.service.CreditorService;
 import com.dm.debtease.service.DebtCaseService;
 import com.dm.debtease.utils.Constants;
@@ -22,7 +21,6 @@ import java.util.Optional;
 @Service
 public class CreditorServiceImpl implements CreditorService {
     private final CreditorRepository creditorRepository;
-    private final CustomUserRepository customUserRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final DebtCaseService debtCaseService;
 
@@ -81,7 +79,6 @@ public class CreditorServiceImpl implements CreditorService {
         customUser.setUsername(!creditorDTO.getUsername().isEmpty() ? creditorDTO.getUsername() : creditor.getName());
         customUser.setPassword(bCryptPasswordEncoder.encode(!creditorDTO.getPassword().isEmpty() ? creditorDTO.getPassword() : creditor.getName()));
         customUser.setRole(Role.CREDITOR);
-        customUserRepository.save(customUser);
         creditor.setUser(customUser);
         return creditorRepository.save(creditor);
     }

@@ -23,7 +23,7 @@ public class Admin {
     @Column(name = "surname", nullable = false)
     String surname;
 
-    @OneToOne(cascade = CascadeType.REMOVE)
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     CustomUser user;
 }

@@ -18,7 +18,7 @@ import java.util.List;
 @CrossOrigin
 @RequiredArgsConstructor
 @SecurityRequirement(name = "dmapi")
-@RequestMapping(value = "/api/debtcase/types")
+@RequestMapping(value = "/api/debt/case/types")
 @SuppressWarnings("unused")
 public class DebtCaseTypeController {
     private final DebtCaseTypeService debtCaseTypeService;

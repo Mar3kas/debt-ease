@@ -29,11 +29,11 @@ public class Debtor {
     @Column(name = "phone_number")
     String phoneNumber;
 
-    @OneToOne(cascade = CascadeType.REMOVE)
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     @JoinColumn(name = "verified_phone_number_information_id")
     VerifiedPhoneNumberInformation verifiedPhoneNumberInformation;
 
-    @OneToOne(cascade = CascadeType.REMOVE)
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     @JoinColumn(name = "user_id", unique = true)
     CustomUser user;
 }

@@ -3,10 +3,7 @@ package com.dm.debtease.kafka.consumer;
 import com.dm.debtease.model.CompanyInformation;
 import com.dm.debtease.model.DebtCase;
 import com.dm.debtease.model.VerifiedPhoneNumberInformation;
-import com.dm.debtease.repository.CompanyInformationRepository;
-import com.dm.debtease.repository.DebtCaseRepository;
-import com.dm.debtease.repository.DebtorRepository;
-import com.dm.debtease.repository.VerifiedPhoneNumberInformationRepository;
+import com.dm.debtease.repository.*;
 import com.dm.debtease.service.EmailService;
 import com.dm.debtease.utils.Constants;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +27,8 @@ import java.util.Map;
 @SuppressWarnings("unused")
 public class DebtCaseConsumer {
     private final DebtCaseRepository debtCaseRepository;
+    private final CreditorRepository creditorRepository;
     private final DebtorRepository debtorRepository;
-    private final VerifiedPhoneNumberInformationRepository verifiedPhoneNumberInformationRepository;
     private final CompanyInformationRepository companyInformationRepository;
     private final SimpMessagingTemplate messagingTemplate;
     private final EmailService emailService;
@@ -62,9 +59,10 @@ public class DebtCaseConsumer {
 
     private DebtCase enrich(DebtCase debtCase) {
         CompanyInformation companyInformation = companyInformationRepository.findByNameContainingIgnoreCase(debtCase.getCreditor().getName());
-        if (debtCase.getCreditor().getCompany() == null)
+        if (debtCase.getCreditor().getCompany() == null || !debtCase.getCreditor().getCompany().equals(companyInformation))
         {
             debtCase.getCreditor().setCompany(companyInformation);
+            creditorRepository.save(debtCase.getCreditor());
         }
         String phoneNumber = fixPhoneNumberFormat(debtCase.getDebtor().getPhoneNumber());
         return validatePhoneNumber(phoneNumber, debtCase);
@@ -79,7 +77,6 @@ public class DebtCaseConsumer {
             verifiedPhoneNumberInformation.setLocation(jsonObject.getString("location"));
             verifiedPhoneNumberInformation.setCarrier(jsonObject.getString("carrier"));
             verifiedPhoneNumberInformation.setLineType(PHONE_FORMAT_MAP.get(jsonObject.getString("line_type")));
-            verifiedPhoneNumberInformation = verifiedPhoneNumberInformationRepository.save(verifiedPhoneNumberInformation);
             debtCase.getDebtor().setVerifiedPhoneNumberInformation(verifiedPhoneNumberInformation);
             debtorRepository.save(debtCase.getDebtor());
             return debtCase;

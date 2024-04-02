@@ -73,7 +73,7 @@ public class DebtCaseControllerTest {
                         debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed, debtorUsername));
         when(debtCaseService.getAllDebtCases()).thenReturn(mockedDebtCases);
 
-        MvcResult result = mockMvc.perform(get("/api/debtcases"))
+        MvcResult result = mockMvc.perform(get("/api/debt/cases"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(1)))
@@ -111,7 +111,7 @@ public class DebtCaseControllerTest {
                         debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed, debtorUsername);
         when(debtCaseService.getDebtCaseById(id)).thenReturn(mockedDebtCase);
 
-        MvcResult result = mockMvc.perform(get("/api/debtcases/{id}", id))
+        MvcResult result = mockMvc.perform(get("/api/debt/cases/{id}", id))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(id))
@@ -148,7 +148,7 @@ public class DebtCaseControllerTest {
                         debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed, debtorUsername));
         when(debtCaseService.getDebtCasesByCreditorUsername(creditorUsername)).thenReturn(mockedDebtCase);
 
-        MvcResult result = mockMvc.perform(get("/api/debtcases/creditor/{username}", creditorUsername))
+        MvcResult result = mockMvc.perform(get("/api/debt/cases/creditor/{username}", creditorUsername))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(1)))
@@ -187,7 +187,7 @@ public class DebtCaseControllerTest {
                         debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed, debtorUsername));
         when(debtCaseService.getDebtCasesByDebtorUsername(debtorUsername)).thenReturn(mockedDebtCase);
 
-        MvcResult result = mockMvc.perform(get("/api/debtcases/debtor/{username}", debtorUsername))
+        MvcResult result = mockMvc.perform(get("/api/debt/cases/debtor/{username}", debtorUsername))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(1)))
@@ -228,7 +228,7 @@ public class DebtCaseControllerTest {
                         debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed, debtorUsername);
         when(debtCaseService.editDebtCaseByIdAndCreditorId(any(DebtCaseDTO.class), anyInt(), anyInt())).thenReturn(expectedDebtCase);
 
-        MvcResult result = mockMvc.perform(put("/api/debtcases/{id}/creditors/{creditorId}", id, creditorId)
+        MvcResult result = mockMvc.perform(put("/api/debt/cases/{id}/creditors/{creditorId}", id, creditorId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(mockedDebtCaseDTO)))
                 .andExpect(status().isOk())
@@ -254,7 +254,7 @@ public class DebtCaseControllerTest {
         int creditorID = 1;
         when(debtCaseService.deleteDebtCaseByIdAndCreditorId(id, creditorID)).thenReturn(true);
 
-        MvcResult result = mockMvc.perform(delete("/api/debtcases/{id}/creditors/{creditorId}", id, creditorID))
+        MvcResult result = mockMvc.perform(delete("/api/debt/cases/{id}/creditors/{creditorId}", id, creditorID))
                 .andExpect(status().isNoContent())
                 .andDo(print())
                 .andReturn();
@@ -270,7 +270,7 @@ public class DebtCaseControllerTest {
         int creditorID = 1;
         when(debtCaseService.deleteDebtCaseByIdAndCreditorId(id, creditorID)).thenReturn(false);
 
-        MvcResult result = mockMvc.perform(delete("/api/debtcases/{id}/creditors/{creditorId}", id, creditorID))
+        MvcResult result = mockMvc.perform(delete("/api/debt/cases/{id}/creditors/{creditorId}", id, creditorID))
                 .andExpect(status().isBadRequest())
                 .andDo(print())
                 .andReturn();

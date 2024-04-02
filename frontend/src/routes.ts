@@ -52,7 +52,7 @@ export const routes: Route[] = [
   {
     key: "debtcase-list-page-route",
     title: "DebtCases",
-    path: "/debtcases",
+    path: "/debt/cases",
     enabled: true,
     component: DebtcaseListPage,
   },
@@ -87,7 +87,7 @@ export const routes: Route[] = [
   {
     key: "debtcase-form-page-route",
     title: "DebtCase Edit",
-    path: "/debtcases/:debtcaseId?/creditor/:creditorId?",
+    path: "/debt/cases/:debtcaseId?/creditor/:creditorId?",
     enabled: true,
     component: DebtCaseFormPage,
   },
