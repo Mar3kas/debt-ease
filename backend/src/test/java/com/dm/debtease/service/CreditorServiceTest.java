@@ -33,8 +33,6 @@ public class CreditorServiceTest {
     @Mock
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     @Mock
-    private PasswordGeneratorService passwordGeneratorService;
-    @Mock
     private DebtCaseService debtCaseService;
     @InjectMocks
     private CreditorServiceImpl creditorService;
@@ -165,7 +163,6 @@ public class CreditorServiceTest {
         Creditor createdCreditor =
                 TestUtils.setupCreditorTestData(name, email, address, phoneNumber, accountNumber, username);
         when(customUserRepository.save(any(CustomUser.class))).thenReturn(new CustomUser());
-        when(passwordGeneratorService.generatePassword(anyInt())).thenReturn("generatedPassword");
         when(bCryptPasswordEncoder.encode(any(String.class))).thenReturn("encodedPassword");
         when(creditorRepository.save(any(Creditor.class))).thenReturn(createdCreditor);
 

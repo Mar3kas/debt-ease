@@ -7,6 +7,7 @@ import com.dm.debtease.repository.CompanyInformationRepository;
 import com.dm.debtease.repository.DebtCaseRepository;
 import com.dm.debtease.repository.DebtorRepository;
 import com.dm.debtease.repository.VerifiedPhoneNumberInformationRepository;
+import com.dm.debtease.service.EmailService;
 import com.dm.debtease.utils.Constants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -33,6 +34,7 @@ public class DebtCaseConsumer {
     private final VerifiedPhoneNumberInformationRepository verifiedPhoneNumberInformationRepository;
     private final CompanyInformationRepository companyInformationRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final EmailService emailService;
 
     @Value("${spring.numverify.api.access-key}")
     private String numverifyAccessKey;
@@ -50,6 +52,7 @@ public class DebtCaseConsumer {
     public void consumeAndEnrich(DebtCase debtCase) {
         log.info(String.format("Consuming %s", debtCase));
         DebtCase enrichedDebtCase = debtCaseRepository.save(enrich(debtCase));
+        emailService.sendNotificationEmail(enrichedDebtCase);
         messagingTemplate.convertAndSendToUser(
                 enrichedDebtCase.getCreditor().getUser().getUsername(),
                 "/topic/enriched-debt-cases",

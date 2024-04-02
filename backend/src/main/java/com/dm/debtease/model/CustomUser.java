@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 @Getter
 @Setter
@@ -28,5 +30,6 @@ public class CustomUser {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     Role role;
 }

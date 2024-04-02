@@ -24,6 +24,7 @@ const CreditorCreationFormPage: FC<IPage> = ({
   const navigate = useNavigate();
   const { handleErrorResponse } = useErrorHandling();
   const [creationCompleted, setCreationCompleted] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // State to track password visibility
 
   const { data, error, postData } = usePost<ICreditorDTO>("creditors", {});
 
@@ -34,6 +35,7 @@ const CreditorCreationFormPage: FC<IPage> = ({
     email: { value: "", errorMessage: "" },
     accountNumber: { value: "", errorMessage: "" },
     username: { value: "", errorMessage: "" },
+    password: { value: "", errorMessage: "" },
   });
 
   useEffect(() => {
@@ -146,7 +148,7 @@ const CreditorCreationFormPage: FC<IPage> = ({
                   )
                   .join(" ")}
                 name={key}
-                type={key}
+                type={key === "password" && !showPassword ? "password" : "text"} // Set type to "text" only if password is visible
                 value={value}
                 onChange={handleChange}
                 error={errorMessage !== ""}
@@ -158,6 +160,22 @@ const CreditorCreationFormPage: FC<IPage> = ({
                 className={classes.textField}
               />
             ))}
+            <Button
+              sx={{
+                color: "black",
+                backgroundColor: "white",
+                border: "3px solid #8FBC8F",
+                "&:hover": {
+                  color: "black",
+                  backgroundColor: "#F8DE7E",
+                },
+                padding: "5px 5px",
+                fontSize: "10px",
+              }}
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? "Hide Password" : "Show Password"}
+            </Button>
           </Grid>
           <Grid container spacing={1} justifyContent="flex-end">
             <Box

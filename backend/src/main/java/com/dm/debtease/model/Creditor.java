@@ -37,6 +37,6 @@ public class Creditor {
     CustomUser user;
 
     @OneToOne()
-    @JoinColumn(name = "company_id", nullable = false)
+    @JoinColumn(name = "company_id")
     CompanyInformation company;
 }

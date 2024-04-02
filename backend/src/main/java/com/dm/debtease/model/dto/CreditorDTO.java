@@ -30,4 +30,5 @@ public class CreditorDTO {
     String accountNumber;
 
     String username = "";
+    String password = "";
 }

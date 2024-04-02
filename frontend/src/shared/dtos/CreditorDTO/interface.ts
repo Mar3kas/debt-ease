@@ -5,4 +5,5 @@ export interface ICreditorDTO {
   email?: string;
   accountNumber?: string;
   username?: string;
+  password?: string;
 }

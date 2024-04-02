@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -40,6 +42,7 @@ public class DebtCase {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "case_status")
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     DebtCaseStatus debtCaseStatus;
 
     @ManyToOne()

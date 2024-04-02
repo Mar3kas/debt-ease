@@ -9,7 +9,6 @@ import com.dm.debtease.repository.CreditorRepository;
 import com.dm.debtease.repository.CustomUserRepository;
 import com.dm.debtease.service.CreditorService;
 import com.dm.debtease.service.DebtCaseService;
-import com.dm.debtease.service.PasswordGeneratorService;
 import com.dm.debtease.utils.Constants;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +24,6 @@ public class CreditorServiceImpl implements CreditorService {
     private final CreditorRepository creditorRepository;
     private final CustomUserRepository customUserRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final PasswordGeneratorService passwordGeneratorService;
     private final DebtCaseService debtCaseService;
 
     @Override
@@ -81,7 +79,7 @@ public class CreditorServiceImpl implements CreditorService {
         creditor.setAccountNumber(creditorDTO.getAccountNumber());
         CustomUser customUser = new CustomUser();
         customUser.setUsername(!creditorDTO.getUsername().isEmpty() ? creditorDTO.getUsername() : creditor.getName());
-        customUser.setPassword(bCryptPasswordEncoder.encode(passwordGeneratorService.generatePassword(8)));
+        customUser.setPassword(bCryptPasswordEncoder.encode(!creditorDTO.getPassword().isEmpty() ? creditorDTO.getPassword() : creditor.getName()));
         customUser.setRole(Role.CREDITOR);
         customUserRepository.save(customUser);
         creditor.setUser(customUser);
