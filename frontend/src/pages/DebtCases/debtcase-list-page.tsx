@@ -521,7 +521,7 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
                   }}
                   onClick={handleDownloadPdf}
                 >
-                  Download generated report
+                  Download generated report for debt cases
                 </Button>
               </Grid>
             )}
@@ -540,7 +540,7 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
                       },
                     }}
                   >
-                    Upload
+                    Upload debt cases
                   </Button>
                 </label>
                 <input
