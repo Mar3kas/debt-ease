@@ -3,9 +3,11 @@ package com.dm.debtease.controller;
 import com.dm.debtease.exception.InvalidFileFormatException;
 import com.dm.debtease.model.DebtCase;
 import com.dm.debtease.model.dto.DebtCaseDTO;
+import com.dm.debtease.model.dto.PaymentRequestDTO;
 import com.dm.debtease.service.CSVService;
 import com.dm.debtease.service.DebtCaseService;
 import com.dm.debtease.service.PDFService;
+import com.dm.debtease.service.PaymentService;
 import com.dm.debtease.utils.Constants;
 import com.itextpdf.text.DocumentException;
 import com.opencsv.exceptions.CsvValidationException;
@@ -40,6 +42,7 @@ public class DebtCaseController {
     private final DebtCaseService debtCaseService;
     private final CSVService csvService;
     private final PDFService pdfService;
+    private final PaymentService paymentService;
 
     @GetMapping()
     public ResponseEntity<List<DebtCase>> getAllDebtCases() {
@@ -100,6 +103,18 @@ public class DebtCaseController {
         csvService.readCsvDataAndSendToKafka(file, username);
         return ResponseEntity.status(HttpStatus.CREATED).body("CSV uploaded successfully and debt cases are being enriched");
     }
+
+    @PostMapping(value = "/{id}/pay")
+    public ResponseEntity<String> payForDebtCase(@Valid @RequestBody PaymentRequestDTO paymentRequestDTO, BindingResult result,
+                                                 @Valid
+                                                 @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
+                                                 @PathVariable(name = "id") int id) {
+        if (paymentService.isPaymentMade(paymentRequestDTO, id)) {
+            return ResponseEntity.status(HttpStatus.OK).body("Payment was successful");
+        }
+        return ResponseEntity.badRequest().build();
+    }
+
 
     @DeleteMapping("/{id}/creditors/{creditorId}")
     public ResponseEntity<String> deleteDebtCaseById(@Valid

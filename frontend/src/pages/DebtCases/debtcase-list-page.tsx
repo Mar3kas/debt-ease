@@ -26,7 +26,7 @@ import { IDebtor } from "../../shared/models/Debtor";
 import WebSocketService from "../../services/websocket-service";
 import { ICreditor } from "../../shared/models/Creditor";
 
-const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
+const DebtCaseListPage: FC<IPage> = (props): ReactElement => {
   const classes = useStyles("light");
   const navigate = useNavigate();
   const role = localStorage.getItem("role");
@@ -261,6 +261,10 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
     navigate(`/debt/cases/${id}/creditor/${creditorId}`);
   };
 
+  const handlePay = (id: number) => {
+    navigate(`/debt/cases/${id}/pay`);
+  };
+
   const handleDelete = (creditorId: number, id: number) => {
     setDebtCaseToDelete({ creditorId, id });
     setConfirmationDialogOpen(true);
@@ -288,30 +292,42 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
     return `${year}${month}${day}`;
   };
 
-  const renderActionButtons = (creditorId: number, id: number) => (
+  const renderActionButtons = (
+    creditorId: number,
+    id: number,
+    status: String
+  ) => (
     <Grid container spacing={1} justifyContent="flex-end">
-      {["Edit", "Delete"].filter(Boolean).map((action) => (
-        <Grid item key={`${action}-${id}`}>
-          <Button
-            sx={{
-              color: "black",
-              backgroundColor: "white",
-              border: "3px solid #8FBC8F",
-              "&:hover": {
+      {[
+        role === "CREDITOR" || role === "ADMIN" ? "Edit" : null,
+        role === "CREDITOR" || role === "ADMIN" ? "Delete" : null,
+        role === "DEBTOR" && status !== "CLOSED" ? "Pay" : null,
+      ]
+        .filter(Boolean)
+        .map((action) => (
+          <Grid item key={`${action}-${id}`}>
+            <Button
+              sx={{
                 color: "black",
-                backgroundColor: "#F8DE7E",
-              },
-            }}
-            onClick={() =>
-              action === "Edit"
-                ? handleEdit(creditorId, id)
-                : handleDelete(creditorId, id)
-            }
-          >
-            {action}
-          </Button>
-        </Grid>
-      ))}
+                backgroundColor: "white",
+                border: "3px solid #8FBC8F",
+                "&:hover": {
+                  color: "black",
+                  backgroundColor: "#F8DE7E",
+                },
+              }}
+              onClick={() =>
+                action === "Edit"
+                  ? handleEdit(creditorId, id)
+                  : action === "Delete"
+                  ? handleDelete(creditorId, id)
+                  : handlePay(id)
+              }
+            >
+              {action}
+            </Button>
+          </Grid>
+        ))}
     </Grid>
   );
 
@@ -401,11 +417,13 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
                 {renderCreditorDetails(debtCase.creditor)}
               </Grid>
             </Grid>
-            {(role === "CREDITOR" || role === "ADMIN") && (
-              <Grid item xs={12}>
-                {renderActionButtons(debtCase.creditor.id, debtCase.id)}
-              </Grid>
-            )}
+            <Grid item xs={12}>
+              {renderActionButtons(
+                debtCase.creditor.id,
+                debtCase.id,
+                debtCase.debtCaseStatus
+              )}
+            </Grid>
           </AccordionDetails>
         </Accordion>
       ))}
@@ -521,7 +539,7 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
                   }}
                   onClick={handleDownloadPdf}
                 >
-                  Download generated report for debt cases
+                  Download debt report
                 </Button>
               </Grid>
             )}
@@ -627,4 +645,4 @@ const DebtcaseListPage: FC<IPage> = (props): ReactElement => {
   );
 };
 
-export default DebtcaseListPage;
+export default DebtCaseListPage;

@@ -26,4 +26,5 @@ public class Constants {
     public static final String GENERATED_PDF_DISCLAIMER =
             "Disclaimer: Please scroll down to see the debt case type distribution.";
     public static final long DELAY_BETWEEN_NUMVERIFY_REQUESTS = 1000;
+    public static final int STRIPE_AMOUNT_MULTIPLIER = 100;
 }

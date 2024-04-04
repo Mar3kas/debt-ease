@@ -7,6 +7,7 @@ import com.dm.debtease.model.dto.DebtCaseDTO;
 import com.dm.debtease.service.CSVService;
 import com.dm.debtease.service.DebtCaseService;
 import com.dm.debtease.service.PDFService;
+import com.dm.debtease.service.PaymentService;
 import com.dm.debtease.utils.Constants;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
@@ -44,6 +45,8 @@ public class DebtCaseControllerTest {
     private CSVService csvService;
     @Mock
     private PDFService pdfService;
+    @Mock
+    private PaymentService paymentService;
     @InjectMocks
     private DebtCaseController debtCaseController;
     private MockMvc mockMvc;

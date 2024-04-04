@@ -1,4 +1,4 @@
-package com.dm.debtease.config;
+package com.dm.debtease.config.mail;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

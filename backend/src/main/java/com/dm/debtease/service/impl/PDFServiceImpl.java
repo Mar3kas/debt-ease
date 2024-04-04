@@ -3,6 +3,7 @@ package com.dm.debtease.service.impl;
 import com.dm.debtease.model.DebtCase;
 import com.dm.debtease.model.DebtCaseStatus;
 import com.dm.debtease.service.DebtCaseService;
+import com.dm.debtease.service.DebtCaseTypeService;
 import com.dm.debtease.service.PDFService;
 import com.dm.debtease.utils.Constants;
 import com.itextpdf.text.Font;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PDFServiceImpl implements PDFService {
     private final DebtCaseService debtCaseService;
+    private final DebtCaseTypeService debtCaseTypeService;
 
     @Override
     public ByteArrayInputStream generatePdf(String username) throws IOException, DocumentException {
@@ -73,7 +75,7 @@ public class PDFServiceImpl implements PDFService {
         chart.getStyler().setLegendPosition(Styler.LegendPosition.OutsideS);
         chart.getStyler().setLabelType(PieStyler.LabelType.NameAndValue);
         Map<String, Long> typeCountMap = debtCases.stream()
-                .collect(Collectors.groupingBy(debtCase -> formatDebtTypeName(debtCase.getDebtCaseType().getType()),
+                .collect(Collectors.groupingBy(debtCase -> debtCaseTypeService.formatDebtCaseType(debtCase.getDebtCaseType().getType()),
                         Collectors.counting()));
         typeCountMap.forEach((debtTypeName, count) -> chart.addSeries(debtTypeName, count.intValue()));
         return chart;
@@ -102,7 +104,7 @@ public class PDFServiceImpl implements PDFService {
             debtCaseInfo.add(new Chunk("Creditor: " + debtCase.getCreditor().getName(), debtCaseFont));
             debtCaseInfo.add(Chunk.NEWLINE);
             debtCaseInfo.add(
-                    new Chunk("Type: " + formatDebtTypeName(debtCase.getDebtCaseType().getType()), debtCaseFont));
+                    new Chunk("Type: " + debtCaseTypeService.formatDebtCaseType(debtCase.getDebtCaseType().getType()), debtCaseFont));
             debtCaseInfo.add(Chunk.NEWLINE);
             debtCaseInfo.add(new Chunk(
                     "Due Date: " + debtCase.getDueDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
@@ -154,15 +156,6 @@ public class PDFServiceImpl implements PDFService {
         Image pieChartImage = Image.getInstance(chartImageBytes);
         pieChartImage.setAlignment(Element.ALIGN_CENTER);
         document.add(pieChartImage);
-    }
-
-    private String formatDebtTypeName(String debtTypeName) {
-        String[] parts = debtTypeName.split("_");
-        StringBuilder formattedName = new StringBuilder();
-        for (String part : parts) {
-            formattedName.append(part.charAt(0)).append(part.substring(1).toLowerCase()).append(" ");
-        }
-        return formattedName.toString().trim();
     }
 
     private BigDecimal calculateTotalDebt(List<DebtCase> debtCases) {

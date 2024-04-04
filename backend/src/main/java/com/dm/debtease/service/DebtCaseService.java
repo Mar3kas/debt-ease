@@ -2,7 +2,9 @@ package com.dm.debtease.service;
 
 import com.dm.debtease.model.DebtCase;
 import com.dm.debtease.model.dto.DebtCaseDTO;
+import com.dm.debtease.model.dto.PaymentRequestDTO;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -25,4 +27,8 @@ public interface DebtCaseService {
     String getTypeToMatch(String type);
 
     boolean isDebtCasePending(DebtCase debtCase, LocalDateTime startTime, LocalDateTime endTime);
+
+    void updateDebtCase(DebtCase debtCase, PaymentRequestDTO paymentRequestDTO);
+
+    BigDecimal getValidLeftAmountOwed(BigDecimal paymentAmount, BigDecimal currentAmountOwed);
 }

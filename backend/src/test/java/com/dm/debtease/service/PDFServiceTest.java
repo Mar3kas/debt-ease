@@ -28,6 +28,8 @@ import static org.mockito.Mockito.when;
 public class PDFServiceTest {
     @Mock
     private DebtCaseService debtCaseService;
+    @Mock
+    private DebtCaseTypeService debtCaseTypeService;
     @InjectMocks
     private PDFServiceImpl pdfService;
 
@@ -61,9 +63,11 @@ public class PDFServiceTest {
         int id = 1;
         List<DebtCase> expectedDebtCases =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, id, debtorName, debtorSurname, debtorEmail,
-                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed, debtorUsername));
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
+                        debtorUsername));
 
         when(debtCaseService.getDebtCasesByDebtorUsername(debtorUsername)).thenReturn(expectedDebtCases);
+        when(debtCaseTypeService.formatDebtCaseType(typeToMatch)).thenReturn("Default Debt");
         ByteArrayInputStream pdfStream = pdfService.generatePdf(debtorUsername);
 
         PdfReader pdfReader = new PdfReader(pdfStream);
@@ -99,7 +103,9 @@ public class PDFServiceTest {
         int id = 1;
         List<DebtCase> expectedDebtCases =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, id, debtorName, debtorSurname, debtorEmail,
-                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed, username));
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
+                        username));
+        when(debtCaseTypeService.formatDebtCaseType(typeToMatch)).thenReturn("Default Debt");
 
         PieChart pieChart = pdfService.generatePieDiagram(expectedDebtCases);
 

@@ -12,4 +12,6 @@ public interface DebtCaseTypeService {
     DebtCaseType findMatchingDebtCaseType(String typeToMatch);
 
     DebtCaseType getDefaultDebtCaseType();
+
+    String formatDebtCaseType(String debtTypeName);
 }

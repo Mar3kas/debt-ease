@@ -43,7 +43,7 @@ public class DebtCaseTypeControllerTest {
         List<DebtCaseType> mockDebtCaseTypes = List.of(TestUtils.setupDebtCaseTypeTestData("TAX_DEBT"));
         when(debtCaseTypeService.getAllDebtCaseTypes()).thenReturn(mockDebtCaseTypes);
 
-        MvcResult result = mockMvc.perform(get("/api/debtcase/types"))
+        MvcResult result = mockMvc.perform(get("/api/debt/case/types"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(1)))

@@ -3,13 +3,14 @@ import {
   HomePage,
   LoginPage,
   UserProfilePage,
-  DebtcaseListPage,
+  DebtCaseListPage,
   UserListPage,
   DebtorFormPage,
   CreditorFormPage,
   CreditorCreationFormPage,
   DebtCaseFormPage,
   SystemInfoPage,
+  DebtCasePayPage,
 } from "./pages";
 
 interface Route {
@@ -54,7 +55,7 @@ export const routes: Route[] = [
     title: "DebtCases",
     path: "/debt/cases",
     enabled: true,
-    component: DebtcaseListPage,
+    component: DebtCaseListPage,
   },
   {
     key: "user-list-page-route",
@@ -90,5 +91,12 @@ export const routes: Route[] = [
     path: "/debt/cases/:debtcaseId?/creditor/:creditorId?",
     enabled: true,
     component: DebtCaseFormPage,
+  },
+  {
+    key: "pay-page-route",
+    title: "DebtCase Payment",
+    path: "/debt/cases/:id?/pay",
+    enabled: true,
+    component: DebtCasePayPage,
   },
 ];

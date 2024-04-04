@@ -1,4 +1,4 @@
-package com.dm.debtease.config;
+package com.dm.debtease.config.kafka;
 
 import com.dm.debtease.model.DebtCase;
 import org.apache.kafka.clients.consumer.ConsumerConfig;

@@ -70,30 +70,42 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(AUTH_WHITELIST).permitAll()
                         //.anyRequest().permitAll())
-                        .requestMatchers(HttpMethod.GET, "/api/creditors/*").hasAnyAuthority(Role.CREDITOR.name(), Role.ADMIN.name())
-                        .requestMatchers(HttpMethod.GET, "/api/creditors/profile/*").hasAnyAuthority(Role.CREDITOR.name(),
+                        .requestMatchers(HttpMethod.GET, "/api/creditors/*")
+                        .hasAnyAuthority(Role.CREDITOR.name(), Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.GET, "/api/creditors/profile/*")
+                        .hasAnyAuthority(Role.CREDITOR.name(),
                                 Role.ADMIN.name())
-                        .requestMatchers(HttpMethod.GET, "/api/debt/cases/*").hasAnyAuthority(Role.CREDITOR.name(), Role.ADMIN.name())
-                        .requestMatchers(HttpMethod.GET, "/api/debt/case/types").hasAnyAuthority(Role.CREDITOR.name(), Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.GET, "/api/debt/cases/*")
+                        .hasAnyAuthority(Role.CREDITOR.name(), Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.GET, "/api/debt/case/types")
+                        .hasAnyAuthority(Role.CREDITOR.name(), Role.ADMIN.name())
                         .requestMatchers(HttpMethod.GET, "/api/debt/cases").hasAuthority(Role.ADMIN.name())
                         .requestMatchers(HttpMethod.GET, "/api/creditors").hasAuthority(Role.ADMIN.name())
                         .requestMatchers(HttpMethod.GET, "/api/debtors").hasAuthority(Role.ADMIN.name())
-                        .requestMatchers(HttpMethod.GET, "/api/creditor/* /debt/cases").hasAnyAuthority(Role.CREDITOR.name(),
+                        .requestMatchers(HttpMethod.GET, "/api/creditor/* /debt/cases")
+                        .hasAnyAuthority(Role.CREDITOR.name(),
                                 Role.ADMIN.name())
-                        .requestMatchers(HttpMethod.GET, "/api/debtor/* /debt/cases").hasAnyAuthority(Role.DEBTOR.name(), Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.GET, "/api/debtor/* /debt/cases")
+                        .hasAnyAuthority(Role.DEBTOR.name(), Role.ADMIN.name())
                         .requestMatchers(HttpMethod.GET, "/api/debt/cases/generate/report/debtor/*").hasAnyAuthority
                                 (Role.DEBTOR.name())
-                        .requestMatchers(HttpMethod.GET, "/api/debtors/*").hasAnyAuthority(Role.DEBTOR.name(), Role.ADMIN.name())
-                        .requestMatchers(HttpMethod.GET, "/api/debtors/profile/*").hasAnyAuthority(Role.DEBTOR.name(), Role.ADMIN.name())
-                        .requestMatchers(HttpMethod.PUT, "/api/creditors/*").hasAnyAuthority(Role.CREDITOR.name(), Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.GET, "/api/debtors/*")
+                        .hasAnyAuthority(Role.DEBTOR.name(), Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.GET, "/api/debtors/profile/*")
+                        .hasAnyAuthority(Role.DEBTOR.name(), Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.PUT, "/api/creditors/*")
+                        .hasAnyAuthority(Role.CREDITOR.name(), Role.ADMIN.name())
                         .requestMatchers(HttpMethod.PUT, "/api/debt/cases/* /creditors/*").hasAnyAuthority
                                 (Role.CREDITOR.name(), Role.ADMIN.name())
-                        .requestMatchers(HttpMethod.PUT, "/api/debtors/*").hasAnyAuthority(Role.CREDITOR.name(), Role.ADMIN.name(),
+                        .requestMatchers(HttpMethod.PUT, "/api/debtors/*")
+                        .hasAnyAuthority(Role.CREDITOR.name(), Role.ADMIN.name(),
                                 Role.DEBTOR.name())
                         .requestMatchers(HttpMethod.POST, "/api/debt/cases/creditors/* /file").hasAnyAuthority
                                 (Role.CREDITOR.name(), Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.POST, "/api/debt/cases/* /pay").hasAuthority(Role.DEBTOR.name())
                         .requestMatchers(HttpMethod.POST, "/api/creditors/").hasAuthority(Role.ADMIN.name())
-                        .requestMatchers(HttpMethod.POST, "/api/logout").hasAnyAuthority(Role.ADMIN.name(), Role.DEBTOR.name(),
+                        .requestMatchers(HttpMethod.POST, "/api/logout")
+                        .hasAnyAuthority(Role.ADMIN.name(), Role.DEBTOR.name(),
                                 Role.CREDITOR.name())
                         .requestMatchers(HttpMethod.DELETE, "/api/debt/cases/* /creditors/*").hasAnyAuthority
                                 (Role.CREDITOR.name(), Role.ADMIN.name())

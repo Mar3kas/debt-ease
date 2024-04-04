@@ -3,6 +3,7 @@ package com.dm.debtease.service.impl;
 import com.dm.debtease.model.DebtCase;
 import com.dm.debtease.model.DebtCaseStatus;
 import com.dm.debtease.model.dto.DebtCaseDTO;
+import com.dm.debtease.model.dto.PaymentRequestDTO;
 import com.dm.debtease.repository.DebtCaseRepository;
 import com.dm.debtease.service.DebtCaseService;
 import com.dm.debtease.service.DebtCaseTypeService;
@@ -101,5 +102,27 @@ public class DebtCaseServiceImpl implements DebtCaseService {
         return debtCase.getDueDate().isAfter(startTime)
                 && debtCase.getDueDate().isBefore(endTime)
                 && DebtCaseStatus.NEW.equals(debtCase.getDebtCaseStatus());
+    }
+
+    @Override
+    public void updateDebtCase(DebtCase debtCase, PaymentRequestDTO paymentRequestDTO) {
+        BigDecimal newAmountOwed;
+        DebtCaseStatus newStatus = DebtCaseStatus.UNPAID;
+        if (paymentRequestDTO.getIsPaymentInFull()) {
+            newAmountOwed = BigDecimal.ZERO;
+            newStatus = DebtCaseStatus.CLOSED;
+        } else {
+            newAmountOwed = getValidLeftAmountOwed(paymentRequestDTO.getPaymentAmount(), debtCase.getAmountOwed());
+        }
+        debtCase.setAmountOwed(newAmountOwed);
+        debtCase.setDebtCaseStatus(newStatus);
+        debtCaseRepository.save(debtCase);
+    }
+
+    @Override
+    public BigDecimal getValidLeftAmountOwed(BigDecimal paymentAmount, BigDecimal currentAmountOwed) {
+        return paymentAmount.compareTo(currentAmountOwed) > 0 ?
+                currentAmountOwed :
+                currentAmountOwed.subtract(paymentAmount);
     }
 }

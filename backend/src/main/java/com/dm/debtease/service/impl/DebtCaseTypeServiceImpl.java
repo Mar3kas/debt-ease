@@ -45,4 +45,14 @@ public class DebtCaseTypeServiceImpl implements DebtCaseTypeService {
                 .findFirst()
                 .orElse(null);
     }
+
+    @Override
+    public String formatDebtCaseType(String debtTypeName) {
+        String[] parts = debtTypeName.split("_");
+        StringBuilder formattedName = new StringBuilder();
+        for (String part : parts) {
+            formattedName.append(part.charAt(0)).append(part.substring(1).toLowerCase()).append(" ");
+        }
+        return formattedName.toString().trim();
+    }
 }
