@@ -106,4 +106,14 @@ public class DebtCaseTypeServiceTest {
 
         Assertions.assertNull(actualMatchedDebtCaseType);
     }
+
+    @Test
+    void formatDebtCaseType_ShouldReturnCorrectFormat() {
+        String inputDebtCaseType = "TAX_DEBT";
+        String expectedDebtCaseType = "Tax Debt";
+
+        String actualDebtCaseType = debtCaseTypeService.formatDebtCaseType(inputDebtCaseType);
+
+        Assertions.assertEquals(expectedDebtCaseType, actualDebtCaseType);
+    }
 }

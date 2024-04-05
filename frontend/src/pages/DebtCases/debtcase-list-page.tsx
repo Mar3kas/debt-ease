@@ -25,12 +25,14 @@ import useErrorHandling from "../../services/handle-responses";
 import { IDebtor } from "../../shared/models/Debtor";
 import WebSocketService from "../../services/websocket-service";
 import { ICreditor } from "../../shared/models/Creditor";
+import AuthService from "../../services/jwt-service";
 
 const DebtCaseListPage: FC<IPage> = (props): ReactElement => {
+  const authService = AuthService.getInstance();
   const classes = useStyles("light");
   const navigate = useNavigate();
-  const role = localStorage.getItem("role");
-  const username = localStorage.getItem("username") ?? "";
+  const role = authService.getRole();
+  const username = authService.getUsername() ?? "";
   const [shouldRefetch, setShouldRefetch] = useState(false);
   const [confirmationDialogOpen, setConfirmationDialogOpen] = useState(false);
   const [debtCaseToDelete, setDebtCaseToDelete] = useState<{

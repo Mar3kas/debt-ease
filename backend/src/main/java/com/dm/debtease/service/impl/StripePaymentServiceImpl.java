@@ -9,6 +9,7 @@ import com.dm.debtease.utils.Constants;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -17,6 +18,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class StripePaymentServiceImpl implements PaymentService {
     private final DebtCaseService debtCaseService;
     private final DebtCaseTypeService debtCaseTypeService;
@@ -26,12 +28,15 @@ public class StripePaymentServiceImpl implements PaymentService {
         DebtCase debtCase = debtCaseService.getDebtCaseById(id);
         try {
             createPaymentIntent(paymentRequestDTO, debtCase);
-            debtCaseService.updateDebtCase(debtCase, paymentRequestDTO);
-            return true;
+            debtCase = debtCaseService.updateDebtCaseAfterPayment(debtCase, paymentRequestDTO);
+            if (debtCase != null) {
+                return true;
+            }
         } catch (StripeException e) {
-            //todo need exception handling
+            log.error("Error with Stripe payment: {}", e.getStripeError().getMessage());
             return false;
         }
+        return false;
     }
 
     private void createPaymentIntent(PaymentRequestDTO paymentRequestDTO, DebtCase debtCase)

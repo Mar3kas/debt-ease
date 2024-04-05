@@ -48,7 +48,7 @@ public class PDFServiceTest {
     }
 
     @Test
-    void generatePdf_WithDebtCases_ShouldGeneratePDF() throws Exception {
+    void generatePdf_WithDebtCasesAndOutstandingAmount_ShouldGeneratePDF() throws Exception {
         String debtorUsername = "userWithDebts";
         String debtorName = "name";
         String debtorSurname = "surname";
@@ -60,10 +60,54 @@ public class PDFServiceTest {
                 Constants.DATE_TIME_FORMATTER);
         double lateInterestRate = 10.0;
         BigDecimal amountOwed = BigDecimal.valueOf(35.53);
+        BigDecimal outstandingBalance = BigDecimal.valueOf(35.53);
         int id = 1;
         List<DebtCase> expectedDebtCases =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, id, debtorName, debtorSurname, debtorEmail,
                         debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
+                        outstandingBalance,
+                        debtorUsername));
+
+        when(debtCaseService.getDebtCasesByDebtorUsername(debtorUsername)).thenReturn(expectedDebtCases);
+        when(debtCaseTypeService.formatDebtCaseType(typeToMatch)).thenReturn("Default Debt");
+        ByteArrayInputStream pdfStream = pdfService.generatePdf(debtorUsername);
+
+        PdfReader pdfReader = new PdfReader(pdfStream);
+        StringBuilder pdfText = new StringBuilder();
+        for (int i = 1; i <= pdfReader.getNumberOfPages(); i++) {
+            pdfText.append(PdfTextExtractor.getTextFromPage(pdfReader, i).trim());
+        }
+        Assertions.assertTrue(pdfText.toString().contains(Constants.GENERATED_PDF_INTRO_MESSAGE));
+        Assertions.assertTrue(pdfText.toString().contains(Constants.GENERATED_PDF_TITLE));
+        Assertions.assertTrue(pdfText.toString().contains(Constants.GENERATED_PDF_DISCLAIMER));
+        Assertions.assertTrue(pdfText.toString()
+                .contains(String.format(Constants.GENERATED_PDF_GREETING_MESSAGE, debtorName, debtorSurname)));
+        Assertions.assertTrue(pdfText.toString().contains(expectedDebtCases.get(0).getDebtor().getName()));
+        Assertions.assertTrue(pdfText.toString().contains(expectedDebtCases.get(0).getDebtor().getSurname()));
+        Assertions.assertTrue(pdfText.toString().contains(expectedDebtCases.get(0).getAmountOwed().toString()));
+        Assertions.assertTrue(pdfText.toString().contains(expectedDebtCases.get(0).getCreditor().getName()));
+        pdfReader.close();
+    }
+
+    @Test
+    void generatePdf_WithDebtCasesWithNoOutstandingBalance_ShouldGeneratePDF() throws Exception {
+        String debtorUsername = "userWithDebts";
+        String debtorName = "name";
+        String debtorSurname = "surname";
+        String debtorEmail = "email@gmail.com";
+        String debtorPhoneNumber = "+37067144213";
+        String creditorUsername = "creditor123";
+        String typeToMatch = "DEFAULT_DEBT";
+        LocalDateTime dueDate = LocalDateTime.parse(LocalDateTime.now().format(Constants.DATE_TIME_FORMATTER),
+                Constants.DATE_TIME_FORMATTER);
+        double lateInterestRate = 10.0;
+        BigDecimal amountOwed = BigDecimal.valueOf(35.53);
+        BigDecimal outstandingBalance = BigDecimal.ZERO;
+        int id = 1;
+        List<DebtCase> expectedDebtCases =
+                List.of(TestUtils.setupDebtCaseTestData(creditorUsername, id, debtorName, debtorSurname, debtorEmail,
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
+                        outstandingBalance,
                         debtorUsername));
 
         when(debtCaseService.getDebtCasesByDebtorUsername(debtorUsername)).thenReturn(expectedDebtCases);
@@ -104,6 +148,7 @@ public class PDFServiceTest {
         List<DebtCase> expectedDebtCases =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, id, debtorName, debtorSurname, debtorEmail,
                         debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
+                        BigDecimal.ZERO,
                         username));
         when(debtCaseTypeService.formatDebtCaseType(typeToMatch)).thenReturn("Default Debt");
 

@@ -30,18 +30,10 @@ const LoginPage: FC<IPage> = (props): ReactElement => {
 
   useEffect(() => {
     if (data !== null) {
-      localStorage.setItem("token", data.accessToken);
-      localStorage.setItem("refreshToken", data.refreshToken);
       const authService = AuthService.getInstance();
       openSnackbar("Welcome!", "success");
-      const decodedToken = authService.decodeToken();
-
-      if (decodedToken) {
-        const expirationString = decodedToken.exp.toString();
-        localStorage.setItem("username", decodedToken.sub);
-        localStorage.setItem("role", decodedToken.role);
-        localStorage.setItem("exp", expirationString);
-      }
+      authService.decodeToken(data.accessToken);
+      authService.setRefreshToken(data.refreshToken);
 
       navigate("/");
     } else if (error !== null) {

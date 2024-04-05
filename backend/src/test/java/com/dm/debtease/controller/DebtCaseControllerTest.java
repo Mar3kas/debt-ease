@@ -4,6 +4,7 @@ import com.dm.debtease.TestUtils;
 import com.dm.debtease.model.DebtCase;
 import com.dm.debtease.model.DebtCaseStatus;
 import com.dm.debtease.model.dto.DebtCaseDTO;
+import com.dm.debtease.model.dto.PaymentRequestDTO;
 import com.dm.debtease.service.CSVService;
 import com.dm.debtease.service.DebtCaseService;
 import com.dm.debtease.service.PDFService;
@@ -19,10 +20,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,8 +34,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -73,7 +76,8 @@ public class DebtCaseControllerTest {
         List<DebtCase> mockedDebtCases =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname,
                         debtorEmail,
-                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed, debtorUsername));
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
+                        BigDecimal.ZERO, debtorUsername));
         when(debtCaseService.getAllDebtCases()).thenReturn(mockedDebtCases);
 
         MvcResult result = mockMvc.perform(get("/api/debt/cases"))
@@ -111,7 +115,8 @@ public class DebtCaseControllerTest {
         DebtCase mockedDebtCase =
                 TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname,
                         debtorEmail,
-                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed, debtorUsername);
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
+                        BigDecimal.ZERO, debtorUsername);
         when(debtCaseService.getDebtCaseById(id)).thenReturn(mockedDebtCase);
 
         MvcResult result = mockMvc.perform(get("/api/debt/cases/{id}", id))
@@ -148,7 +153,8 @@ public class DebtCaseControllerTest {
         List<DebtCase> mockedDebtCase =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname,
                         debtorEmail,
-                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed, debtorUsername));
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
+                        BigDecimal.ZERO, debtorUsername));
         when(debtCaseService.getDebtCasesByCreditorUsername(creditorUsername)).thenReturn(mockedDebtCase);
 
         MvcResult result = mockMvc.perform(get("/api/debt/cases/creditor/{username}", creditorUsername))
@@ -187,7 +193,8 @@ public class DebtCaseControllerTest {
         List<DebtCase> mockedDebtCase =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname,
                         debtorEmail,
-                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed, debtorUsername));
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
+                        BigDecimal.ZERO, debtorUsername));
         when(debtCaseService.getDebtCasesByDebtorUsername(debtorUsername)).thenReturn(mockedDebtCase);
 
         MvcResult result = mockMvc.perform(get("/api/debt/cases/debtor/{username}", debtorUsername))
@@ -228,8 +235,10 @@ public class DebtCaseControllerTest {
         DebtCaseDTO mockedDebtCaseDTO = TestUtils.setupDebtCaseDTOTestData(editedAmountOwed, null, typeId);
         DebtCase expectedDebtCase =
                 TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname, debtorEmail,
-                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed, debtorUsername);
-        when(debtCaseService.editDebtCaseByIdAndCreditorId(any(DebtCaseDTO.class), anyInt(), anyInt())).thenReturn(expectedDebtCase);
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
+                        BigDecimal.ZERO, debtorUsername);
+        when(debtCaseService.editDebtCaseByIdAndCreditorId(any(DebtCaseDTO.class), anyInt(), anyInt())).thenReturn(
+                expectedDebtCase);
 
         MvcResult result = mockMvc.perform(put("/api/debt/cases/{id}/creditors/{creditorId}", id, creditorId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -249,6 +258,89 @@ public class DebtCaseControllerTest {
         Assertions.assertEquals(MediaType.APPLICATION_JSON_VALUE, result.getResponse().getContentType());
         Assertions.assertNotNull(result.getResponse().getContentAsString());
         Assertions.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+    }
+
+    @Test
+    void getDebtCasesReportForDebtor_ShouldReturnInputStream() throws Exception {
+        String username = "testUser";
+        byte[] pdfContent = "PDF_CONTENT".getBytes();
+        when(pdfService.generatePdf(username)).thenReturn(new ByteArrayInputStream(pdfContent));
+
+        MvcResult result = mockMvc.perform(get("/api/debt/cases/generate/report/debtor/{username}", username))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Disposition", "attachment; filename=debt_cases_report_" + LocalDateTime.now().format(Constants.DATE_TIME_FORMATTER_FOR_FILE) + ".pdf"))
+                .andExpect(content().contentType(MediaType.APPLICATION_PDF))
+                .andExpect(content().bytes(pdfContent))
+                .andDo(print())
+                .andReturn();
+
+        verify(pdfService).generatePdf(anyString());
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+        Assertions.assertNotNull(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    void createDebtCase_ShouldReturnSuccessfulCSVUpload() throws Exception {
+        String username = "username";
+        MultipartFile mockFile = new MockMultipartFile("file", "test.csv", "text/csv", "test".getBytes());
+        doNothing().when(csvService).readCsvDataAndSendToKafka(any(MultipartFile.class), any(String.class));
+
+        MvcResult result = mockMvc.perform(multipart("/api/debt/cases/creditors/{username}/file", username)
+                        .file("file", mockFile.getBytes())
+                        .contentType(MediaType.MULTIPART_FORM_DATA_VALUE))
+                .andExpect(status().isCreated())
+                .andDo(print())
+                .andReturn();
+
+        verify(csvService).readCsvDataAndSendToKafka(any(MultipartFile.class), anyString());
+        Assertions.assertNotNull(result);
+        Assertions.assertNotNull(result.getResponse().getContentAsString());
+        Assertions.assertEquals(result.getResponse().getContentAsString(),"CSV uploaded successfully and debt cases are being enriched" );
+        Assertions.assertEquals(HttpStatus.CREATED.value(), result.getResponse().getStatus());
+    }
+
+    @Test
+    void payForDebtCaseById_ShouldReturnSuccessfullyPayed() throws Exception {
+        int id = 1;
+        String sourceId = "random-id";
+        Boolean isPaymentInFull = true;
+        PaymentRequestDTO
+                paymentRequestDTO =
+                TestUtils.setupPaymentRequestDTOTestData(sourceId, BigDecimal.valueOf(25.52), isPaymentInFull);
+        when(paymentService.isPaymentMade(any(PaymentRequestDTO.class), anyInt())).thenReturn(true);
+
+        MvcResult result = mockMvc.perform(post("/api/debt/cases/{id}/pay", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(paymentRequestDTO)))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn();
+
+        verify(paymentService).isPaymentMade(any(PaymentRequestDTO.class), anyInt());
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+    }
+
+    @Test
+    void payForDebtCaseById_ShouldReturnNotSuccessfullyPayed() throws Exception {
+        int id = 1;
+        String sourceId = "random-id";
+        Boolean isPaymentInFull = false;
+        PaymentRequestDTO
+                paymentRequestDTO = TestUtils.setupPaymentRequestDTOTestData(sourceId, BigDecimal.TEN, isPaymentInFull);
+        when(paymentService.isPaymentMade(any(PaymentRequestDTO.class), anyInt())).thenReturn(false);
+
+        MvcResult result = mockMvc.perform(post("/api/debt/cases/{id}/pay", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(paymentRequestDTO)))
+                .andExpect(status().isBadRequest())
+                .andDo(print())
+                .andReturn();
+
+        verify(paymentService).isPaymentMade(any(PaymentRequestDTO.class), anyInt());
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
     }
 
     @Test

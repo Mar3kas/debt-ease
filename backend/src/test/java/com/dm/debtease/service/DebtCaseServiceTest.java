@@ -5,6 +5,7 @@ import com.dm.debtease.model.DebtCase;
 import com.dm.debtease.model.DebtCaseStatus;
 import com.dm.debtease.model.DebtCaseType;
 import com.dm.debtease.model.dto.DebtCaseDTO;
+import com.dm.debtease.model.dto.PaymentRequestDTO;
 import com.dm.debtease.repository.DebtCaseRepository;
 import com.dm.debtease.service.impl.DebtCaseServiceImpl;
 import com.dm.debtease.utils.Constants;
@@ -60,7 +61,9 @@ public class DebtCaseServiceTest {
         BigDecimal amountOwed = BigDecimal.valueOf(35.53);
         DebtCase expectedDebtCase =
                 TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname, debtorEmail,
-                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed, debtorUsername);
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
+                        BigDecimal.ZERO,
+                        debtorUsername);
         when(debtCaseRepository.findById(id)).thenReturn(Optional.of(expectedDebtCase));
 
         DebtCase actualDebtCase = debtCaseService.getDebtCaseById(id);
@@ -107,7 +110,9 @@ public class DebtCaseServiceTest {
         BigDecimal amountOwed = BigDecimal.valueOf(35.53);
         DebtCase expectedDebtCase =
                 TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname, debtorEmail,
-                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed, debtorUsername);
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
+                        BigDecimal.ZERO,
+                        debtorUsername);
         when(debtCaseRepository.findByCreditor_User_Username(creditorUsername)).thenReturn(List.of(expectedDebtCase));
 
         List<DebtCase> actualDebtCases = debtCaseService.getDebtCasesByCreditorUsername(creditorUsername);
@@ -136,7 +141,9 @@ public class DebtCaseServiceTest {
         BigDecimal amountOwed = BigDecimal.valueOf(35.53);
         DebtCase expectedDebtCase =
                 TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname, debtorEmail,
-                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed, debtorUsername);
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
+                        BigDecimal.ZERO,
+                        debtorUsername);
         when(debtCaseRepository.findByDebtor_User_Username(debtorUsername)).thenReturn(List.of(expectedDebtCase));
 
         List<DebtCase> actualDebtCases = debtCaseService.getDebtCasesByDebtorUsername(debtorUsername);
@@ -169,7 +176,9 @@ public class DebtCaseServiceTest {
         DebtCaseDTO debtCaseDTO = TestUtils.setupDebtCaseDTOTestData(editedAmountOwed, editedDueDate, typeId);
         DebtCase expectedDebtCase =
                 TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname, debtorEmail,
-                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed, debtorUsername);
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
+                        BigDecimal.ZERO,
+                        debtorUsername);
         DebtCaseType expectedDebtCaseType = TestUtils.setupDebtCaseTypeTestData(typeToMatch);
         when(debtCaseRepository.findByIdAndCreditor_Id(id, creditorId)).thenReturn(Optional.of(new DebtCase()));
         when(debtCaseTypeService.getDebtCaseTypeById(typeId)).thenReturn(expectedDebtCaseType);
@@ -323,5 +332,102 @@ public class DebtCaseServiceTest {
         debtCase.setDueDate(dueDate);
 
         Assertions.assertFalse(debtCaseService.isDebtCasePending(debtCase, startTime, endTime));
+    }
+
+    @Test
+    void updateDebtCaseAfterPayment_PaymentIsInFull_StatusShouldBeClosed_AmountOwedZero() {
+        int creditorId = 1;
+        int id = 1;
+        String debtorUsername = "userWithDebts";
+        String debtorName = "name";
+        String debtorSurname = "surname";
+        String debtorEmail = "email@gmail.com";
+        String debtorPhoneNumber = "+37067144213";
+        String creditorUsername = "creditor123";
+        String typeToMatch = "DEFAULT_DEBT";
+        LocalDateTime dueDate = LocalDateTime.parse(LocalDateTime.now().format(Constants.DATE_TIME_FORMATTER),
+                Constants.DATE_TIME_FORMATTER);
+        double lateInterestRate = 10.0;
+        BigDecimal amountOwed = BigDecimal.valueOf(35.53);
+        DebtCase expectedDebtCase =
+                TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname, debtorEmail,
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
+                        BigDecimal.ZERO,
+                        debtorUsername);
+        String sourceId = "random-id";
+        boolean isPaymentInFull = true;
+        PaymentRequestDTO paymentRequestDTO =
+                TestUtils.setupPaymentRequestDTOTestData(sourceId, amountOwed, isPaymentInFull);
+
+        when(debtCaseRepository.save(any(DebtCase.class))).thenReturn(expectedDebtCase);
+
+        DebtCase actualDebtCase = debtCaseService.updateDebtCaseAfterPayment(expectedDebtCase, paymentRequestDTO);
+
+        Assertions.assertNotNull(actualDebtCase);
+        Assertions.assertEquals(BigDecimal.ZERO, actualDebtCase.getAmountOwed());
+        Assertions.assertEquals(DebtCaseStatus.CLOSED, actualDebtCase.getDebtCaseStatus());
+    }
+
+    @Test
+    void updateDebtCaseAfterPayment_PaymentIsNotInFull_StatusShouldBeUnpaid_AmountOwedSubtracted() {
+        int creditorId = 1;
+        int id = 1;
+        String debtorUsername = "userWithDebts";
+        String debtorName = "name";
+        String debtorSurname = "surname";
+        String debtorEmail = "email@gmail.com";
+        String debtorPhoneNumber = "+37067144213";
+        String creditorUsername = "creditor123";
+        String typeToMatch = "DEFAULT_DEBT";
+        LocalDateTime dueDate = LocalDateTime.parse(LocalDateTime.now().format(Constants.DATE_TIME_FORMATTER),
+                Constants.DATE_TIME_FORMATTER);
+        double lateInterestRate = 10.0;
+        BigDecimal amountOwed = BigDecimal.valueOf(35.53);
+        DebtCase expectedDebtCase =
+                TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname, debtorEmail,
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
+                        BigDecimal.ZERO,
+                        debtorUsername);
+        String sourceId = "random-id";
+        boolean isPaymentInFull = false;
+        PaymentRequestDTO paymentRequestDTO =
+                TestUtils.setupPaymentRequestDTOTestData(sourceId, BigDecimal.TEN, isPaymentInFull);
+        when(debtCaseRepository.save(any(DebtCase.class))).thenReturn(expectedDebtCase);
+
+        DebtCase actualDebtCase = debtCaseService.updateDebtCaseAfterPayment(expectedDebtCase, paymentRequestDTO);
+
+        Assertions.assertNotNull(actualDebtCase);
+        Assertions.assertEquals(amountOwed.subtract(BigDecimal.TEN), actualDebtCase.getAmountOwed());
+        Assertions.assertEquals(DebtCaseStatus.UNPAID, actualDebtCase.getDebtCaseStatus());
+    }
+
+    @Test
+    void getValidLeftAmountOwed_PaymentAmountIsGreater_ShouldReturnCurrentAmountOwed() {
+        BigDecimal paymentAmount = BigDecimal.valueOf(25.25);
+        BigDecimal currentAmountOwed = BigDecimal.valueOf(10);
+
+        BigDecimal actualAmountOwed = debtCaseService.getValidLeftAmountOwed(paymentAmount, currentAmountOwed);
+
+        Assertions.assertEquals(currentAmountOwed, actualAmountOwed);
+    }
+
+    @Test
+    void getValidLeftAmountOwed_PaymentAmountIsEqual_ShouldReturnZero() {
+        BigDecimal paymentAmount = BigDecimal.valueOf(25.25);
+        BigDecimal currentAmountOwed = BigDecimal.valueOf(25.25);
+
+        BigDecimal actualAmountOwed = debtCaseService.getValidLeftAmountOwed(paymentAmount, currentAmountOwed);
+
+        Assertions.assertEquals(currentAmountOwed.subtract(paymentAmount), actualAmountOwed);
+    }
+
+    @Test
+    void getValidLeftAmountOwed_PaymentAmountIsLess_ShouldReturnSubtraction() {
+        BigDecimal paymentAmount = BigDecimal.valueOf(10.25);
+        BigDecimal currentAmountOwed = BigDecimal.valueOf(25.25);
+
+        BigDecimal actualAmountOwed = debtCaseService.getValidLeftAmountOwed(paymentAmount, currentAmountOwed);
+
+        Assertions.assertEquals(currentAmountOwed.subtract(paymentAmount), actualAmountOwed);
     }
 }

@@ -105,7 +105,7 @@ public class DebtCaseController {
     }
 
     @PostMapping(value = "/{id}/pay")
-    public ResponseEntity<String> payForDebtCase(@Valid @RequestBody PaymentRequestDTO paymentRequestDTO, BindingResult result,
+    public ResponseEntity<String> payForDebtCaseById(@Valid @RequestBody PaymentRequestDTO paymentRequestDTO, BindingResult result,
                                                  @Valid
                                                  @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
                                                  @PathVariable(name = "id") int id) {

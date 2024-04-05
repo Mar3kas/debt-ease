@@ -18,13 +18,15 @@ import { NavbarProps } from "./interface";
 import useStyles from "../Styles/global-styles";
 import { usePost } from "../../services/api-service";
 import WebSocketService from "../../services/websocket-service";
+import AuthService from "../../services/jwt-service";
 
 const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
   const classes = useStyles("light");
   const theme = useTheme();
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
+  const authService = AuthService.getInstance();
+  const token = authService.getToken();
+  const role = authService.getRole();
   const currentPageUrl = window.location.pathname;
   const { postData, data, error } = usePost<any>("logout");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -48,7 +50,7 @@ const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
 
   useEffect(() => {
     if (data !== null && data.hasOwnProperty("message")) {
-      localStorage.clear();
+      authService.clear();
       navigate("/");
     }
   }, [data, error, navigate]);
@@ -239,7 +241,7 @@ const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
                         marginRight: 1,
                       }}
                       onClick={() => {
-                        navigate("/debtcases");
+                        navigate("/debt/cases");
                       }}
                     >
                       DebtCases

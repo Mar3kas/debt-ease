@@ -43,7 +43,8 @@ public class EmailServiceTest {
         BigDecimal amountOwed = BigDecimal.valueOf(35.53);
         DebtCase expectedDebtCase =
                 TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname, debtorEmail,
-                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed, debtorUsername);
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
+                        BigDecimal.ZERO, debtorUsername);
 
         emailService.sendNotificationEmail(expectedDebtCase);
 

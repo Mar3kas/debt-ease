@@ -28,7 +28,7 @@ public interface DebtCaseService {
 
     boolean isDebtCasePending(DebtCase debtCase, LocalDateTime startTime, LocalDateTime endTime);
 
-    void updateDebtCase(DebtCase debtCase, PaymentRequestDTO paymentRequestDTO);
+    DebtCase updateDebtCaseAfterPayment(DebtCase debtCase, PaymentRequestDTO paymentRequestDTO);
 
     BigDecimal getValidLeftAmountOwed(BigDecimal paymentAmount, BigDecimal currentAmountOwed);
 }

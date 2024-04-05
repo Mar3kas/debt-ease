@@ -105,7 +105,7 @@ public class DebtCaseServiceImpl implements DebtCaseService {
     }
 
     @Override
-    public void updateDebtCase(DebtCase debtCase, PaymentRequestDTO paymentRequestDTO) {
+    public DebtCase updateDebtCaseAfterPayment(DebtCase debtCase, PaymentRequestDTO paymentRequestDTO) {
         BigDecimal newAmountOwed;
         DebtCaseStatus newStatus = DebtCaseStatus.UNPAID;
         if (paymentRequestDTO.getIsPaymentInFull()) {
@@ -116,7 +116,7 @@ public class DebtCaseServiceImpl implements DebtCaseService {
         }
         debtCase.setAmountOwed(newAmountOwed);
         debtCase.setDebtCaseStatus(newStatus);
-        debtCaseRepository.save(debtCase);
+        return debtCaseRepository.save(debtCase);
     }
 
     @Override

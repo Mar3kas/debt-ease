@@ -4,6 +4,7 @@ import com.dm.debtease.model.*;
 import com.dm.debtease.model.dto.CreditorDTO;
 import com.dm.debtease.model.dto.DebtCaseDTO;
 import com.dm.debtease.model.dto.DebtorDTO;
+import com.dm.debtease.model.dto.PaymentRequestDTO;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -38,7 +39,7 @@ public class TestUtils {
     }
 
     public static Creditor setupCreditorTestData(String name, String email, String address, String phoneNumber,
-                                                       String accountNumber, String username) {
+                                                 String accountNumber, String username) {
         Creditor creditor = new Creditor();
         creditor.setId(1);
         creditor.setName(name);
@@ -123,7 +124,7 @@ public class TestUtils {
                                                  String debtorEmail, String debtorPhoneNumber, String type,
                                                  DebtCaseStatus status,
                                                  LocalDateTime dueDate, double lateInterestRate,
-                                                 BigDecimal amountOwed, String debtorUsername) {
+                                                 BigDecimal amountOwed, BigDecimal outstandingBalance, String debtorUsername) {
         DebtCase debtCase = new DebtCase();
         debtCase.setId(1);
         debtCase.setCreditor(setupCreditorTestData(creditorUsername, creditorId
@@ -132,7 +133,7 @@ public class TestUtils {
                 setupDebtorTestData(debtorName, debtorSurname, debtorEmail, debtorPhoneNumber, debtorUsername));
         debtCase.setDebtCaseType(setupDebtCaseTypeTestData(type));
         debtCase.setDebtCaseStatus(status);
-        debtCase.setOutstandingBalance(BigDecimal.TEN);
+        debtCase.setOutstandingBalance(outstandingBalance);
         debtCase.setDueDate(dueDate);
         debtCase.setLateInterestRate(lateInterestRate);
         debtCase.setAmountOwed(amountOwed);
@@ -145,5 +146,14 @@ public class TestUtils {
         debtCaseDTO.setDueDate(dueDate);
         debtCaseDTO.setTypeId(typeId);
         return debtCaseDTO;
+    }
+
+    public static PaymentRequestDTO setupPaymentRequestDTOTestData(String sourceId, BigDecimal paymentAmount,
+                                                                   Boolean isPaymentInFull) {
+        PaymentRequestDTO paymentRequestDTO = new PaymentRequestDTO();
+        paymentRequestDTO.setIsPaymentInFull(isPaymentInFull);
+        paymentRequestDTO.setPaymentAmount(paymentAmount);
+        paymentRequestDTO.setSourceId(sourceId);
+        return paymentRequestDTO;
     }
 }

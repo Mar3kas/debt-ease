@@ -92,37 +92,35 @@ export const useGet = <T>(
   const [error, setError] = React.useState<IApiError | null>(null);
 
   const fetchData = async (shouldRefetch: boolean = false) => {
+    const authService = AuthService.getInstance();
     try {
       setLoading(true);
       setError(null);
 
-      if (AuthService.getInstance().isTokenExpired()) {
-        const refreshToken = AuthService.getInstance().getRefreshToken();
-
+      if (authService.isTokenExpired()) {
+        const refreshToken = authService.getRefreshToken();
+        console.log(refreshToken);
         try {
           const response = await axios.post(
             `${API_BASE_URL}/refresh`,
             { refreshToken },
             axiosConfig
           );
-          const newAccessToken = response.data.accessToken;
-
-          localStorage.setItem("token", newAccessToken);
+          authService.decodeToken(response.data.accessToken);
         } catch (refreshError: any) {
           const errorResult = await handleResponse<T>(refreshError);
           setError(errorResult as IApiError);
-          AuthService.getInstance().clearLocalStorage();
+          authService.clear();
           return;
         }
       }
 
-      const updatedToken = localStorage.getItem("token");
       const url = buildUrl(endpoint, pathVariables);
       const response = await axios.get(url, {
         ...axiosConfig,
         headers: {
           ...axiosConfig.headers,
-          Authorization: `Bearer ${updatedToken ?? ""}`,
+          Authorization: `Bearer ${authService.getToken() ?? ""}`,
         },
         responseType: responseType,
       });
@@ -159,15 +157,14 @@ export const usePost = <T>(
   const [error, setError] = React.useState<IApiError | null>(null);
 
   const postData = async <D>(postData?: D, isFormData = false) => {
+    const authService = AuthService.getInstance();
+
     try {
       setLoading(true);
       setError(null);
 
-      if (
-        AuthService.getInstance().isTokenExpired() &&
-        !endpoint.includes("login")
-      ) {
-        const refreshToken = AuthService.getInstance().getRefreshToken();
+      if (authService.isTokenExpired() && !endpoint.includes("login")) {
+        const refreshToken = authService.getRefreshToken();
 
         try {
           const response = await axios.post(
@@ -175,22 +172,19 @@ export const usePost = <T>(
             { refreshToken },
             axiosConfig
           );
-          const newAccessToken = response.data.accessToken;
-
-          localStorage.setItem("token", newAccessToken);
+          authService.decodeToken(response.data.accessToken);
         } catch (refreshError: any) {
           const errorResult = await handleResponse<T>(refreshError);
           setError(errorResult as IApiError);
-          AuthService.getInstance().clearLocalStorage();
+          authService.clear();
           return;
         }
       }
 
       const url = buildUrl(endpoint, pathVariables);
-      const updatedToken = localStorage.getItem("token");
       const headers: AxiosRequestConfig["headers"] = {
         ...axiosConfig.headers,
-        Authorization: `Bearer ${updatedToken ?? ""}`,
+        Authorization: `Bearer ${authService.getToken() ?? ""}`,
       };
 
       let requestBody: any = postData;
@@ -229,12 +223,13 @@ export const useEdit = <T>(
   const [error, setError] = React.useState<IApiError | null>(null);
 
   const editData = async (postData: Record<string, any>) => {
+    const authService = AuthService.getInstance();
     try {
       setLoading(true);
       setError(null);
 
-      if (AuthService.getInstance().isTokenExpired()) {
-        const refreshToken = AuthService.getInstance().getRefreshToken();
+      if (authService.isTokenExpired()) {
+        const refreshToken = authService.getRefreshToken();
 
         try {
           const response = await axios.post(
@@ -242,24 +237,20 @@ export const useEdit = <T>(
             { refreshToken },
             axiosConfig
           );
-          const newAccessToken = response.data.accessToken;
-
-          localStorage.setItem("token", newAccessToken);
+          authService.decodeToken(response.data.accessToken);
         } catch (refreshError: any) {
           const errorResult = await handleResponse<T>(refreshError);
           setError(errorResult as IApiError);
-          AuthService.getInstance().clearLocalStorage();
+          authService.clear();
           return;
         }
       }
-
-      const updatedToken = localStorage.getItem("token");
       const url = buildUrl(endpoint, pathVariables);
       const response = await axios.put(url, postData, {
         ...axiosConfig,
         headers: {
           ...axiosConfig.headers,
-          Authorization: `Bearer ${updatedToken ?? ""}`,
+          Authorization: `Bearer ${authService.getToken ?? ""}`,
         },
       });
       const result = await handleResponse<T>(response);
@@ -284,12 +275,14 @@ export const useDelete = <T>(
   const [error, setError] = React.useState<IApiError | null>(null);
 
   const deleteData = async () => {
+    const authService = AuthService.getInstance();
+
     try {
       setLoading(true);
       setError(null);
 
-      if (AuthService.getInstance().isTokenExpired()) {
-        const refreshToken = AuthService.getInstance().getRefreshToken();
+      if (authService.isTokenExpired()) {
+        const refreshToken = authService.getRefreshToken();
 
         try {
           const response = await axios.post(
@@ -297,24 +290,21 @@ export const useDelete = <T>(
             { refreshToken },
             axiosConfig
           );
-          const newAccessToken = response.data.accessToken;
-
-          localStorage.setItem("token", newAccessToken);
+          authService.decodeToken(response.data.accessToken);
         } catch (refreshError: any) {
           const errorResult = await handleResponse<T>(refreshError);
           setError(errorResult as IApiError);
-          AuthService.getInstance().clearLocalStorage();
+          authService.clear();
           return;
         }
       }
 
-      const updatedToken = localStorage.getItem("token");
       const url = buildUrl(endpoint, pathVariables);
       const response = await axios.delete(url, {
         ...axiosConfig,
         headers: {
           ...axiosConfig.headers,
-          Authorization: `Bearer ${updatedToken ?? ""}`,
+          Authorization: `Bearer ${authService.getToken() ?? ""}`,
         },
       });
       const result = await handleResponse<T>(response);

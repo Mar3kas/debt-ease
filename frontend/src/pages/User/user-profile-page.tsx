@@ -26,9 +26,11 @@ import { IPage } from "../../shared/models/Page";
 import { IDebtorDTO } from "../../shared/dtos/DebtorDTO";
 import { ICreditorDTO } from "../../shared/dtos/CreditorDTO";
 import useErrorHandling from "../../services/handle-responses";
+import AuthService from "../../services/jwt-service";
 
 const UserProfilePage: FC<IPage> = (props): ReactElement => {
-  const username = localStorage.getItem("username");
+  const authService = AuthService.getInstance();
+  const username = authService.getUsername();
   const classes = useStyles("light");
   const navigate = useNavigate();
   const { openSnackbar } = props;
