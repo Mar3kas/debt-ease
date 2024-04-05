@@ -250,7 +250,7 @@ export const useEdit = <T>(
         ...axiosConfig,
         headers: {
           ...axiosConfig.headers,
-          Authorization: `Bearer ${authService.getToken ?? ""}`,
+          Authorization: `Bearer ${authService.getToken() ?? ""}`,
         },
       });
       const result = await handleResponse<T>(response);
