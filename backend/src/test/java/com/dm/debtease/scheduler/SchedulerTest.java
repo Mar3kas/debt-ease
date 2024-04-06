@@ -57,7 +57,7 @@ public class SchedulerTest {
         List<DebtCase> expectedDebtCases =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, id, debtorName, debtorSurname, debtorEmail,
                         debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
-                        BigDecimal.ZERO, debtorUsername));
+                        debtorUsername));
         when(debtCaseService.getAllDebtCases()).thenReturn(expectedDebtCases);
         when(debtCaseService.isDebtCasePending(any(DebtCase.class), any(LocalDateTime.class),
                 any(LocalDateTime.class))).thenReturn(true);
@@ -85,7 +85,7 @@ public class SchedulerTest {
         List<DebtCase> expectedDebtCases =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, id, debtorName, debtorSurname, debtorEmail,
                         debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
-                        BigDecimal.ZERO, debtorUsername));
+                        debtorUsername));
         when(debtCaseService.getAllDebtCases()).thenReturn(expectedDebtCases);
 
         scheduler.emailNotificationEachMonth20DayScheduler();
@@ -112,14 +112,14 @@ public class SchedulerTest {
         List<DebtCase> expectedDebtCases =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, id, debtorName, debtorSurname, debtorEmail,
                         debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
-                        BigDecimal.TEN, debtorUsername));
+                        debtorUsername));
         when(debtCaseRepository.findByDueDateLessThanEqual(currentDate)).thenReturn(Optional.of(expectedDebtCases));
 
         scheduler.calculateOutstandingBalanceScheduler();
 
         verify(debtCaseRepository, times(expectedDebtCases.size())).save(debtCaseCaptor.capture());
         List<DebtCase> capturedDebtCases = debtCaseCaptor.getAllValues();
-        Assertions.assertEquals(amountOwed.multiply(BigDecimal.valueOf(lateInterestRate / 100.0)).add(BigDecimal.TEN),
-                capturedDebtCases.get(0).getOutstandingBalance());
+        Assertions.assertEquals(amountOwed.multiply(BigDecimal.valueOf(lateInterestRate / 100.0)).add(amountOwed),
+                capturedDebtCases.get(0).getAmountOwed());
     }
 }

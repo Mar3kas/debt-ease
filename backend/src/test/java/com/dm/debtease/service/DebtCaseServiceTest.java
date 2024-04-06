@@ -62,7 +62,6 @@ public class DebtCaseServiceTest {
         DebtCase expectedDebtCase =
                 TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname, debtorEmail,
                         debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
-                        BigDecimal.ZERO,
                         debtorUsername);
         when(debtCaseRepository.findById(id)).thenReturn(Optional.of(expectedDebtCase));
 
@@ -111,7 +110,6 @@ public class DebtCaseServiceTest {
         DebtCase expectedDebtCase =
                 TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname, debtorEmail,
                         debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
-                        BigDecimal.ZERO,
                         debtorUsername);
         when(debtCaseRepository.findByCreditor_User_Username(creditorUsername)).thenReturn(List.of(expectedDebtCase));
 
@@ -142,7 +140,6 @@ public class DebtCaseServiceTest {
         DebtCase expectedDebtCase =
                 TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname, debtorEmail,
                         debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
-                        BigDecimal.ZERO,
                         debtorUsername);
         when(debtCaseRepository.findByDebtor_User_Username(debtorUsername)).thenReturn(List.of(expectedDebtCase));
 
@@ -157,7 +154,6 @@ public class DebtCaseServiceTest {
 
     @Test
     void editDebtCaseByIdAndCreditorId_WhenDebtCaseExists_ShouldReturnEditedDebtCase() {
-        BigDecimal editedAmountOwed = BigDecimal.ONE;
         LocalDateTime editedDueDate = LocalDateTime.now();
         int typeId = 1;
         int creditorId = 1;
@@ -173,11 +169,10 @@ public class DebtCaseServiceTest {
                 Constants.DATE_TIME_FORMATTER);
         double lateInterestRate = 10.0;
         BigDecimal amountOwed = BigDecimal.valueOf(35.53);
-        DebtCaseDTO debtCaseDTO = TestUtils.setupDebtCaseDTOTestData(editedAmountOwed, editedDueDate, typeId);
+        DebtCaseDTO debtCaseDTO = TestUtils.setupDebtCaseDTOTestData(editedDueDate, typeId);
         DebtCase expectedDebtCase =
                 TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname, debtorEmail,
                         debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
-                        BigDecimal.ZERO,
                         debtorUsername);
         DebtCaseType expectedDebtCaseType = TestUtils.setupDebtCaseTypeTestData(typeToMatch);
         when(debtCaseRepository.findByIdAndCreditor_Id(id, creditorId)).thenReturn(Optional.of(new DebtCase()));
@@ -186,7 +181,6 @@ public class DebtCaseServiceTest {
 
         DebtCase actualEditedDebtCase = debtCaseService.editDebtCaseByIdAndCreditorId(debtCaseDTO, id, creditorId);
 
-        Assertions.assertEquals(expectedDebtCase.getAmountOwed(), actualEditedDebtCase.getAmountOwed());
         Assertions.assertEquals(expectedDebtCase.getDueDate(), actualEditedDebtCase.getDueDate());
         Assertions.assertEquals(expectedDebtCase.getDebtCaseType().getType(),
                 actualEditedDebtCase.getDebtCaseType().getType());
@@ -352,7 +346,6 @@ public class DebtCaseServiceTest {
         DebtCase expectedDebtCase =
                 TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname, debtorEmail,
                         debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
-                        BigDecimal.ZERO,
                         debtorUsername);
         String sourceId = "random-id";
         boolean isPaymentInFull = true;
@@ -386,7 +379,6 @@ public class DebtCaseServiceTest {
         DebtCase expectedDebtCase =
                 TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname, debtorEmail,
                         debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
-                        BigDecimal.ZERO,
                         debtorUsername);
         String sourceId = "random-id";
         boolean isPaymentInFull = false;

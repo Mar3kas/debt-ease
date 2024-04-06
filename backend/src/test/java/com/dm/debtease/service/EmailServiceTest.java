@@ -5,19 +5,19 @@ import com.dm.debtease.model.DebtCase;
 import com.dm.debtease.model.DebtCaseStatus;
 import com.dm.debtease.service.impl.EmailServiceImpl;
 import com.dm.debtease.utils.Constants;
+import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class EmailServiceTest {
@@ -44,10 +44,13 @@ public class EmailServiceTest {
         DebtCase expectedDebtCase =
                 TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname, debtorEmail,
                         debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
-                        BigDecimal.ZERO, debtorUsername);
+                        debtorUsername);
+        // Mock MimeMessage and MimeMessageHelper
+        MimeMessage mimeMessage = mock(MimeMessage.class);
+        when(javaMailSender.createMimeMessage()).thenReturn(mimeMessage);
 
         emailService.sendNotificationEmail(expectedDebtCase);
 
-        verify(javaMailSender).send(any(SimpleMailMessage.class));
+        verify(javaMailSender).send(any(MimeMessage.class));
     }
 }

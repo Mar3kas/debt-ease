@@ -124,7 +124,7 @@ public class TestUtils {
                                                  String debtorEmail, String debtorPhoneNumber, String type,
                                                  DebtCaseStatus status,
                                                  LocalDateTime dueDate, double lateInterestRate,
-                                                 BigDecimal amountOwed, BigDecimal outstandingBalance, String debtorUsername) {
+                                                 BigDecimal amountOwed, String debtorUsername) {
         DebtCase debtCase = new DebtCase();
         debtCase.setId(1);
         debtCase.setCreditor(setupCreditorTestData(creditorUsername, creditorId
@@ -133,16 +133,14 @@ public class TestUtils {
                 setupDebtorTestData(debtorName, debtorSurname, debtorEmail, debtorPhoneNumber, debtorUsername));
         debtCase.setDebtCaseType(setupDebtCaseTypeTestData(type));
         debtCase.setDebtCaseStatus(status);
-        debtCase.setOutstandingBalance(outstandingBalance);
         debtCase.setDueDate(dueDate);
         debtCase.setLateInterestRate(lateInterestRate);
         debtCase.setAmountOwed(amountOwed);
         return debtCase;
     }
 
-    public static DebtCaseDTO setupDebtCaseDTOTestData(BigDecimal amountOwed, LocalDateTime dueDate, int typeId) {
+    public static DebtCaseDTO setupDebtCaseDTOTestData(LocalDateTime dueDate, int typeId) {
         DebtCaseDTO debtCaseDTO = new DebtCaseDTO();
-        debtCaseDTO.setAmountOwed(amountOwed);
         debtCaseDTO.setDueDate(dueDate);
         debtCaseDTO.setTypeId(typeId);
         return debtCaseDTO;

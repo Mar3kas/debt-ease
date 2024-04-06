@@ -6,7 +6,6 @@ export interface IDebtCase {
   id: number;
   amountOwed: number;
   lateInterestRate: number;
-  outstandingBalance: number;
   dueDate: string;
   createdDate: string;
   modifiedDate?: string;

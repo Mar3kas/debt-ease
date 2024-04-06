@@ -77,7 +77,7 @@ public class DebtCaseControllerTest {
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname,
                         debtorEmail,
                         debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
-                        BigDecimal.ZERO, debtorUsername));
+                        debtorUsername));
         when(debtCaseService.getAllDebtCases()).thenReturn(mockedDebtCases);
 
         MvcResult result = mockMvc.perform(get("/api/debt/cases"))
@@ -116,7 +116,7 @@ public class DebtCaseControllerTest {
                 TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname,
                         debtorEmail,
                         debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
-                        BigDecimal.ZERO, debtorUsername);
+                        debtorUsername);
         when(debtCaseService.getDebtCaseById(id)).thenReturn(mockedDebtCase);
 
         MvcResult result = mockMvc.perform(get("/api/debt/cases/{id}", id))
@@ -154,7 +154,7 @@ public class DebtCaseControllerTest {
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname,
                         debtorEmail,
                         debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
-                        BigDecimal.ZERO, debtorUsername));
+                        debtorUsername));
         when(debtCaseService.getDebtCasesByCreditorUsername(creditorUsername)).thenReturn(mockedDebtCase);
 
         MvcResult result = mockMvc.perform(get("/api/debt/cases/creditor/{username}", creditorUsername))
@@ -194,7 +194,7 @@ public class DebtCaseControllerTest {
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname,
                         debtorEmail,
                         debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
-                        BigDecimal.ZERO, debtorUsername));
+                        debtorUsername));
         when(debtCaseService.getDebtCasesByDebtorUsername(debtorUsername)).thenReturn(mockedDebtCase);
 
         MvcResult result = mockMvc.perform(get("/api/debt/cases/debtor/{username}", debtorUsername))
@@ -232,11 +232,11 @@ public class DebtCaseControllerTest {
                 Constants.DATE_TIME_FORMATTER);
         double lateInterestRate = 10.0;
         BigDecimal amountOwed = BigDecimal.valueOf(35.53);
-        DebtCaseDTO mockedDebtCaseDTO = TestUtils.setupDebtCaseDTOTestData(editedAmountOwed, null, typeId);
+        DebtCaseDTO mockedDebtCaseDTO = TestUtils.setupDebtCaseDTOTestData(null, typeId);
         DebtCase expectedDebtCase =
                 TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname, debtorEmail,
                         debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
-                        BigDecimal.ZERO, debtorUsername);
+                        debtorUsername);
         when(debtCaseService.editDebtCaseByIdAndCreditorId(any(DebtCaseDTO.class), anyInt(), anyInt())).thenReturn(
                 expectedDebtCase);
 
@@ -268,7 +268,8 @@ public class DebtCaseControllerTest {
 
         MvcResult result = mockMvc.perform(get("/api/debt/cases/generate/report/debtor/{username}", username))
                 .andExpect(status().isOk())
-                .andExpect(header().string("Content-Disposition", "attachment; filename=debt_cases_report_" + LocalDateTime.now().format(Constants.DATE_TIME_FORMATTER_FOR_FILE) + ".pdf"))
+                .andExpect(header().string("Content-Disposition", "attachment; filename=debt_cases_report_" +
+                        LocalDateTime.now().format(Constants.DATE_TIME_FORMATTER_FOR_FILE) + ".pdf"))
                 .andExpect(content().contentType(MediaType.APPLICATION_PDF))
                 .andExpect(content().bytes(pdfContent))
                 .andDo(print())
@@ -296,7 +297,8 @@ public class DebtCaseControllerTest {
         verify(csvService).readCsvDataAndSendToKafka(any(MultipartFile.class), anyString());
         Assertions.assertNotNull(result);
         Assertions.assertNotNull(result.getResponse().getContentAsString());
-        Assertions.assertEquals(result.getResponse().getContentAsString(),"CSV uploaded successfully and debt cases are being enriched" );
+        Assertions.assertEquals(result.getResponse().getContentAsString(),
+                "CSV uploaded successfully and debt cases are being enriched");
         Assertions.assertEquals(HttpStatus.CREATED.value(), result.getResponse().getStatus());
     }
 

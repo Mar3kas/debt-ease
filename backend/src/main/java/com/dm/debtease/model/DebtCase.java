@@ -29,9 +29,6 @@ public class DebtCase {
     @Column(name = "late_interest_rate", nullable = false)
     double lateInterestRate;
 
-    @Column(name = "outstanding_balance")
-    BigDecimal outstandingBalance;
-
     @Column(name = "due_date", nullable = false)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime dueDate;

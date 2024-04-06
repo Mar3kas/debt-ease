@@ -42,9 +42,11 @@ public class StripePaymentServiceImpl implements PaymentService {
     private void createPaymentIntent(PaymentRequestDTO paymentRequestDTO, DebtCase debtCase)
             throws StripeException {
         Map<String, Object> params = new HashMap<>();
-        BigDecimal paymentAmount = paymentRequestDTO.getIsPaymentInFull() ?
-                debtCase.getAmountOwed() :
-                debtCaseService.getValidLeftAmountOwed(paymentRequestDTO.getPaymentAmount(), debtCase.getAmountOwed());
+        BigDecimal paymentAmount = debtCase.getAmountOwed();
+        if (!paymentRequestDTO.getIsPaymentInFull()) {
+            paymentAmount = debtCaseService.getValidLeftAmountOwed(
+                    paymentRequestDTO.getPaymentAmount(), paymentAmount);
+        }
         params.put("amount", paymentAmount.multiply(BigDecimal.valueOf(Constants.STRIPE_AMOUNT_MULTIPLIER)).intValue());
         params.put("currency", "eur");
         params.put("payment_method", paymentRequestDTO.getSourceId());

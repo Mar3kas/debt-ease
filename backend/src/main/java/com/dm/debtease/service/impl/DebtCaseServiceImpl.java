@@ -50,9 +50,6 @@ public class DebtCaseServiceImpl implements DebtCaseService {
         Optional<DebtCase> optionalDebtCase = debtCaseRepository.findByIdAndCreditor_Id(id, creditorId);
         if (optionalDebtCase.isPresent()) {
             DebtCase debtCase = optionalDebtCase.get();
-            if (debtCaseDTO.getAmountOwed() != null) {
-                debtCase.setAmountOwed(debtCaseDTO.getAmountOwed());
-            }
             if (debtCaseDTO.getDueDate() != null) {
                 debtCase.setDueDate(debtCaseDTO.getDueDate());
             }
@@ -101,18 +98,19 @@ public class DebtCaseServiceImpl implements DebtCaseService {
     public boolean isDebtCasePending(DebtCase debtCase, LocalDateTime startTime, LocalDateTime endTime) {
         return debtCase.getDueDate().isAfter(startTime)
                 && debtCase.getDueDate().isBefore(endTime)
-                && DebtCaseStatus.NEW.equals(debtCase.getDebtCaseStatus());
+                && (DebtCaseStatus.NEW.equals(debtCase.getDebtCaseStatus()) ||
+                DebtCaseStatus.UNPAID.equals(debtCase.getDebtCaseStatus()));
     }
 
     @Override
     public DebtCase updateDebtCaseAfterPayment(DebtCase debtCase, PaymentRequestDTO paymentRequestDTO) {
-        BigDecimal newAmountOwed;
+        BigDecimal newAmountOwed = debtCase.getAmountOwed();
         DebtCaseStatus newStatus = DebtCaseStatus.UNPAID;
-        if (paymentRequestDTO.getIsPaymentInFull()) {
-            newAmountOwed = BigDecimal.ZERO;
-            newStatus = DebtCaseStatus.CLOSED;
+        if (!paymentRequestDTO.getIsPaymentInFull()) {
+            newAmountOwed = getValidLeftAmountOwed(paymentRequestDTO.getPaymentAmount(), newAmountOwed);
         } else {
-            newAmountOwed = getValidLeftAmountOwed(paymentRequestDTO.getPaymentAmount(), debtCase.getAmountOwed());
+            newStatus = DebtCaseStatus.CLOSED;
+            newAmountOwed = BigDecimal.ZERO;
         }
         debtCase.setAmountOwed(newAmountOwed);
         debtCase.setDebtCaseStatus(newStatus);

@@ -394,18 +394,7 @@ const DebtCaseListPage: FC<IPage> = (props): ReactElement => {
                 <Typography>
                   Late Interest Rate: {debtCase.lateInterestRate}%
                 </Typography>
-                {debtCase.outstandingBalance > 0 ? (
-                  <>
-                    <Typography>
-                      Initial Amount Owed: {debtCase.amountOwed}€
-                    </Typography>
-                    <Typography>
-                      Outstanding Balance: {debtCase.outstandingBalance}€
-                    </Typography>
-                  </>
-                ) : (
-                  <Typography>Amount Owed: {debtCase.amountOwed}€</Typography>
-                )}
+                <Typography>Amount Owed: {debtCase.amountOwed}€</Typography>
                 <Typography>Due Date: {debtCase.dueDate}</Typography>
                 <Typography>Date Created: {debtCase.createdDate}</Typography>
                 {debtCase.modifiedDate && (

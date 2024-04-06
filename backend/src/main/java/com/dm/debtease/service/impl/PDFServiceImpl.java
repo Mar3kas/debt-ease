@@ -56,7 +56,7 @@ public class PDFServiceImpl implements PDFService {
         addTitle(document);
         addIntro(document, debtCases.get(0).getDebtor().getName(), debtCases.get(0).getDebtor().getSurname());
         addDebtCasesInfo(document, debtCases);
-        addTotalDebt(document, calculateTotalDebt(debtCases), calculateOutstanding(debtCases));
+        addTotalDebt(document, calculateTotalDebt(debtCases));
         addDisclaimer(document);
         addPieChart(document, generatePieDiagram(debtCases));
         document.close();
@@ -112,36 +112,20 @@ public class PDFServiceImpl implements PDFService {
             debtCaseInfo.add(Chunk.NEWLINE);
             debtCaseInfo.add(new Chunk("Late Interest Rate: " + debtCase.getLateInterestRate() + "%", debtCaseFont));
             debtCaseInfo.add(Chunk.NEWLINE);
-            if (debtCase.getOutstandingBalance().compareTo(BigDecimal.ZERO) > 0) {
-                debtCaseInfo.add(new Chunk("Initial Amount Owed: " + debtCase.getAmountOwed() + "€", debtCaseFont));
-                debtCaseInfo.add(Chunk.NEWLINE);
-                Font outstandingAmountOwedFont = FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.RED);
-                debtCaseInfo.add(new Chunk("Outstanding Amount Owed: " + debtCase.getOutstandingBalance() + "€",
-                        outstandingAmountOwedFont));
-                debtCaseInfo.add(Chunk.NEWLINE);
-            } else {
-                debtCaseInfo.add(new Chunk("Amount Owed: " + debtCase.getAmountOwed() + "€", debtCaseFont));
-                debtCaseInfo.add(Chunk.NEWLINE);
-            }
+            debtCaseInfo.add(new Chunk("Amount Owed: " + debtCase.getAmountOwed() + "€", debtCaseFont));
+            debtCaseInfo.add(Chunk.NEWLINE);
             document.add(debtCaseInfo);
             document.add(Chunk.NEWLINE);
         }
     }
 
-    private void addTotalDebt(Document document, BigDecimal totalDebtAmount, BigDecimal totalOutstandingAmount)
+    private void addTotalDebt(Document document, BigDecimal totalDebtAmount)
             throws DocumentException {
         Font totalDebtFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, BaseColor.RED);
         Paragraph totalDebt =
                 new Paragraph("Total Amount of Owned Debt Money: " + totalDebtAmount + "€", totalDebtFont);
         totalDebt.setAlignment(Element.ALIGN_CENTER);
         document.add(totalDebt);
-        if (totalOutstandingAmount.compareTo(BigDecimal.ZERO) > 0) {
-            Paragraph totalOutstanding =
-                    new Paragraph("Total Amount of Outstanding Debt Money: " + totalOutstandingAmount + "€",
-                            totalDebtFont);
-            totalOutstanding.setAlignment(Element.ALIGN_CENTER);
-            document.add(totalOutstanding);
-        }
     }
 
     private void addDisclaimer(Document document) throws DocumentException {
@@ -160,14 +144,7 @@ public class PDFServiceImpl implements PDFService {
 
     private BigDecimal calculateTotalDebt(List<DebtCase> debtCases) {
         return debtCases.stream()
-                .map(debtCase -> debtCase.getOutstandingBalance().compareTo(BigDecimal.ZERO) > 0 ? BigDecimal.ZERO :
-                        debtCase.getAmountOwed())
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    private BigDecimal calculateOutstanding(List<DebtCase> debtCases) {
-        return debtCases.stream()
-                .map(DebtCase::getOutstandingBalance)
+                .map(DebtCase::getAmountOwed)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

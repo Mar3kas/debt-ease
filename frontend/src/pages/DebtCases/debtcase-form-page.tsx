@@ -199,7 +199,6 @@ const DebtCaseFormPage: FC<IPage> = (props): ReactElement => {
     }
 
     const debtCaseRequest: IDebtCaseDTO = {
-      amountOwed: editedDebtCaseData.amountOwed,
       dueDate: editedDebtCaseData.dueDate,
       typeId: editedDebtCaseData.debtCaseType.id,
     };
@@ -268,7 +267,7 @@ const DebtCaseFormPage: FC<IPage> = (props): ReactElement => {
         </Box>
         <form>
           <Grid container spacing={2} sx={{ padding: 0.5 }}>
-            {["amountOwed", "dueDate", "debtCaseType"].map((field) => (
+            {["dueDate", "debtCaseType"].map((field) => (
               <Grid item xs={12} key={field}>
                 <React.Fragment>
                   <Typography variant="subtitle1" sx={{ color: "black" }}>

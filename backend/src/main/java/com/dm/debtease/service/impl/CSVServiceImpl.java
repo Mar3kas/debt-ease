@@ -95,7 +95,6 @@ public class CSVServiceImpl implements CSVService {
             debtCase.setDebtor(debtor);
             debtCase.setDebtCaseStatus(DebtCaseStatus.NEW);
             debtCase.setAmountOwed(new BigDecimal(line[5]));
-            debtCase.setOutstandingBalance(BigDecimal.ZERO);
             debtCase.setLateInterestRate(Double.parseDouble(line[6]));
             debtCase.setDueDate(line[7] != null ? LocalDateTime.parse(line[7], Constants.DATE_TIME_FORMATTER) :
                     LocalDateTime.now().plusMonths(2));

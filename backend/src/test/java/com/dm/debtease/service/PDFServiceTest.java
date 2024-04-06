@@ -60,12 +60,10 @@ public class PDFServiceTest {
                 Constants.DATE_TIME_FORMATTER);
         double lateInterestRate = 10.0;
         BigDecimal amountOwed = BigDecimal.valueOf(35.53);
-        BigDecimal outstandingBalance = BigDecimal.valueOf(35.53);
         int id = 1;
         List<DebtCase> expectedDebtCases =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, id, debtorName, debtorSurname, debtorEmail,
                         debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
-                        outstandingBalance,
                         debtorUsername));
 
         when(debtCaseService.getDebtCasesByDebtorUsername(debtorUsername)).thenReturn(expectedDebtCases);
@@ -102,12 +100,10 @@ public class PDFServiceTest {
                 Constants.DATE_TIME_FORMATTER);
         double lateInterestRate = 10.0;
         BigDecimal amountOwed = BigDecimal.valueOf(35.53);
-        BigDecimal outstandingBalance = BigDecimal.ZERO;
         int id = 1;
         List<DebtCase> expectedDebtCases =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, id, debtorName, debtorSurname, debtorEmail,
                         debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
-                        outstandingBalance,
                         debtorUsername));
 
         when(debtCaseService.getDebtCasesByDebtorUsername(debtorUsername)).thenReturn(expectedDebtCases);
@@ -148,7 +144,6 @@ public class PDFServiceTest {
         List<DebtCase> expectedDebtCases =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, id, debtorName, debtorSurname, debtorEmail,
                         debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
-                        BigDecimal.ZERO,
                         username));
         when(debtCaseTypeService.formatDebtCaseType(typeToMatch)).thenReturn("Default Debt");
 
