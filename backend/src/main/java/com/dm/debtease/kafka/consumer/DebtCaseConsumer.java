@@ -30,6 +30,7 @@ public class DebtCaseConsumer {
     private final CreditorRepository creditorRepository;
     private final DebtorRepository debtorRepository;
     private final CompanyInformationRepository companyInformationRepository;
+    private final VerifiedPhoneNumberInformationRepository verifiedPhoneNumberInformationRepository;
     private final SimpMessagingTemplate messagingTemplate;
     private final EmailService emailService;
 
@@ -62,7 +63,6 @@ public class DebtCaseConsumer {
         if (debtCase.getCreditor().getCompany() == null || !debtCase.getCreditor().getCompany().equals(companyInformation))
         {
             debtCase.getCreditor().setCompany(companyInformation);
-            creditorRepository.save(debtCase.getCreditor());
         }
         String phoneNumber = fixPhoneNumberFormat(debtCase.getDebtor().getPhoneNumber());
         return validatePhoneNumber(phoneNumber, debtCase);
@@ -77,6 +77,7 @@ public class DebtCaseConsumer {
             verifiedPhoneNumberInformation.setLocation(jsonObject.getString("location"));
             verifiedPhoneNumberInformation.setCarrier(jsonObject.getString("carrier"));
             verifiedPhoneNumberInformation.setLineType(PHONE_FORMAT_MAP.get(jsonObject.getString("line_type")));
+            verifiedPhoneNumberInformationRepository.save(verifiedPhoneNumberInformation);
             debtCase.getDebtor().setVerifiedPhoneNumberInformation(verifiedPhoneNumberInformation);
             debtorRepository.save(debtCase.getDebtor());
             return debtCase;
