@@ -1,5 +1,5 @@
-import { ICompany } from "../CompanyInformation";
-import { IUser } from "../User";
+import { ICompany } from "../company-information";
+import { IUser } from "../user";
 
 export interface ICreditor {
   id: number;

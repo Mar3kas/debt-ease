@@ -1,11 +1,11 @@
 import React, { FC, ReactElement, useEffect, useState } from "react";
-import { IPage } from "../../shared/models/Page";
+import { IPage } from "../../shared/models/page";
 import { useNavigate, useParams } from "react-router-dom";
-import useStyles from "../../Components/Styles/global-styles";
+import useStyles from "../../components/page-styles/global-styles";
 import useErrorHandling from "../../services/handle-responses";
 import { useEdit, useGet } from "../../services/api-service";
-import { IDebtCase } from "../../shared/models/Debtcases";
-import Footer from "../../Components/Footer/footer";
+import { IDebtCase } from "../../shared/models/debt-cases";
+import Footer from "../../components/page-footer/footer";
 import {
   Box,
   Button,
@@ -21,11 +21,11 @@ import {
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
-import { IDebtorDTO } from "../../shared/dtos/DebtorDTO";
-import { IDebtor } from "../../shared/models/Debtor";
-import Navbar from "../../Components/Navbar/navbar";
-import { IDebtCaseDTO } from "../../shared/dtos/DebtCaseDTO";
-import { IDebtCaseType } from "../../shared/models/DebtCaseType";
+import { IDebtorDTO } from "../../shared/dtos/debtor-dto";
+import { IDebtor } from "../../shared/models/debtor";
+import Navbar from "../../components/page-navbar/navbar";
+import { IDebtCaseDTO } from "../../shared/dtos/debt-case-dto";
+import { IDebtCaseType } from "../../shared/models/debt-case-type";
 
 const DebtCaseFormPage: FC<IPage> = (props): ReactElement => {
   const classes = useStyles("light");

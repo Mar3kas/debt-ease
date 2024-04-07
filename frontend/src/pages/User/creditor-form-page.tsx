@@ -8,15 +8,15 @@ import {
   Divider,
   TextField,
 } from "@mui/material";
-import Navbar from "../../Components/Navbar/navbar";
-import Footer from "../../Components/Footer/footer";
-import { IPage } from "../../shared/models/Page";
-import useStyles from "../../Components/Styles/global-styles";
+import Navbar from "../../components/page-navbar/navbar";
+import Footer from "../../components/page-footer/footer";
+import { IPage } from "../../shared/models/page";
+import useStyles from "../../components/page-styles/global-styles";
 import { useEdit, useGet } from "../../services/api-service";
 import { useNavigate, useParams } from "react-router-dom";
 import useErrorHandling from "../../services/handle-responses";
-import { ICreditor } from "../../shared/models/Creditor";
-import { ICreditorDTO } from "../../shared/dtos/CreditorDTO";
+import { ICreditor } from "../../shared/models/creditor";
+import { ICreditorDTO } from "../../shared/dtos/creditor-dto";
 
 const CreditorFormPage: FC<IPage> = (props): ReactElement => {
   const classes = useStyles("light");

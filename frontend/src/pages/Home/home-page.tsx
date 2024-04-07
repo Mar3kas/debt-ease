@@ -5,9 +5,9 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import HelpIcon from "@mui/icons-material/Help";
 import ContactSupportIcon from "@mui/icons-material/ContactSupport";
 import { useTransition, animated, useSpring } from "@react-spring/web";
-import useStyles from "../../Components/Styles/global-styles";
-import Navbar from "../../Components/Navbar/navbar";
-import Footer from "../../Components/Footer/footer";
+import useStyles from "../../components/page-styles/global-styles";
+import Navbar from "../../components/page-navbar/navbar";
+import Footer from "../../components/page-footer/footer";
 import { useNavigate } from "react-router-dom";
 
 const slides = [

@@ -1,6 +1,6 @@
-import { ICreditor } from "../Creditor";
-import { IDebtCaseType } from "../DebtCaseType";
-import { IDebtor } from "../Debtor";
+import { ICreditor } from "../creditor";
+import { IDebtCaseType } from "../debt-case-type";
+import { IDebtor } from "../debtor";
 
 export interface IDebtCase {
   id: number;

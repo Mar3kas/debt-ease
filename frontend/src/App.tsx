@@ -1,6 +1,6 @@
 import React, { FC } from "react";
 import "./App.css";
-import { useSnackbar } from "./Components";
+import { useSnackbar } from "./components";
 import { routes as appRoutes } from "./routes";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { CssBaseline } from "@mui/material";

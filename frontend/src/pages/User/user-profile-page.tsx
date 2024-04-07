@@ -1,10 +1,10 @@
 import React, { FC, ReactElement, useEffect, useState } from "react";
 import { useEdit, useGet } from "../../services/api-service";
-import { IDebtor } from "../../shared/models/Debtor";
-import useStyles from "../../Components/Styles/global-styles";
+import { IDebtor } from "../../shared/models/debtor";
+import useStyles from "../../components/page-styles/global-styles";
 import { useNavigate } from "react-router-dom";
-import { ICreditor } from "../../shared/models/Creditor";
-import { IAdmin } from "../../shared/models/Admin";
+import { ICreditor } from "../../shared/models/creditor";
+import { IAdmin } from "../../shared/models/admin";
 import {
   Paper,
   Typography,
@@ -19,13 +19,13 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import BusinessIcon from "@mui/icons-material/Business";
 import PersonIcon from "@mui/icons-material/Person";
-import Navbar from "../../Components/Navbar/navbar";
-import Footer from "../../Components/Footer/footer";
+import Navbar from "../../components/page-navbar/navbar";
+import Footer from "../../components/page-footer/footer";
 import EditIcon from "@mui/icons-material/Edit";
-import { IPage } from "../../shared/models/Page";
-import { IDebtorDTO } from "../../shared/dtos/DebtorDTO";
-import { ICreditorDTO } from "../../shared/dtos/CreditorDTO";
+import { IPage } from "../../shared/models/page";
 import useErrorHandling from "../../services/handle-responses";
+import { ICreditorDTO } from "../../shared/dtos/creditor-dto";
+import { IDebtorDTO } from "../../shared/dtos/debtor-dto";
 import AuthService from "../../services/jwt-service";
 
 const UserProfilePage: FC<IPage> = (props): ReactElement => {

@@ -14,16 +14,16 @@ import {
   DialogContent,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import useStyles from "../../Components/Styles/global-styles";
+import useStyles from "../../components/page-styles/global-styles";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../../Components/Navbar/navbar";
-import Footer from "../../Components/Footer/footer";
-import { IPage } from "../../shared/models/Page";
+import Navbar from "../../components/page-navbar/navbar";
+import Footer from "../../components/page-footer/footer";
+import { IPage } from "../../shared/models/page";
 import { useDelete, useGet } from "../../services/api-service";
 import useErrorHandling from "../../services/handle-responses";
-import { ICreditor } from "../../shared/models/Creditor";
-import { IDebtor } from "../../shared/models/Debtor";
-import ScrollToTopButton from "../../Components/ScrollTotop/scroll-top";
+import { ICreditor } from "../../shared/models/creditor";
+import { IDebtor } from "../../shared/models/debtor";
+import ScrollToTopButton from "../../components/scroll-to-top/scroll-top";
 
 const UserListPage: FC<IPage> = (props): ReactElement => {
   const navigate = useNavigate();

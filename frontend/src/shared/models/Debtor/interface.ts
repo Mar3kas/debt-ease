@@ -1,5 +1,5 @@
-import { IUser } from "../User";
-import { IVerifiedPhoneNumberInformation } from "../VerifiedPhoneNumberInformation";
+import { IUser } from "../user";
+import { IVerifiedPhoneNumberInformation } from "../verified-phone-number-information";
 
 export interface IDebtor {
   id: number;

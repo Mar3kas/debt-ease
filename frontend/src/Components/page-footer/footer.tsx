@@ -1,6 +1,6 @@
 import React, { FC, ReactElement } from "react";
 import { Box, Typography } from "@mui/material";
-import useStyles from "../Styles/global-styles";
+import useStyles from "../page-styles/global-styles";
 
 const Footer: FC = (): ReactElement => {
   const classes = useStyles("light");

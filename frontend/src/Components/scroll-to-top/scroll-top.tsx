@@ -1,7 +1,7 @@
 import { IconButton } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import useStyles from "../Styles/global-styles";
+import useStyles from "../page-styles/global-styles";
 
 const ScrollToTopButton = () => {
   const classes = useStyles("light");

@@ -1,13 +1,13 @@
 import { FC, ReactElement, useEffect, useState } from "react";
-import { IPage } from "../../shared/models/Page";
-import useStyles from "../../Components/Styles/global-styles";
+import { IPage } from "../../shared/models/page";
+import useStyles from "../../components/page-styles/global-styles";
 import { useNavigate } from "react-router-dom";
 import { usePost } from "../../services/api-service";
 import { Box, Paper, Typography, TextField, Button } from "@mui/material";
-import { IUserDTO } from "../../shared/dtos/UserDTO";
-import { IAccessMap } from "../../shared/models/AccessMap";
-import Footer from "../../Components/Footer/footer";
-import Navbar from "../../Components/Navbar/navbar";
+import { IUserDTO } from "../../shared/dtos/user-dto";
+import { IAccessMap } from "../../shared/models/access-map";
+import Footer from "../../components/page-footer/footer";
+import Navbar from "../../components/page-navbar/navbar";
 import AuthService from "../../services/jwt-service";
 
 const LoginPage: FC<IPage> = (props): ReactElement => {

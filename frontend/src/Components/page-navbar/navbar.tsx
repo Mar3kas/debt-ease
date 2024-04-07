@@ -15,7 +15,7 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate } from "react-router-dom";
 import { NavbarProps } from "./interface";
-import useStyles from "../Styles/global-styles";
+import useStyles from "../page-styles/global-styles";
 import { usePost } from "../../services/api-service";
 import WebSocketService from "../../services/websocket-service";
 import AuthService from "../../services/jwt-service";
@@ -53,7 +53,7 @@ const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
       authService.clear();
       navigate("/");
     }
-  }, [data, error, navigate]);
+  }, [authService, data, error, navigate]);
 
   return (
     <>
@@ -66,7 +66,7 @@ const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
         <Toolbar>
           <a href="/" onClick={handleLogoClick}>
             <img
-              src={require("../../Images/debtease.png")}
+              src={require("../../images/debtease.png")}
               alt="DebtEase Logo"
               style={{ height: "80px", cursor: "pointer" }}
             />

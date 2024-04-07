@@ -10,8 +10,8 @@ import {
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../../Components/Navbar/navbar";
-import Footer from "../../Components/Footer/footer";
+import Navbar from "../../components/page-navbar/navbar";
+import Footer from "../../components/page-footer/footer";
 
 const SystemInfoPage: FC = (): ReactElement => {
   const navigate = useNavigate();

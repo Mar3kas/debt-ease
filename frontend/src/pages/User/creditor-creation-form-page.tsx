@@ -8,14 +8,14 @@ import {
   Divider,
   Grid,
 } from "@mui/material";
-import Navbar from "../../Components/Navbar/navbar";
-import Footer from "../../Components/Footer/footer";
-import { IPage } from "../../shared/models/Page";
-import useStyles from "../../Components/Styles/global-styles";
+import Navbar from "../../components/page-navbar/navbar";
+import Footer from "../../components/page-footer/footer";
+import { IPage } from "../../shared/models/page";
+import useStyles from "../../components/page-styles/global-styles";
 import { usePost } from "../../services/api-service";
 import { useNavigate } from "react-router-dom";
 import useErrorHandling from "../../services/handle-responses";
-import { ICreditorDTO } from "../../shared/dtos/CreditorDTO";
+import { ICreditorDTO } from "../../shared/dtos/creditor-dto";
 
 const CreditorCreationFormPage: FC<IPage> = ({
   openSnackbar,

@@ -10,11 +10,11 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { IPage } from "../../shared/models/Page";
-import useStyles from "../../Components/Styles/global-styles";
+import { IPage } from "../../shared/models/page";
+import useStyles from "../../components/page-styles/global-styles";
 import { useNavigate, useParams } from "react-router-dom";
-import Navbar from "../../Components/Navbar/navbar";
-import Footer from "../../Components/Footer/footer";
+import Navbar from "../../components/page-navbar/navbar";
+import Footer from "../../components/page-footer/footer";
 import { loadStripe } from "@stripe/stripe-js";
 import {
   CardElement,
@@ -22,7 +22,7 @@ import {
   useElements,
   useStripe,
 } from "@stripe/react-stripe-js";
-import { IPaymentRequestDTO } from "../../shared/dtos/PaymentRequestDTO";
+import { IPaymentRequestDTO } from "../../shared/dtos/payment-request-dto";
 import { usePost } from "../../services/api-service";
 import useErrorHandling from "../../services/handle-responses";
 

@@ -14,17 +14,17 @@ import {
   Pagination,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import useStyles from "../../Components/Styles/global-styles";
+import useStyles from "../../components/page-styles/global-styles";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../../Components/Navbar/navbar";
-import Footer from "../../Components/Footer/footer";
-import { IPage } from "../../shared/models/Page";
-import { IDebtCase } from "../../shared/models/Debtcases";
+import Navbar from "../../components/page-navbar/navbar";
+import Footer from "../../components/page-footer/footer";
+import { IPage } from "../../shared/models/page";
+import { IDebtCase } from "../../shared/models/debt-cases";
 import { useDelete, useGet, usePost } from "../../services/api-service";
 import useErrorHandling from "../../services/handle-responses";
-import { IDebtor } from "../../shared/models/Debtor";
+import { IDebtor } from "../../shared/models/debtor";
 import WebSocketService from "../../services/websocket-service";
-import { ICreditor } from "../../shared/models/Creditor";
+import { ICreditor } from "../../shared/models/creditor";
 import AuthService from "../../services/jwt-service";
 
 const DebtCaseListPage: FC<IPage> = (props): ReactElement => {

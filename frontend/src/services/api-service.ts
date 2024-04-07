@@ -1,5 +1,5 @@
 import React from "react";
-import { IApiError } from "../shared/models/ApiError";
+import { IApiError } from "../shared/models/api-error";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import AuthService from "./jwt-service";
 
