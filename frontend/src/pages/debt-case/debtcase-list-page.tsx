@@ -19,7 +19,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/page-navbar/navbar";
 import Footer from "../../components/page-footer/footer";
 import { IPage } from "../../shared/models/page";
-import { IDebtCase } from "../../shared/models/debt-cases";
+import { IDebtCase } from "../../shared/models/debt-case";
 import { useDelete, useGet, usePost } from "../../services/api-service";
 import useErrorHandling from "../../services/handle-responses";
 import { IDebtor } from "../../shared/models/debtor";

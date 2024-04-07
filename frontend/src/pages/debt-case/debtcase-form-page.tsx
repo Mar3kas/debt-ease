@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import useStyles from "../../components/page-styles/global-styles";
 import useErrorHandling from "../../services/handle-responses";
 import { useEdit, useGet } from "../../services/api-service";
-import { IDebtCase } from "../../shared/models/debt-cases";
+import { IDebtCase } from "../../shared/models/debt-case";
 import Footer from "../../components/page-footer/footer";
 import {
   Box,
