@@ -15,8 +15,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "debtcase_type")
-@Table(name = "debtcase_type")
+@Entity(name = "debt_case_type")
+@Table(name = "debt_case_type")
 public class DebtCaseType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
