@@ -41,7 +41,7 @@ const DebtorFormPage: FC<IPage> = (props): ReactElement => {
 
   useEffect(() => {
     handleAPIError(debtorError || editError, openSnackbar);
-  }, [debtorError, editError, openSnackbar]);
+  }, [debtorError, editError, openSnackbar, editCompleted]);
 
   useEffect(() => {
     setEditedData(debtorData ? { ...debtorData } : null);

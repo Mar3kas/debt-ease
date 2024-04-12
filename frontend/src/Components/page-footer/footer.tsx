@@ -16,7 +16,7 @@ const Footer: FC = (): ReactElement => {
       }}
     >
       <Typography variant="body2" align="center" gutterBottom>
-        © 2024 DebtEase. Data is collected and stored nn the register of legal
+        © 2024 DebtEase. Data is collected and stored in the register of legal
         entities. All rights reserved in the Republic of Lithuania laws.
       </Typography>
     </Box>
