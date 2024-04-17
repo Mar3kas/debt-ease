@@ -170,7 +170,7 @@ const SystemInfoPage: FC = (): ReactElement => {
                 <br />
                 <br />
                 To start using the DebtEase system, you need to apply by
-                downloading and filling in this form:
+                downloading and filling in this form{" "}
                 <a href="#" onClick={handleDownloadWord}>
                   Download Agreement Form
                 </a>
@@ -178,7 +178,7 @@ const SystemInfoPage: FC = (): ReactElement => {
                 <br />
                 <br />
                 When uploading debt cases, please download the CSV example and
-                use it as a guideline:
+                use it as a guideline{" "}
                 <a href="#" onClick={handleDownloadCSV}>
                   Download CSV Example
                 </a>

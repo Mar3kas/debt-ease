@@ -63,7 +63,6 @@ class AuthService {
         this.setToken(token, decoded as DecodedToken);
         return decoded as DecodedToken;
       } catch (error) {
-        console.error("Error decoding token:", error);
         return null;
       }
     }
