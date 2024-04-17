@@ -4,11 +4,9 @@ import com.dm.debtease.TestUtils;
 import com.dm.debtease.model.DebtCase;
 import com.dm.debtease.model.DebtCaseStatus;
 import com.dm.debtease.model.dto.DebtCaseDTO;
-import com.dm.debtease.model.dto.PaymentRequestDTO;
 import com.dm.debtease.service.CSVService;
 import com.dm.debtease.service.DebtCaseService;
 import com.dm.debtease.service.PDFService;
-import com.dm.debtease.service.PaymentService;
 import com.dm.debtease.utils.Constants;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
@@ -48,8 +46,6 @@ public class DebtCaseControllerTest {
     private CSVService csvService;
     @Mock
     private PDFService pdfService;
-    @Mock
-    private PaymentService paymentService;
     @InjectMocks
     private DebtCaseController debtCaseController;
     private MockMvc mockMvc;
@@ -300,49 +296,6 @@ public class DebtCaseControllerTest {
         Assertions.assertEquals(result.getResponse().getContentAsString(),
                 "CSV uploaded successfully and debt cases are being enriched");
         Assertions.assertEquals(HttpStatus.CREATED.value(), result.getResponse().getStatus());
-    }
-
-    @Test
-    void payForDebtCaseById_ShouldReturnSuccessfullyPayed() throws Exception {
-        int id = 1;
-        String sourceId = "random-id";
-        Boolean isPaymentInFull = true;
-        PaymentRequestDTO
-                paymentRequestDTO =
-                TestUtils.setupPaymentRequestDTOTestData(sourceId, BigDecimal.valueOf(25.52), isPaymentInFull);
-        when(paymentService.isPaymentMade(any(PaymentRequestDTO.class), anyInt())).thenReturn(true);
-
-        MvcResult result = mockMvc.perform(post("/api/debt/cases/{id}/pay", id)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(paymentRequestDTO)))
-                .andExpect(status().isOk())
-                .andDo(print())
-                .andReturn();
-
-        verify(paymentService).isPaymentMade(any(PaymentRequestDTO.class), anyInt());
-        Assertions.assertNotNull(result);
-        Assertions.assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-    }
-
-    @Test
-    void payForDebtCaseById_ShouldReturnNotSuccessfullyPayed() throws Exception {
-        int id = 1;
-        String sourceId = "random-id";
-        Boolean isPaymentInFull = false;
-        PaymentRequestDTO
-                paymentRequestDTO = TestUtils.setupPaymentRequestDTOTestData(sourceId, BigDecimal.TEN, isPaymentInFull);
-        when(paymentService.isPaymentMade(any(PaymentRequestDTO.class), anyInt())).thenReturn(false);
-
-        MvcResult result = mockMvc.perform(post("/api/debt/cases/{id}/pay", id)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(paymentRequestDTO)))
-                .andExpect(status().isBadRequest())
-                .andDo(print())
-                .andReturn();
-
-        verify(paymentService).isPaymentMade(any(PaymentRequestDTO.class), anyInt());
-        Assertions.assertNotNull(result);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
     }
 
     @Test

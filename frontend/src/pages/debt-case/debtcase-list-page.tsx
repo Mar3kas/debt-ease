@@ -26,6 +26,7 @@ import { IDebtor } from "../../shared/models/debtor";
 import WebSocketService from "../../services/websocket-service";
 import { ICreditor } from "../../shared/models/creditor";
 import AuthService from "../../services/jwt-service";
+import ScrollToTopButton from "../../components/scroll-to-top/scroll-top";
 
 const DebtCaseListPage: FC<IPage> = (props): ReactElement => {
   const authService = AuthService.getInstance();
@@ -581,6 +582,7 @@ const DebtCaseListPage: FC<IPage> = (props): ReactElement => {
                 )}
               <Box sx={{ textAlign: "center", marginTop: "20px" }}>
                 {renderPaginationControls()}
+                <ScrollToTopButton />
               </Box>
             </Box>
           )}

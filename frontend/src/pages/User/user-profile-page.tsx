@@ -14,6 +14,13 @@ import {
   Button,
   Grid,
   TextField,
+  Pagination,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  List,
+  ListItemText,
+  ListItem,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
@@ -27,6 +34,7 @@ import useErrorHandling from "../../services/handle-responses";
 import { ICreditorDTO } from "../../shared/dtos/creditor-dto";
 import { IDebtorDTO } from "../../shared/dtos/debtor-dto";
 import AuthService from "../../services/jwt-service";
+import { IPayment } from "../../shared/models/payment";
 
 const UserProfilePage: FC<IPage> = (props): ReactElement => {
   const authService = AuthService.getInstance();
@@ -48,7 +56,22 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
     shouldRefetch,
     true
   );
+
+  const { data: payments, error: paymentsError } = useGet<IPayment[]>(
+    "payments/{username}",
+    username ? { username: username } : {},
+    shouldRefetch,
+    true
+  );
   const canEditProfile = data?.user?.role !== "ADMIN";
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [paymentsPerPage] = useState(5);
+  const totalPayments = payments?.length || 0;
+  const totalPages = Math.ceil(totalPayments / paymentsPerPage);
+  const startIndex = (currentPage - 1) * paymentsPerPage;
+  const endIndex = Math.min(startIndex + paymentsPerPage, totalPayments);
+  const paginatedPayments = payments?.slice(startIndex, endIndex);
 
   const roleSpecificEndpoint =
     data?.user?.role === "CREDITOR"
@@ -75,6 +98,16 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
       openSnackbar("You need to login again", "warning");
     }
   }, [error, handleErrorResponse, navigate, openSnackbar]);
+
+  useEffect(() => {
+    if (paymentsError && [401, 403].includes(paymentsError.statusCode)) {
+      handleErrorResponse(paymentsError.statusCode);
+      openSnackbar(paymentsError.message, "error");
+    } else if (paymentsError?.description.includes("Refresh Token")) {
+      navigate("/login");
+      openSnackbar("You need to login again", "warning");
+    }
+  }, [paymentsError, handleErrorResponse, navigate, openSnackbar]);
 
   useEffect(() => {
     if (editError !== null && editError.statusCode === 422) {
@@ -238,6 +271,61 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
     </>
   );
 
+  const renderPaginationControls = () => (
+    <Pagination
+      className={classes.pagination}
+      count={totalPages}
+      page={currentPage}
+      onChange={(event, page) => handlePageChange(page)}
+      variant="outlined"
+      shape="rounded"
+      size="large"
+    />
+  );
+
+  const transformDebtType = (type: string): string => {
+    const lowerCaseType = type.toLowerCase();
+    return lowerCaseType
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const renderPaymentHistory = () => {
+    if (data && data.user?.role === "DEBTOR") {
+      return (
+        <Paper elevation={3} square sx={{ padding: 2 }}>
+          <Typography variant="h5" sx={{ marginBottom: 1 }}>
+            Payment History
+          </Typography>
+          <List>
+            {paginatedPayments &&
+              paginatedPayments.map((payment) => (
+                <ListItem key={payment.id}>
+                  <ListItemText
+                    primary={`Payment for ${
+                      payment.debtCase.creditor.name
+                    } ${transformDebtType(
+                      payment.debtCase.debtCaseType.type
+                    )} ${payment.paymentDate}`}
+                    secondary={`${payment.amount}€ ${payment.paymentMethod}`}
+                  />
+                </ListItem>
+              ))}
+          </List>
+          <Box sx={{ textAlign: "center", marginTop: "20px" }}>
+            {renderPaginationControls()}
+          </Box>
+        </Paper>
+      );
+    }
+    return null;
+  };
+
   const renderUserProfile = () => {
     if (data) {
       let icon;
@@ -392,45 +480,93 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
       }}
     >
       <Navbar title="DebtEase" />
-      <Paper className={classes.paper} elevation={16} square={true}>
-        {loading && (
-          <Box
-            sx={{
-              flexGrow: 1,
-              display: "flex",
-              width: "100%",
-              justifyContent: "center",
-              height: "200px",
-              marginTop: 3,
-            }}
-          >
-            Loading...
+      {data?.user?.role === "DEBTOR" && (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+          <Grid container spacing={2} justifyContent="center">
+            <Grid item xs={12} md={10} lg={8}>
+              {loading && (
+                <Box
+                  sx={{
+                    flexGrow: 1,
+                    display: "flex",
+                    width: "100%",
+                    justifyContent: "center",
+                    height: "200px",
+                    marginTop: 3,
+                  }}
+                >
+                  Loading...
+                </Box>
+              )}
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={6}>
+                  <Paper elevation={16} square sx={{ padding: 2 }}>
+                    {renderUserProfile()}
+                  </Paper>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Paper elevation={16} square>
+                    {renderPaymentHistory()}
+                  </Paper>
+                </Grid>
+              </Grid>
+              {error !== null && error.statusCode !== 422 && (
+                <Box
+                  sx={{
+                    flexGrow: 1,
+                    display: "flex",
+                    width: "100%",
+                    justifyContent: "center",
+                    height: "200px",
+                    marginTop: 3,
+                  }}
+                >
+                  <Typography variant="body1" color="red">
+                    {error.description}
+                  </Typography>
+                </Box>
+              )}
+              {error &&
+                (error.statusCode === 404 || error?.statusCode === 403) && (
+                  <>
+                    {handleErrorResponse(error.statusCode)}
+                    {openSnackbar(error.message, "error")}
+                  </>
+                )}
+            </Grid>
+          </Grid>
+        </Box>
+      )}
+      {data?.user?.role !== "DEBTOR" && (
+        <Paper className={classes.paper} elevation={16} square={true}>
+          <Box sx={{ padding: 2 }}>
+            {renderUserProfile()}
+            {error !== null && error.statusCode !== 422 && (
+              <Box
+                sx={{
+                  flexGrow: 1,
+                  display: "flex",
+                  width: "100%",
+                  justifyContent: "center",
+                  height: "200px",
+                  marginTop: 3,
+                }}
+              >
+                <Typography variant="body1" color="red">
+                  {error.description}
+                </Typography>
+              </Box>
+            )}
+            {error &&
+              (error.statusCode === 404 || error?.statusCode === 403) && (
+                <>
+                  {handleErrorResponse(error.statusCode)}
+                  {openSnackbar(error.message, "error")}
+                </>
+              )}
           </Box>
-        )}
-        {error !== null && error.statusCode !== 422 && (
-          <Box
-            sx={{
-              flexGrow: 1,
-              display: "flex",
-              width: "100%",
-              justifyContent: "center",
-              height: "200px",
-              marginTop: 3,
-            }}
-          >
-            <Typography variant="body1" color="red">
-              {error.description}
-            </Typography>
-          </Box>
-        )}
-        {error && (error.statusCode === 404 || error?.statusCode === 403) && (
-          <>
-            {handleErrorResponse(error.statusCode)}
-            {openSnackbar(error.message, "error")}
-          </>
-        )}
-        <Box sx={{ padding: 2 }}>{renderUserProfile()}</Box>
-      </Paper>
+        </Paper>
+      )}
       <Footer />
     </Box>
   );

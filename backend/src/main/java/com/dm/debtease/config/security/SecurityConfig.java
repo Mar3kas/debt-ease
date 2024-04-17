@@ -37,7 +37,8 @@ public class SecurityConfig implements WebMvcConfigurer {
             "/swagger-ui.html",
             "/api/login",
             "/api/refresh",
-            "/ws/**"
+            "/ws/**",
+            "/api/files/**",
     };
 
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
@@ -93,6 +94,8 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .hasAnyAuthority(Role.DEBTOR.name(), Role.ADMIN.name())
                         .requestMatchers(HttpMethod.GET, "/api/debtors/profile/*")
                         .hasAnyAuthority(Role.DEBTOR.name(), Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.GET, "/api/payments/*")
+                        .hasAnyAuthority(Role.DEBTOR.name(), Role.CREDITOR.name(), Role.ADMIN.name())
                         .requestMatchers(HttpMethod.PUT, "/api/creditors/*")
                         .hasAnyAuthority(Role.CREDITOR.name(), Role.ADMIN.name())
                         .requestMatchers(HttpMethod.PUT, "/api/debt/cases/* /creditors/*").hasAnyAuthority
@@ -102,7 +105,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                                 Role.DEBTOR.name())
                         .requestMatchers(HttpMethod.POST, "/api/debt/cases/creditors/* /file").hasAnyAuthority
                                 (Role.CREDITOR.name(), Role.ADMIN.name())
-                        .requestMatchers(HttpMethod.POST, "/api/debt/cases/* /pay").hasAuthority(Role.DEBTOR.name())
+                        .requestMatchers(HttpMethod.POST, "/api/payments/* /pay").hasAuthority(Role.DEBTOR.name())
                         .requestMatchers(HttpMethod.POST, "/api/creditors/").hasAuthority(Role.ADMIN.name())
                         .requestMatchers(HttpMethod.POST, "/api/logout")
                         .hasAnyAuthority(Role.ADMIN.name(), Role.DEBTOR.name(),

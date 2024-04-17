@@ -154,4 +154,14 @@ public class TestUtils {
         paymentRequestDTO.setSourceId(sourceId);
         return paymentRequestDTO;
     }
+
+    public static Payment setupPaymentTestData(DebtCase debtCase, BigDecimal amount, String paymentMethod, String description, LocalDateTime paymentDate) {
+        Payment payment = new Payment();
+        payment.setDebtCase(debtCase);
+        payment.setPaymentMethod(paymentMethod);
+        payment.setPaymentDate(paymentDate);
+        payment.setAmount(amount);
+        payment.setDescription(description);
+        return payment;
+    }
 }

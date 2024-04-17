@@ -6,6 +6,7 @@ import {
   Divider,
   FormControlLabel,
   Grid,
+  InputAdornment,
   Paper,
   TextField,
   Typography,
@@ -52,7 +53,7 @@ const DebtCasePaymentForm: FC<IPage> = (props): ReactElement => {
   const navigate = useNavigate();
   const { id } = useParams<{ id?: string }>();
   const { data, error, postData } = usePost<IPaymentRequestDTO>(
-    "debt/cases/{id}/pay",
+    "payments/{id}/pay",
     { id: Number(id) }
   );
 
@@ -174,6 +175,11 @@ const DebtCasePaymentForm: FC<IPage> = (props): ReactElement => {
                 value={paymentAmount}
                 className={classes.textField}
                 onChange={handlePaymentAmountChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">€</InputAdornment>
+                  ),
+                }}
               />
             </Box>
           )}

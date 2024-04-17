@@ -38,5 +38,5 @@ public class Creditor {
 
     @OneToOne()
     @JoinColumn(name = "company_id")
-    CompanyInformation company;
+    Company company;
 }

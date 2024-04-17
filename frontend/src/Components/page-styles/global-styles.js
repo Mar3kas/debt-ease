@@ -132,8 +132,8 @@ const useStyles = makeStyles((theme) => ({
       },
     },
     "& .Mui-selected": {
-      backgroundColor: "#2E8B57",
-      color: "white",
+      backgroundColor: "#2E8B57 !important",
+      color: "black",
     },
   },
 

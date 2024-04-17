@@ -27,4 +27,6 @@ public class Constants {
             "Disclaimer: Please scroll down to see the debt case type distribution.";
     public static final long DELAY_BETWEEN_NUMVERIFY_REQUESTS = 1000;
     public static final int STRIPE_AMOUNT_MULTIPLIER = 100;
+    public static final String CSV_EXAMPLE_PATH = "src/main/resources/files/debtcase_1.csv";
+    public static final String REQUEST_FORM_EXAMPLE_PATH = "src/main/resources/files/DebtEase Debt Management Form.docx";
 }

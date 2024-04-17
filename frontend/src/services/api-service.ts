@@ -97,9 +97,8 @@ export const useGet = <T>(
       setLoading(true);
       setError(null);
 
-      if (authService.isTokenExpired()) {
+      if (authService.isTokenExpired() && !endpoint.includes("files")) {
         const refreshToken = authService.getRefreshToken();
-        console.log(refreshToken);
         try {
           const response = await axios.post(
             `${API_BASE_URL}/refresh`,

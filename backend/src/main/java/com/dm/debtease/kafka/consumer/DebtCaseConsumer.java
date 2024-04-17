@@ -1,6 +1,6 @@
 package com.dm.debtease.kafka.consumer;
 
-import com.dm.debtease.model.CompanyInformation;
+import com.dm.debtease.model.Company;
 import com.dm.debtease.model.DebtCase;
 import com.dm.debtease.model.VerifiedPhoneNumberInformation;
 import com.dm.debtease.repository.*;
@@ -29,7 +29,7 @@ public class DebtCaseConsumer {
     private final DebtCaseRepository debtCaseRepository;
     private final CreditorRepository creditorRepository;
     private final DebtorRepository debtorRepository;
-    private final CompanyInformationRepository companyInformationRepository;
+    private final CompanyRepository companyRepository;
     private final VerifiedPhoneNumberInformationRepository verifiedPhoneNumberInformationRepository;
     private final SimpMessagingTemplate messagingTemplate;
     private final EmailService emailService;
@@ -59,10 +59,10 @@ public class DebtCaseConsumer {
     }
 
     private DebtCase enrich(DebtCase debtCase) {
-        CompanyInformation companyInformation = companyInformationRepository.findByNameContainingIgnoreCase(debtCase.getCreditor().getName());
-        if (debtCase.getCreditor().getCompany() == null || !debtCase.getCreditor().getCompany().equals(companyInformation))
+        Company company = companyRepository.findByNameContainingIgnoreCase(debtCase.getCreditor().getName());
+        if (debtCase.getCreditor().getCompany() == null || !debtCase.getCreditor().getCompany().equals(company))
         {
-            debtCase.getCreditor().setCompany(companyInformation);
+            debtCase.getCreditor().setCompany(company);
         }
         String phoneNumber = fixPhoneNumberFormat(debtCase.getDebtor().getPhoneNumber());
         return validatePhoneNumber(phoneNumber, debtCase);
