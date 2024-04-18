@@ -112,6 +112,8 @@ public class PDFServiceImpl implements PDFService {
             debtCaseInfo.add(Chunk.NEWLINE);
             debtCaseInfo.add(new Chunk("Late Interest Rate: " + debtCase.getLateInterestRate() + "%", debtCaseFont));
             debtCaseInfo.add(Chunk.NEWLINE);
+            debtCaseInfo.add(new Chunk("Debt Interest Rate: " + debtCase.getDebtInterestRate() + "%", debtCaseFont));
+            debtCaseInfo.add(Chunk.NEWLINE);
             debtCaseInfo.add(new Chunk("Amount Owed: " + debtCase.getAmountOwed() + "€", debtCaseFont));
             debtCaseInfo.add(Chunk.NEWLINE);
             document.add(debtCaseInfo);

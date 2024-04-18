@@ -105,12 +105,13 @@ public class PaymentControllerTest {
         LocalDateTime dueDate = LocalDateTime.parse(LocalDateTime.now().format(Constants.DATE_TIME_FORMATTER),
                 Constants.DATE_TIME_FORMATTER);
         double lateInterestRate = 10.0;
+        double debtInterestRate = 10.0;
         BigDecimal amountOwed = BigDecimal.valueOf(35.53);
         DebtCase mockedDebtCase =
                 TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname,
                         debtorEmail,
-                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
-                        debtorUsername);
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, debtInterestRate,
+                        amountOwed, debtorUsername);
         String paymentMethod = "bank";
         String description = "you payed";
         LocalDateTime paymentDate = LocalDateTime.parse(LocalDateTime.now().format(Constants.DATE_TIME_FORMATTER),

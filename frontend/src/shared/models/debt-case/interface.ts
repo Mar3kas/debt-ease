@@ -6,6 +6,7 @@ export interface IDebtCase {
   id: number;
   amountOwed: number;
   lateInterestRate: number;
+  debtInterestRate: number;
   dueDate: string;
   createdDate: string;
   modifiedDate?: string;

@@ -77,7 +77,7 @@ public class DebtCaseController {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Content-Disposition", "attachment; filename=" + "debt_cases_report_" + LocalDateTime.now().format(Constants.DATE_TIME_FORMATTER_FOR_FILE) + ".pdf");
         httpHeaders.setContentType(MediaType.APPLICATION_PDF);
-        return ResponseEntity.ok().headers(httpHeaders).contentType(MediaType.APPLICATION_PDF).body(new InputStreamResource(document));
+        return ResponseEntity.ok().headers(httpHeaders).body(new InputStreamResource(document));
     }
 
     @PutMapping("/{id}/creditors/{creditorId}")

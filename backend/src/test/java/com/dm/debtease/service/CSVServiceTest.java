@@ -44,8 +44,8 @@ public class CSVServiceTest {
     void setup() {
         file = new MockMultipartFile("file", "test.csv", "text/csv",
                 ("""
-                        Name;Surname;Email;PhoneNumber;DebtType;AmountOwed;LateInterestRate;DueDate
-                        Tadas;Tadaitis;tadas@gmail.com;+37068821345;tax;84.35;5;2024-12-12 23:00:00
+                        Name;Surname;Email;PhoneNumber;DebtType;AmountOwed;LateInterestRate;DebtInterestRate;DueDate
+                        Tadas;Tadaitis;tadas@gmail.com;+37068821345;tax;84.35;5;5;2024-12-12 23:00:00
                         """).getBytes());
     }
 

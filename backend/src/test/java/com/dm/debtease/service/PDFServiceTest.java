@@ -59,12 +59,13 @@ public class PDFServiceTest {
         LocalDateTime dueDate = LocalDateTime.parse(LocalDateTime.now().format(Constants.DATE_TIME_FORMATTER),
                 Constants.DATE_TIME_FORMATTER);
         double lateInterestRate = 10.0;
+        double debtInterestRate = 10.0;
         BigDecimal amountOwed = BigDecimal.valueOf(35.53);
         int id = 1;
         List<DebtCase> expectedDebtCases =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, id, debtorName, debtorSurname, debtorEmail,
-                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
-                        debtorUsername));
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, debtInterestRate,
+                        amountOwed, debtorUsername));
 
         when(debtCaseService.getDebtCasesByDebtorUsername(debtorUsername)).thenReturn(expectedDebtCases);
         when(debtCaseTypeService.formatDebtCaseType(typeToMatch)).thenReturn("Default Debt");
@@ -99,12 +100,13 @@ public class PDFServiceTest {
         LocalDateTime dueDate = LocalDateTime.parse(LocalDateTime.now().format(Constants.DATE_TIME_FORMATTER),
                 Constants.DATE_TIME_FORMATTER);
         double lateInterestRate = 10.0;
+        double debtInterestRate = 10.0;
         BigDecimal amountOwed = BigDecimal.valueOf(35.53);
         int id = 1;
         List<DebtCase> expectedDebtCases =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, id, debtorName, debtorSurname, debtorEmail,
-                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
-                        debtorUsername));
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, debtInterestRate,
+                        amountOwed, debtorUsername));
 
         when(debtCaseService.getDebtCasesByDebtorUsername(debtorUsername)).thenReturn(expectedDebtCases);
         when(debtCaseTypeService.formatDebtCaseType(typeToMatch)).thenReturn("Default Debt");
@@ -139,12 +141,13 @@ public class PDFServiceTest {
         LocalDateTime dueDate = LocalDateTime.parse(LocalDateTime.now().format(Constants.DATE_TIME_FORMATTER),
                 Constants.DATE_TIME_FORMATTER);
         double lateInterestRate = 10.0;
+        double debtInterestRate = 10.0;
         BigDecimal amountOwed = BigDecimal.valueOf(35.53);
         int id = 1;
         List<DebtCase> expectedDebtCases =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, id, debtorName, debtorSurname, debtorEmail,
-                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
-                        username));
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, debtInterestRate,
+                        amountOwed, username));
         when(debtCaseTypeService.formatDebtCaseType(typeToMatch)).thenReturn("Default Debt");
 
         PieChart pieChart = pdfService.generatePieDiagram(expectedDebtCases);

@@ -123,7 +123,7 @@ public class TestUtils {
                                                  String debtorSurname,
                                                  String debtorEmail, String debtorPhoneNumber, String type,
                                                  DebtCaseStatus status,
-                                                 LocalDateTime dueDate, double lateInterestRate,
+                                                 LocalDateTime dueDate, double lateInterestRate, double debtInterestRate,
                                                  BigDecimal amountOwed, String debtorUsername) {
         DebtCase debtCase = new DebtCase();
         debtCase.setId(1);
@@ -135,6 +135,7 @@ public class TestUtils {
         debtCase.setDebtCaseStatus(status);
         debtCase.setDueDate(dueDate);
         debtCase.setLateInterestRate(lateInterestRate);
+        debtCase.setDebtInterestRate(debtInterestRate);
         debtCase.setAmountOwed(amountOwed);
         return debtCase;
     }

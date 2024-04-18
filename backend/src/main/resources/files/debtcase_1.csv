@@ -1,2 +1,2 @@
-Name;Surname;Email;PhoneNumber;DebtType;AmountOwed;LateInterestRate;DueDate
-MyName;MySurname;myemail@gmail.com;+37068821345;tax;84.35;5;2024-12-12 23:00:00
+Name;Surname;Email;PhoneNumber;DebtType;AmountOwed;LateInterestRate;DebtInterestRate;DueDate
+MyName;MySurname;myemail@gmail.com;+37068821345;tax;84.35;5;7;2024-12-12 23:00:00

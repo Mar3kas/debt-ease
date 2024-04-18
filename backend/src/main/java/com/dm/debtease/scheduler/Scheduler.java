@@ -39,7 +39,6 @@ public class Scheduler {
         log.info("Cron job scheduler for email notification for upcoming due date payment has finished!");
     }
 
-    //@Scheduled(cron = "0 * * * * *")
     @Scheduled(cron = "0 0 0 20 * *")
     public void emailNotificationEachMonth20DayScheduler() {
         log.info("Starting cron job scheduler for email notification each month 20th day!");
@@ -52,8 +51,7 @@ public class Scheduler {
         log.info("Cron job scheduler for email notification each month 20th day has finished!");
     }
 
-    //@Scheduled(cron = "0 * * * * *")
-    @Scheduled(cron = "0 0 23 * * *")
+    @Scheduled(cron = "0 0 1 * * *")
     public void calculateOutstandingBalanceScheduler() {
         log.info("Starting cron job scheduler for calculating outstanding balance!");
         LocalDateTime currentDate = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
@@ -62,15 +60,32 @@ public class Scheduler {
             List<DebtCase> debtCases = optionalDebtCases.get();
             for (DebtCase debtCase : debtCases) {
                 if (!DebtCaseStatus.CLOSED.equals(debtCase.getDebtCaseStatus())) {
-                    BigDecimal lateInterestAmount =
+                    BigDecimal lateInterestRateAmount =
                             debtCase.getAmountOwed()
                                     .multiply(BigDecimal.valueOf(debtCase.getLateInterestRate() / 100.0));
-                    BigDecimal updatedOutstandingBalance = debtCase.getAmountOwed().add(lateInterestAmount);
-                    debtCase.setAmountOwed(updatedOutstandingBalance);
+                    BigDecimal updatedAmountOwedBalance = debtCase.getAmountOwed().add(lateInterestRateAmount);
+                    debtCase.setAmountOwed(updatedAmountOwedBalance);
                     debtCaseRepository.save(debtCase);
                 }
             }
         }
         log.info("Cron job scheduler for calculating outstanding balance has finished!");
+    }
+
+    @Scheduled(cron = "0 0 1 * * *")
+    public void calculateOutstandingBalanceWithInterestRateScheduler() {
+        log.info("Starting cron job scheduler for calculating outstanding balance with interest rate!");
+        List<DebtCase> debtCases = debtCaseRepository.findAll();
+            for (DebtCase debtCase : debtCases) {
+                if (!DebtCaseStatus.CLOSED.equals(debtCase.getDebtCaseStatus())) {
+                    BigDecimal interestRateAmount =
+                            debtCase.getAmountOwed()
+                                    .multiply(BigDecimal.valueOf((debtCase.getDebtInterestRate() / 12) / 100));
+                    BigDecimal updatedAmountOwed = debtCase.getAmountOwed().add(interestRateAmount);
+                    debtCase.setAmountOwed(updatedAmountOwed);
+                    debtCaseRepository.save(debtCase);
+                }
+            }
+        log.info("Cron job scheduler for calculating outstanding balance with interest rate has finished!");
     }
 }

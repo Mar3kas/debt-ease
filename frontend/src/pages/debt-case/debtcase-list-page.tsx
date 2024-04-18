@@ -395,6 +395,9 @@ const DebtCaseListPage: FC<IPage> = (props): ReactElement => {
                 <Typography>
                   Late Interest Rate: {debtCase.lateInterestRate}%
                 </Typography>
+                <Typography>
+                  Debt Interest Rate: {debtCase.debtInterestRate}%
+                </Typography>
                 <Typography>Amount Owed: {debtCase.amountOwed}€</Typography>
                 <Typography>Due Date: {debtCase.dueDate}</Typography>
                 <Typography>Date Created: {debtCase.createdDate}</Typography>

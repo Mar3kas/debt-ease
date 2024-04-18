@@ -56,7 +56,7 @@ public class CSVServiceImpl implements CSVService {
                 }
                 String typeToMatch = debtCaseService.getTypeToMatch(line[4]);
                 Optional<DebtCase> existingDebtCase =
-                        debtCaseService.findExistingDebtCase(username, line[5], line[7], typeToMatch, line[0], line[1]);
+                        debtCaseService.findExistingDebtCase(username, line[5], line[8], typeToMatch, line[0], line[1]);
                 DebtCase debtCase =
                         createOrUpdateDebtCase(debtor, creditor, line, existingDebtCase, typeToMatch);
                 log.info(String.format("sending %s to kafka topic", debtCase));
@@ -86,7 +86,8 @@ public class CSVServiceImpl implements CSVService {
             debtCase = existingDebtCase.get();
             debtCase.setAmountOwed(new BigDecimal(line[5]));
             debtCase.setLateInterestRate(Double.parseDouble(line[6]));
-            debtCase.setDueDate(line[7] != null ? LocalDateTime.parse(line[7], Constants.DATE_TIME_FORMATTER) :
+            debtCase.setDebtInterestRate(Double.parseDouble(line[7]));
+            debtCase.setDueDate(line[8] != null ? LocalDateTime.parse(line[8], Constants.DATE_TIME_FORMATTER) :
                     LocalDateTime.now().plusMonths(2));
             debtCase.setModifiedDate(LocalDateTime.now());
         } else {
@@ -96,7 +97,8 @@ public class CSVServiceImpl implements CSVService {
             debtCase.setDebtCaseStatus(DebtCaseStatus.NEW);
             debtCase.setAmountOwed(new BigDecimal(line[5]));
             debtCase.setLateInterestRate(Double.parseDouble(line[6]));
-            debtCase.setDueDate(line[7] != null ? LocalDateTime.parse(line[7], Constants.DATE_TIME_FORMATTER) :
+            debtCase.setDebtInterestRate(Double.parseDouble(line[7]));
+            debtCase.setDueDate(line[8] != null ? LocalDateTime.parse(line[8], Constants.DATE_TIME_FORMATTER) :
                     LocalDateTime.now().plusMonths(2));
             debtCase.setCreatedDate(LocalDateTime.now());
         }

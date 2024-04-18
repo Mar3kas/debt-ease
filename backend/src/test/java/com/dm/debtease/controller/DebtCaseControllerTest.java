@@ -68,12 +68,13 @@ public class DebtCaseControllerTest {
         LocalDateTime dueDate = LocalDateTime.parse(LocalDateTime.now().format(Constants.DATE_TIME_FORMATTER),
                 Constants.DATE_TIME_FORMATTER);
         double lateInterestRate = 10.0;
+        double debtInterestRate = 10.0;
         BigDecimal amountOwed = BigDecimal.valueOf(35.53);
         List<DebtCase> mockedDebtCases =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname,
                         debtorEmail,
-                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
-                        debtorUsername));
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, debtInterestRate,
+                        amountOwed, debtorUsername));
         when(debtCaseService.getAllDebtCases()).thenReturn(mockedDebtCases);
 
         MvcResult result = mockMvc.perform(get("/api/debt/cases"))
@@ -107,12 +108,13 @@ public class DebtCaseControllerTest {
         LocalDateTime dueDate = LocalDateTime.parse(LocalDateTime.now().format(Constants.DATE_TIME_FORMATTER),
                 Constants.DATE_TIME_FORMATTER);
         double lateInterestRate = 10.0;
+        double debtInterestRate = 10.0;
         BigDecimal amountOwed = BigDecimal.valueOf(35.53);
         DebtCase mockedDebtCase =
                 TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname,
                         debtorEmail,
-                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
-                        debtorUsername);
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, debtInterestRate,
+                        amountOwed, debtorUsername);
         when(debtCaseService.getDebtCaseById(id)).thenReturn(mockedDebtCase);
 
         MvcResult result = mockMvc.perform(get("/api/debt/cases/{id}", id))
@@ -145,12 +147,13 @@ public class DebtCaseControllerTest {
         LocalDateTime dueDate = LocalDateTime.parse(LocalDateTime.now().format(Constants.DATE_TIME_FORMATTER),
                 Constants.DATE_TIME_FORMATTER);
         double lateInterestRate = 10.0;
+        double debtInterestRate = 10.0;
         BigDecimal amountOwed = BigDecimal.valueOf(35.53);
         List<DebtCase> mockedDebtCase =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname,
                         debtorEmail,
-                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
-                        debtorUsername));
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, debtInterestRate,
+                        amountOwed, debtorUsername));
         when(debtCaseService.getDebtCasesByCreditorUsername(creditorUsername)).thenReturn(mockedDebtCase);
 
         MvcResult result = mockMvc.perform(get("/api/debt/cases/creditor/{username}", creditorUsername))
@@ -185,12 +188,13 @@ public class DebtCaseControllerTest {
         LocalDateTime dueDate = LocalDateTime.parse(LocalDateTime.now().format(Constants.DATE_TIME_FORMATTER),
                 Constants.DATE_TIME_FORMATTER);
         double lateInterestRate = 10.0;
+        double debtInterestRate = 10.0;
         BigDecimal amountOwed = BigDecimal.valueOf(35.53);
         List<DebtCase> mockedDebtCase =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname,
                         debtorEmail,
-                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
-                        debtorUsername));
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, debtInterestRate,
+                        amountOwed, debtorUsername));
         when(debtCaseService.getDebtCasesByDebtorUsername(debtorUsername)).thenReturn(mockedDebtCase);
 
         MvcResult result = mockMvc.perform(get("/api/debt/cases/debtor/{username}", debtorUsername))
@@ -227,12 +231,13 @@ public class DebtCaseControllerTest {
         LocalDateTime dueDate = LocalDateTime.parse(LocalDateTime.now().format(Constants.DATE_TIME_FORMATTER),
                 Constants.DATE_TIME_FORMATTER);
         double lateInterestRate = 10.0;
+        double debtInterestRate = 10.0;
         BigDecimal amountOwed = BigDecimal.valueOf(35.53);
         DebtCaseDTO mockedDebtCaseDTO = TestUtils.setupDebtCaseDTOTestData(null, typeId);
         DebtCase expectedDebtCase =
                 TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname, debtorEmail,
-                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
-                        debtorUsername);
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, debtInterestRate,
+                        amountOwed, debtorUsername);
         when(debtCaseService.editDebtCaseByIdAndCreditorId(any(DebtCaseDTO.class), anyInt(), anyInt())).thenReturn(
                 expectedDebtCase);
 

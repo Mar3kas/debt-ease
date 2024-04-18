@@ -52,12 +52,13 @@ public class SchedulerTest {
                 LocalDateTime.parse(LocalDateTime.now().plusDays(1).format(Constants.DATE_TIME_FORMATTER),
                         Constants.DATE_TIME_FORMATTER);
         double lateInterestRate = 10.0;
+        double debtInterestRate = 10.0;
         BigDecimal amountOwed = BigDecimal.valueOf(35.53);
         int id = 1;
         List<DebtCase> expectedDebtCases =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, id, debtorName, debtorSurname, debtorEmail,
-                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
-                        debtorUsername));
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, debtInterestRate,
+                        amountOwed, debtorUsername));
         when(debtCaseService.getAllDebtCases()).thenReturn(expectedDebtCases);
         when(debtCaseService.isDebtCasePending(any(DebtCase.class), any(LocalDateTime.class),
                 any(LocalDateTime.class))).thenReturn(true);
@@ -80,12 +81,13 @@ public class SchedulerTest {
                 LocalDateTime.parse(LocalDateTime.now().plusDays(1).format(Constants.DATE_TIME_FORMATTER),
                         Constants.DATE_TIME_FORMATTER);
         double lateInterestRate = 10.0;
+        double debtInterestRate = 10.0;
         BigDecimal amountOwed = BigDecimal.valueOf(35.53);
         int id = 1;
         List<DebtCase> expectedDebtCases =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, id, debtorName, debtorSurname, debtorEmail,
-                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
-                        debtorUsername));
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, debtInterestRate,
+                        amountOwed, debtorUsername));
         when(debtCaseService.getAllDebtCases()).thenReturn(expectedDebtCases);
 
         scheduler.emailNotificationEachMonth20DayScheduler();
@@ -107,12 +109,13 @@ public class SchedulerTest {
                 LocalDateTime.parse(LocalDateTime.now().plusDays(1).format(Constants.DATE_TIME_FORMATTER),
                         Constants.DATE_TIME_FORMATTER);
         double lateInterestRate = 10.0;
+        double debtInterestRate = 10.0;
         BigDecimal amountOwed = BigDecimal.valueOf(35.53);
         int id = 1;
         List<DebtCase> expectedDebtCases =
                 List.of(TestUtils.setupDebtCaseTestData(creditorUsername, id, debtorName, debtorSurname, debtorEmail,
-                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, amountOwed,
-                        debtorUsername));
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, debtInterestRate,
+                        amountOwed, debtorUsername));
         when(debtCaseRepository.findByDueDateLessThanEqual(currentDate)).thenReturn(Optional.of(expectedDebtCases));
 
         scheduler.calculateOutstandingBalanceScheduler();
@@ -120,6 +123,37 @@ public class SchedulerTest {
         verify(debtCaseRepository, times(expectedDebtCases.size())).save(debtCaseCaptor.capture());
         List<DebtCase> capturedDebtCases = debtCaseCaptor.getAllValues();
         Assertions.assertEquals(amountOwed.multiply(BigDecimal.valueOf(lateInterestRate / 100.0)).add(amountOwed),
+                capturedDebtCases.get(0).getAmountOwed());
+    }
+
+    @Test
+    void calculateOutstandingBalanceWithInterestRateScheduler_EachMonth_ShouldCalculateOutstandingBalanceForEachCase() {
+        String debtorUsername = "debtor";
+        String debtorName = "name";
+        String debtorSurname = "surname";
+        String debtorEmail = "email@gmail.com";
+        String debtorPhoneNumber = "+37067144213";
+        String creditorUsername = "creditor123";
+        String typeToMatch = "DEFAULT_DEBT";
+        LocalDateTime currentDate = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
+        LocalDateTime dueDate =
+                LocalDateTime.parse(LocalDateTime.now().plusDays(1).format(Constants.DATE_TIME_FORMATTER),
+                        Constants.DATE_TIME_FORMATTER);
+        double lateInterestRate = 10.0;
+        double debtInterestRate = 10.0;
+        BigDecimal amountOwed = BigDecimal.valueOf(35.53);
+        int id = 1;
+        List<DebtCase> expectedDebtCases =
+                List.of(TestUtils.setupDebtCaseTestData(creditorUsername, id, debtorName, debtorSurname, debtorEmail,
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, debtInterestRate,
+                        amountOwed, debtorUsername));
+        when(debtCaseRepository.findAll()).thenReturn((expectedDebtCases));
+
+        scheduler.calculateOutstandingBalanceWithInterestRateScheduler();
+
+        verify(debtCaseRepository, times(expectedDebtCases.size())).save(debtCaseCaptor.capture());
+        List<DebtCase> capturedDebtCases = debtCaseCaptor.getAllValues();
+        Assertions.assertEquals(amountOwed.multiply(BigDecimal.valueOf((debtInterestRate / 12) / 100.0)).add(amountOwed),
                 capturedDebtCases.get(0).getAmountOwed());
     }
 }
