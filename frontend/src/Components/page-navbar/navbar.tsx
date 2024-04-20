@@ -172,7 +172,7 @@ const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
                     navigate("/debt/payment/strategy");
                   }}
                 >
-                  Become Debt Free
+                  When'll I Become Debt Free
                 </Button>
               )}
               {currentPageUrl !== "/profile" && !isMobile && (
