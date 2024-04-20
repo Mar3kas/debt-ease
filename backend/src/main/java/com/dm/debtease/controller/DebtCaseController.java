@@ -2,7 +2,9 @@ package com.dm.debtease.controller;
 
 import com.dm.debtease.exception.InvalidFileFormatException;
 import com.dm.debtease.model.DebtCase;
+import com.dm.debtease.model.DebtPaymentStrategy;
 import com.dm.debtease.model.dto.DebtCaseDTO;
+import com.dm.debtease.model.dto.DebtPaymentStrategyDTO;
 import com.dm.debtease.service.CSVService;
 import com.dm.debtease.service.DebtCaseService;
 import com.dm.debtease.service.PDFService;
@@ -68,6 +70,13 @@ public class DebtCaseController {
                                                                        @PathVariable(name = "username") String username) {
         List<DebtCase> debtCases = debtCaseService.getDebtCasesByDebtorUsername(username);
         return ResponseEntity.ok(debtCases);
+    }
+
+    @PostMapping("/debtor/{username}/payment/strategy")
+    public ResponseEntity<DebtPaymentStrategy> calculateDebtCasesPaymentStrategiesUntilPayedOffByDebtorUsername(@Valid @RequestBody DebtPaymentStrategyDTO debtPaymentStrategyDTO, BindingResult result,
+                                                                                                          @Valid @PathVariable(name = "username") String username) {
+        DebtPaymentStrategy debtPaymentStrategy = debtCaseService.calculateDebtPaymentStrategies(debtPaymentStrategyDTO, username);
+        return ResponseEntity.ok(debtPaymentStrategy);
     }
 
     @GetMapping("/generate/report/debtor/{username}")

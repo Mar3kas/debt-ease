@@ -164,6 +164,14 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 
+  graph: {
+    width: "60%",
+    margin: "auto",
+    [theme.breakpoints.up("md")]: {
+      width: "60%",
+    },
+  },
+
   form: {
     flexGrow: 1,
     display: "flex",

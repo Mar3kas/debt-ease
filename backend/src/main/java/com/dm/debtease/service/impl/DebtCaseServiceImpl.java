@@ -2,7 +2,9 @@ package com.dm.debtease.service.impl;
 
 import com.dm.debtease.model.DebtCase;
 import com.dm.debtease.model.DebtCaseStatus;
+import com.dm.debtease.model.DebtPaymentStrategy;
 import com.dm.debtease.model.dto.DebtCaseDTO;
+import com.dm.debtease.model.dto.DebtPaymentStrategyDTO;
 import com.dm.debtease.model.dto.PaymentRequestDTO;
 import com.dm.debtease.repository.DebtCaseRepository;
 import com.dm.debtease.service.DebtCaseService;
@@ -13,7 +15,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -122,5 +127,72 @@ public class DebtCaseServiceImpl implements DebtCaseService {
         return paymentAmount.compareTo(currentAmountOwed) > 0 ?
                 currentAmountOwed :
                 currentAmountOwed.subtract(paymentAmount);
+    }
+
+    @Override
+    public DebtPaymentStrategy calculateDebtPaymentStrategies(DebtPaymentStrategyDTO debtPaymentStrategyDTO,
+                                                              String username) {
+        List<DebtCase> debtCases = getDebtCasesByDebtorUsername(username);
+        if (!debtCases.isEmpty())
+        {
+            debtCases = new ArrayList<>(debtCases.stream()
+                    .filter(debtCase -> !DebtCaseStatus.CLOSED.equals(debtCase.getDebtCaseStatus()))
+                    .toList());
+            DebtPaymentStrategy debtPaymentStrategy = new DebtPaymentStrategy();
+            debtCases.sort(Comparator.comparing(DebtCase::getAmountOwed));
+            debtPaymentStrategy.setSnowballBalanceEachMonth(
+                    calculatePaymentStrategyUntilPayedOff(debtPaymentStrategyDTO, debtCases));
+            debtCases.sort(Comparator.comparing(DebtCase::getDebtInterestRate).reversed());
+            debtPaymentStrategy.setAvalancheBalanceEachMonth(
+                    calculatePaymentStrategyUntilPayedOff(debtPaymentStrategyDTO, debtCases));
+            return debtPaymentStrategy;
+        }
+        throw new EntityNotFoundException(
+                String.format(Constants.DEBT_CASES_EMPTY, username));
+    }
+
+    private List<BigDecimal> calculatePaymentStrategyUntilPayedOff(DebtPaymentStrategyDTO debtPaymentStrategyDTO,
+                                                                   List<DebtCase> debtCases) {
+        List<BigDecimal> strategyBalanceEachMonth = new ArrayList<>();
+        List<DebtCase> tempDebtCases = new ArrayList<>(debtCases.stream().map(DebtCase::new).toList());
+        BigDecimal totalDebt = calculateTotalDebt(tempDebtCases);
+        strategyBalanceEachMonth.add(totalDebt);
+        BigDecimal extraPaymentForSmallestDebt = debtPaymentStrategyDTO.getExtraMonthlyPaymentForHighestDebt();
+        BigDecimal minimalMonthlyPaymentForEachDebt = debtPaymentStrategyDTO.getMinimalMonthlyPaymentForEachDebt();
+        while (totalDebt.compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal totalMinimalPayment = BigDecimal.ZERO;
+            for (int i = 0; i < tempDebtCases.size(); i++) {
+                DebtCase debt = tempDebtCases.get(i);
+                BigDecimal amountOwedWithInterestRate =
+                        debt.getAmountOwed().multiply(BigDecimal.valueOf((debt.getDebtInterestRate() / 12) / 100))
+                                .setScale(2, RoundingMode.HALF_UP);
+                debt.setAmountOwed(debt.getAmountOwed().add(amountOwedWithInterestRate));
+                totalDebt = totalDebt.add(amountOwedWithInterestRate);
+                if (i == 0) {
+                    BigDecimal extraPayment = extraPaymentForSmallestDebt.compareTo(debt.getAmountOwed()) < 0 ?
+                            extraPaymentForSmallestDebt : debt.getAmountOwed();
+                    debt.setAmountOwed(debt.getAmountOwed().subtract(extraPayment));
+                    totalDebt = totalDebt.subtract(extraPayment);
+                } else {
+                    BigDecimal minimalPayment = minimalMonthlyPaymentForEachDebt.compareTo(debt.getAmountOwed()) < 0 ?
+                            minimalMonthlyPaymentForEachDebt : debt.getAmountOwed();
+                    debt.setAmountOwed(debt.getAmountOwed().subtract(minimalPayment));
+                    totalMinimalPayment = totalMinimalPayment.add(minimalPayment);
+                    totalDebt = totalDebt.subtract(minimalPayment);
+                }
+                if (debt.getAmountOwed().compareTo(BigDecimal.ZERO) <= 0) {
+                    tempDebtCases.remove(debt);
+                    i--;
+                }
+            }
+            strategyBalanceEachMonth.add(totalDebt);
+        }
+        return strategyBalanceEachMonth;
+    }
+
+    private BigDecimal calculateTotalDebt(List<DebtCase> debtCases) {
+        return debtCases.stream()
+                .map(DebtCase::getAmountOwed)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

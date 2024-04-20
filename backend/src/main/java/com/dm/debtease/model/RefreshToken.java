@@ -1,7 +1,6 @@
 package com.dm.debtease.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,7 +10,6 @@ import java.time.Instant;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity(name = "refresh_token")
 @Table(name = "refresh_token")
 public class RefreshToken {

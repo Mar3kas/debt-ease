@@ -1,7 +1,6 @@
 package com.dm.debtease.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -9,7 +8,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity(name = "verified_phone_number_information")
 @Table(name = "verified_phone_number_information")
 public class VerifiedPhoneNumberInformation {

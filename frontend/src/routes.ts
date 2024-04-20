@@ -11,6 +11,7 @@ import {
   DebtCaseFormPage,
   SystemInfoPage,
   DebtCasePayPage,
+  DebtFreePage,
 } from "./pages";
 
 interface Route {
@@ -78,13 +79,12 @@ export const routes: Route[] = [
     enabled: true,
     component: DebtCasePayPage,
   },
-  // TODO finish debt payment strategies
   {
     key: "debt-free-route",
     title: "Debt Payment Strategy",
-    path: "/debt/payment/strategies",
+    path: "/debt/payment/strategy",
     enabled: true,
-    component: DebtCasePayPage,
+    component: DebtFreePage,
   },
   {
     key: "user-list-page-route",

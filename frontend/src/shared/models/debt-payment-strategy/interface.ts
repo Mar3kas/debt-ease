@@ -1,4 +1,4 @@
-export interface IDebtCaseType {
+export interface IDebtPaymentStrategy {
   snowballBalanceEachMonth: number[];
   avalancheBalanceEachMonth: number[];
 }

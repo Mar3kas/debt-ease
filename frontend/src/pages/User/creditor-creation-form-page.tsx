@@ -16,6 +16,7 @@ import { usePost } from "../../services/api-service";
 import { useNavigate } from "react-router-dom";
 import useErrorHandling from "../../services/handle-responses";
 import { ICreditorDTO } from "../../shared/dtos/creditor-dto";
+import { ICreditor } from "../../shared/models/creditor";
 
 const CreditorCreationFormPage: FC<IPage> = ({
   openSnackbar,
@@ -24,9 +25,9 @@ const CreditorCreationFormPage: FC<IPage> = ({
   const navigate = useNavigate();
   const { handleErrorResponse } = useErrorHandling();
   const [creationCompleted, setCreationCompleted] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // State to track password visibility
+  const [showPassword, setShowPassword] = useState(false);
 
-  const { data, error, postData } = usePost<ICreditorDTO>("creditors", {});
+  const { data, error, postData } = usePost<ICreditor>("creditors", {});
 
   const [form, setForm] = useState<Record<string, any>>({
     name: { value: "", errorMessage: "" },
@@ -148,7 +149,7 @@ const CreditorCreationFormPage: FC<IPage> = ({
                   )
                   .join(" ")}
                 name={key}
-                type={key === "password" && !showPassword ? "password" : "text"} // Set type to "text" only if password is visible
+                type={key === "password" && !showPassword ? "password" : "text"}
                 value={value}
                 onChange={handleChange}
                 error={errorMessage !== ""}

@@ -1,7 +1,9 @@
 package com.dm.debtease.service;
 
 import com.dm.debtease.model.DebtCase;
+import com.dm.debtease.model.DebtPaymentStrategy;
 import com.dm.debtease.model.dto.DebtCaseDTO;
+import com.dm.debtease.model.dto.DebtPaymentStrategyDTO;
 import com.dm.debtease.model.dto.PaymentRequestDTO;
 
 import java.math.BigDecimal;
@@ -31,4 +33,6 @@ public interface DebtCaseService {
     DebtCase updateDebtCaseAfterPayment(DebtCase debtCase, PaymentRequestDTO paymentRequestDTO);
 
     BigDecimal getValidLeftAmountOwed(BigDecimal paymentAmount, BigDecimal currentAmountOwed);
+
+    DebtPaymentStrategy calculateDebtPaymentStrategies(DebtPaymentStrategyDTO debtPaymentStrategyDTO, String username);
 }

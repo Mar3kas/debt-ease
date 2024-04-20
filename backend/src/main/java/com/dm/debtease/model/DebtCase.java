@@ -2,7 +2,6 @@ package com.dm.debtease.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,7 +14,6 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity(name = "debt_case")
 @Table(name = "debt_case")
 public class DebtCase {
@@ -60,4 +58,18 @@ public class DebtCase {
     @Column(name = "modified_date")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime modifiedDate;
+
+    public DebtCase(DebtCase original) {
+        this.id = original.getId();
+        this.amountOwed = original.getAmountOwed();
+        this.lateInterestRate = original.getLateInterestRate();
+        this.debtInterestRate = original.getDebtInterestRate();
+        this.dueDate = original.getDueDate();
+        this.debtCaseType = original.getDebtCaseType();
+        this.debtCaseStatus = original.getDebtCaseStatus();
+        this.creditor = original.getCreditor();
+        this.debtor = original.getDebtor();
+        this.createdDate = original.getCreatedDate();
+        this.modifiedDate = original.getModifiedDate();
+    }
 }

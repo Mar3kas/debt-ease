@@ -153,7 +153,26 @@ const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
                     navigate("/debt/cases");
                   }}
                 >
-                  DebtCases
+                  Debt Cases
+                </Button>
+              )}
+              {currentPageUrl !== "/debt/payment/strategy" && !isMobile && (
+                <Button
+                  sx={{
+                    color: "black",
+                    backgroundColor: "white",
+                    border: "3px solid #8FBC8F",
+                    marginRight: 1,
+                    "&:hover": {
+                      color: "black",
+                      backgroundColor: "#F8DE7E",
+                    },
+                  }}
+                  onClick={() => {
+                    navigate("/debt/payment/strategy");
+                  }}
+                >
+                  Become Debt Free
                 </Button>
               )}
               {currentPageUrl !== "/profile" && !isMobile && (

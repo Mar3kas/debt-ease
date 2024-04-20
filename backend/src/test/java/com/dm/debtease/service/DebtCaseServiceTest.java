@@ -4,7 +4,9 @@ import com.dm.debtease.TestUtils;
 import com.dm.debtease.model.DebtCase;
 import com.dm.debtease.model.DebtCaseStatus;
 import com.dm.debtease.model.DebtCaseType;
+import com.dm.debtease.model.DebtPaymentStrategy;
 import com.dm.debtease.model.dto.DebtCaseDTO;
+import com.dm.debtease.model.dto.DebtPaymentStrategyDTO;
 import com.dm.debtease.model.dto.PaymentRequestDTO;
 import com.dm.debtease.repository.DebtCaseRepository;
 import com.dm.debtease.service.impl.DebtCaseServiceImpl;
@@ -19,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -427,5 +430,60 @@ public class DebtCaseServiceTest {
         BigDecimal actualAmountOwed = debtCaseService.getValidLeftAmountOwed(paymentAmount, currentAmountOwed);
 
         Assertions.assertEquals(currentAmountOwed.subtract(paymentAmount), actualAmountOwed);
+    }
+
+    @Test
+    void calculateDebtPaymentStrategies_DebtCasesArePresent_ShouldReturnTotalDebtEachMonth() {
+        BigDecimal extraMonthlyPaymentForHighestDebt = BigDecimal.valueOf(5.00);
+        BigDecimal minimalMonthlyPaymentForEachDebt = BigDecimal.valueOf(2.00);
+        int creditorId = 1;
+        int id = 1;
+        String debtorUsername = "userWithDebts";
+        String debtorName = "name";
+        String debtorSurname = "surname";
+        String debtorEmail = "email@gmail.com";
+        String debtorPhoneNumber = "+37067144213";
+        String creditorUsername = "creditor123";
+        String typeToMatch = "DEFAULT_DEBT";
+        LocalDateTime dueDate = LocalDateTime.parse(LocalDateTime.now().format(Constants.DATE_TIME_FORMATTER),
+                Constants.DATE_TIME_FORMATTER);
+        double lateInterestRate = 10.0;
+        double debtInterestRate = 10.0;
+        BigDecimal amountOwed = BigDecimal.valueOf(35.53);
+        DebtCase expectedDebtCase =
+                TestUtils.setupDebtCaseTestData(creditorUsername, creditorId, debtorName, debtorSurname, debtorEmail,
+                        debtorPhoneNumber, typeToMatch, DebtCaseStatus.NEW, dueDate, lateInterestRate, debtInterestRate,
+                        amountOwed, debtorUsername);
+        DebtPaymentStrategyDTO debtPaymentStrategyDTO = TestUtils.setupDebtPaymentStrategyDTO(extraMonthlyPaymentForHighestDebt, minimalMonthlyPaymentForEachDebt);
+        List<DebtCase> debtCaseList = new ArrayList<>();
+        debtCaseList.add(expectedDebtCase);
+        debtCaseList.add(expectedDebtCase);
+        when(debtCaseRepository.findByDebtor_User_Username(anyString())).thenReturn(debtCaseList);
+
+        DebtPaymentStrategy debtPaymentStrategy = debtCaseService.calculateDebtPaymentStrategies(debtPaymentStrategyDTO, debtorUsername);
+
+        Assertions.assertFalse(debtPaymentStrategy.getSnowballBalanceEachMonth().isEmpty());
+        Assertions.assertFalse(debtPaymentStrategy.getAvalancheBalanceEachMonth().isEmpty());
+        Assertions.assertEquals(0, debtPaymentStrategy.getSnowballBalanceEachMonth()
+                .get(debtPaymentStrategy.getSnowballBalanceEachMonth().size() - 1).compareTo(BigDecimal.ZERO));
+        Assertions.assertEquals(0, debtPaymentStrategy.getAvalancheBalanceEachMonth()
+                .get(debtPaymentStrategy.getAvalancheBalanceEachMonth().size() - 1).compareTo(BigDecimal.ZERO));
+    }
+
+    @Test
+    void calculateDebtPaymentStrategies_WhenDebtCaseDoesNotExist_ShouldThrowException() {
+        String debtorUsername = "userWithDebts";
+        BigDecimal extraMonthlyPaymentForHighestDebt = BigDecimal.valueOf(5.00);
+        BigDecimal minimalMonthlyPaymentForEachDebt = BigDecimal.valueOf(2.00);
+        DebtPaymentStrategyDTO debtPaymentStrategyDTO = TestUtils.setupDebtPaymentStrategyDTO(extraMonthlyPaymentForHighestDebt, minimalMonthlyPaymentForEachDebt);
+        when(debtCaseRepository.findByDebtor_User_Username(anyString())).thenReturn(List.of());
+
+        EntityNotFoundException thrown = Assertions.assertThrows(
+                EntityNotFoundException.class,
+                () -> debtCaseService.calculateDebtPaymentStrategies(debtPaymentStrategyDTO, debtorUsername),
+                "Expected calculateDebtPaymentStrategies to throw, but it didn't"
+        );
+
+        Assertions.assertTrue(thrown.getMessage().contains(String.format(Constants.DEBT_CASES_EMPTY, debtorUsername)));
     }
 }

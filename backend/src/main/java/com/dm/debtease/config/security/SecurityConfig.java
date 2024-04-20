@@ -70,7 +70,6 @@ public class SecurityConfig implements WebMvcConfigurer {
         http.cors(Customizer.withDefaults())
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(AUTH_WHITELIST).permitAll()
-                        //.anyRequest().permitAll())
                         .requestMatchers(HttpMethod.GET, "/api/creditors/*")
                         .hasAnyAuthority(Role.CREDITOR.name(), Role.ADMIN.name())
                         .requestMatchers(HttpMethod.GET, "/api/creditors/profile/*")
@@ -105,6 +104,8 @@ public class SecurityConfig implements WebMvcConfigurer {
                                 Role.DEBTOR.name())
                         .requestMatchers(HttpMethod.POST, "/api/debt/cases/creditors/* /file").hasAnyAuthority
                                 (Role.CREDITOR.name(), Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.POST, "/api/debt/cases/debtor/* /payment/strategy").hasAuthority
+                                (Role.DEBTOR.name())
                         .requestMatchers(HttpMethod.POST, "/api/payments/* /pay").hasAuthority(Role.DEBTOR.name())
                         .requestMatchers(HttpMethod.POST, "/api/creditors/").hasAuthority(Role.ADMIN.name())
                         .requestMatchers(HttpMethod.POST, "/api/logout")

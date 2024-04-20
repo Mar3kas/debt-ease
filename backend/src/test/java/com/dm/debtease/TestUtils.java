@@ -1,10 +1,7 @@
 package com.dm.debtease;
 
 import com.dm.debtease.model.*;
-import com.dm.debtease.model.dto.CreditorDTO;
-import com.dm.debtease.model.dto.DebtCaseDTO;
-import com.dm.debtease.model.dto.DebtorDTO;
-import com.dm.debtease.model.dto.PaymentRequestDTO;
+import com.dm.debtease.model.dto.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -164,5 +161,12 @@ public class TestUtils {
         payment.setAmount(amount);
         payment.setDescription(description);
         return payment;
+    }
+
+    public static DebtPaymentStrategyDTO setupDebtPaymentStrategyDTO(BigDecimal extraMonthlyPaymentForHighestDebt, BigDecimal minimalMonthlyPaymentForEachDebt) {
+        DebtPaymentStrategyDTO debtPaymentStrategyDTO = new DebtPaymentStrategyDTO();
+        debtPaymentStrategyDTO.setExtraMonthlyPaymentForHighestDebt(extraMonthlyPaymentForHighestDebt);
+        debtPaymentStrategyDTO.setMinimalMonthlyPaymentForEachDebt(minimalMonthlyPaymentForEachDebt);
+        return debtPaymentStrategyDTO;
     }
 }
