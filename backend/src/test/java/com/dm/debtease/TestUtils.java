@@ -49,7 +49,7 @@ public class TestUtils {
     }
 
     public static CreditorDTO setupCreditorDTOTestData(String name, String email, String address, String phoneNumber,
-                                                       String accountNumber) {
+                                                       String accountNumber, String username, String password) {
         CreditorDTO creditorDTO = new CreditorDTO();
         creditorDTO.setName(name);
         creditorDTO.setUsername(name);
@@ -57,6 +57,8 @@ public class TestUtils {
         creditorDTO.setAddress(address);
         creditorDTO.setPhoneNumber(phoneNumber);
         creditorDTO.setAccountNumber(accountNumber);
+        creditorDTO.setUsername(username);
+        creditorDTO.setPassword(password);
         return creditorDTO;
     }
 

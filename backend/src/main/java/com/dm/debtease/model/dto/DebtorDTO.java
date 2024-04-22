@@ -25,6 +25,4 @@ public class DebtorDTO {
     )
     @NotBlank(message = "Phone number is required")
     String phoneNumber;
-
-    String username = "";
 }

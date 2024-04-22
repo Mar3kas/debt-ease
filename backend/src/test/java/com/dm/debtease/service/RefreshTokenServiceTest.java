@@ -46,9 +46,9 @@ public class RefreshTokenServiceTest {
         String password = "testPassword";
         CustomUser customUser = TestUtils.setupCustomUserTestData(username, password, Role.ADMIN);
         RefreshToken expectedRefreshToken = TestUtils.setupRefreshTokenTestData(refreshTokenId, id, null);
-        expectedRefreshToken.setCustomUser(customUser);
+        expectedRefreshToken.setUser(customUser);
         when(customUserRepository.findByUsername(username)).thenReturn(Optional.of(customUser));
-        when(refreshTokenRepository.findByCustomUser_Username(username)).thenReturn(Optional.empty());
+        when(refreshTokenRepository.findByUser_Username(username)).thenReturn(Optional.empty());
         when(refreshTokenRepository.save(any(RefreshToken.class))).thenReturn(expectedRefreshToken);
 
         String actualGeneratedToken = refreshTokenService.createRefreshToken(username);
@@ -97,14 +97,14 @@ public class RefreshTokenServiceTest {
         int id = 1;
         CustomUser customUser = TestUtils.setupCustomUserTestData(username, password, Role.ADMIN);
         RefreshToken expectedRefreshToken = TestUtils.setupRefreshTokenTestData(id, token, null);
-        expectedRefreshToken.setCustomUser(customUser);
+        expectedRefreshToken.setUser(customUser);
         when(refreshTokenRepository.findByToken(token)).thenReturn(Optional.of(expectedRefreshToken));
 
         RefreshToken actualRefreshToken = refreshTokenService.findByToken(token);
 
         Assertions.assertNotNull(actualRefreshToken);
         Assertions.assertEquals(expectedRefreshToken.getToken(), actualRefreshToken.getToken());
-        Assertions.assertEquals(expectedRefreshToken.getCustomUser().getUsername(), actualRefreshToken.getCustomUser().getUsername());
+        Assertions.assertEquals(expectedRefreshToken.getUser().getUsername(), actualRefreshToken.getUser().getUsername());
     }
 
     @Test

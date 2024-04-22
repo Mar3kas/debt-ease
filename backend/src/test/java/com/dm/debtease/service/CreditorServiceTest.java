@@ -104,13 +104,14 @@ public class CreditorServiceTest {
         String editedPhoneNumber = "+37067144213";
         String editedAccountNumber = "editedAccountNumber";
         String username = "username";
+        String password = "password";
         int id = 1;
         Creditor expectedEditedCreditor =
                 TestUtils.setupCreditorTestData(editedName, editedEmail, editedAddress, editedPhoneNumber,
                         editedAccountNumber, username);
         CreditorDTO creditorDTO =
                 TestUtils.setupCreditorDTOTestData(editedName, editedEmail, editedAddress, editedPhoneNumber,
-                        editedAccountNumber);
+                        editedAccountNumber, username, password);
         when(creditorRepository.findById(id)).thenReturn(Optional.of(new Creditor()));
         when(creditorRepository.save(any(Creditor.class))).thenReturn(expectedEditedCreditor);
 
@@ -132,9 +133,11 @@ public class CreditorServiceTest {
         String editedAddress = "editedAddress";
         String editedPhoneNumber = "+37067144213";
         String editedAccountNumber = "editedAccountNumber";
+        String username = "username";
+        String password = "password";
         CreditorDTO creditorDTO =
                 TestUtils.setupCreditorDTOTestData(editedName, editedEmail, editedAddress, editedPhoneNumber,
-                        editedAccountNumber);
+                        editedAccountNumber, username, password);
         when(creditorRepository.findById(id)).thenReturn(Optional.empty());
 
         EntityNotFoundException thrown = Assertions.assertThrows(
@@ -155,8 +158,11 @@ public class CreditorServiceTest {
         String accountNumber = "accountNumber";
         String roleName = "role";
         String username = "username";
+        String password = "password";
         int roleId = 3;
-        CreditorDTO creditorDTO = TestUtils.setupCreditorDTOTestData(name, email, address, phoneNumber, accountNumber);
+        CreditorDTO creditorDTO =
+                TestUtils.setupCreditorDTOTestData(name, email, address, phoneNumber, accountNumber, username,
+                        password);
         Creditor createdCreditor =
                 TestUtils.setupCreditorTestData(name, email, address, phoneNumber, accountNumber, username);
         when(bCryptPasswordEncoder.encode(any(String.class))).thenReturn("encodedPassword");

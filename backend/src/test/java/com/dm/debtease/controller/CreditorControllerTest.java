@@ -113,13 +113,14 @@ public class CreditorControllerTest {
         String editedPhoneNumber = "+37067144213";
         String editedAccountNumber = "editedAccountNumber";
         String username = "username";
+        String password = "password";
         int id = 1;
         Creditor expectedEditedCreditor =
                 TestUtils.setupCreditorTestData(editedName, editedEmail, editedAddress, editedPhoneNumber,
                         editedAccountNumber, username);
         CreditorDTO mockedCreditorDTO =
                 TestUtils.setupCreditorDTOTestData(editedName, editedEmail, editedAddress, editedPhoneNumber,
-                        editedAccountNumber);
+                        editedAccountNumber, username, password);
         when(creditorService.editCreditorById(any(CreditorDTO.class), anyInt())).thenReturn(expectedEditedCreditor);
 
         MvcResult result = mockMvc.perform(put("/api/creditors/{id}", id)
@@ -150,8 +151,9 @@ public class CreditorControllerTest {
         String phoneNumber = "+37067144213";
         String accountNumber = "accountNumber";
         String username = "username";
+        String password = "password";
         CreditorDTO mockedCreditorDTO =
-                TestUtils.setupCreditorDTOTestData(name, email, address, phoneNumber, accountNumber);
+                TestUtils.setupCreditorDTOTestData(name, email, address, phoneNumber, accountNumber, username, password);
         Creditor expectedCreatedCreditor =
                 TestUtils.setupCreditorTestData(name, email, address, phoneNumber, accountNumber, username);
         when(creditorService.createCreditor(any(CreditorDTO.class))).thenReturn(expectedCreatedCreditor);

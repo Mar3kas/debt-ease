@@ -80,7 +80,7 @@ public class DebtCaseController {
     }
 
     @GetMapping("/generate/report/debtor/{username}")
-    public ResponseEntity<InputStreamResource> getDebtCasesReportForDebtor(@Valid
+    public ResponseEntity<InputStreamResource> getDebtCasesReportByDebtorUsername(@Valid
                                                                            @PathVariable(name = "username") String username) throws IOException, DocumentException {
         ByteArrayInputStream document = pdfService.generatePdf(username);
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -102,7 +102,7 @@ public class DebtCaseController {
     }
 
     @PostMapping(value = "/creditors/{username}/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> createDebtCase(@Valid
+    public ResponseEntity<String> createDebtCaseByCreditorUsername(@Valid
                                                  @NotBlank
                                                  @PathVariable(name = "username") String username,
                                                  @RequestParam(name = "file") MultipartFile file) throws CsvValidationException, IOException, InvalidFileFormatException {

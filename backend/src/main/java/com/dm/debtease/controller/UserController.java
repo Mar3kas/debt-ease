@@ -4,7 +4,7 @@ import com.dm.debtease.exception.InvalidRefreshTokenException;
 import com.dm.debtease.exception.LoginException;
 import com.dm.debtease.exception.LogoutException;
 import com.dm.debtease.model.*;
-import com.dm.debtease.model.dto.UserDTO;
+import com.dm.debtease.model.dto.CustomUserDTO;
 import com.dm.debtease.service.*;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
@@ -44,7 +44,7 @@ public class UserController {
     private final AdminService adminService;
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> authenticateUser(@RequestBody @Valid UserDTO userDTO,
+    public ResponseEntity<Map<String, String>> authenticateUser(@RequestBody @Valid CustomUserDTO userDTO,
                                                                 BindingResult result) {
         Authentication existingAuthentication = SecurityContextHolder.getContext().getAuthentication();
         if (existingAuthentication != null && existingAuthentication.getName().equals(userDTO.getUsername())) {
@@ -67,7 +67,7 @@ public class UserController {
                                                                   BindingResult result) {
         RefreshToken refreshToken = refreshTokenService.findByToken(request.getRefreshToken());
         if (refreshTokenService.validateRefreshToken(refreshToken)) {
-            UserDetails user = userDetailsService.loadUserByUsername(refreshToken.getCustomUser().getUsername());
+            UserDetails user = userDetailsService.loadUserByUsername(refreshToken.getUser().getUsername());
             Authentication authentication = new UsernamePasswordAuthenticationToken(user, null);
             String accessToken = jwtService.createToken(authentication);
             Map<String, String> tokenMap = new HashMap<>();

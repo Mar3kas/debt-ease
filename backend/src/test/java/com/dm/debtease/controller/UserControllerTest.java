@@ -2,7 +2,7 @@ package com.dm.debtease.controller;
 
 import com.dm.debtease.TestUtils;
 import com.dm.debtease.model.*;
-import com.dm.debtease.model.dto.UserDTO;
+import com.dm.debtease.model.dto.CustomUserDTO;
 import com.dm.debtease.service.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -64,7 +64,7 @@ public class UserControllerTest {
 
     @Test
     void authenticateUser_WhenValidUser_ShouldReturnTokens() throws Exception {
-        UserDTO userDTO = new UserDTO();
+        CustomUserDTO userDTO = new CustomUserDTO();
         userDTO.setUsername("user");
         userDTO.setPassword("password");
         Authentication mockedAuthentication =
@@ -97,7 +97,7 @@ public class UserControllerTest {
         RefreshToken mockedRefreshToken = new RefreshToken();
         CustomUser customUser = new CustomUser();
         customUser.setUsername("user");
-        mockedRefreshToken.setCustomUser(customUser);
+        mockedRefreshToken.setUser(customUser);
         when(refreshTokenService.findByToken(mockedRequest.getRefreshToken())).thenReturn(mockedRefreshToken);
         when(refreshTokenService.validateRefreshToken(mockedRefreshToken)).thenReturn(true);
         UserDetails userDetails = new User("user", "", new ArrayList<>());

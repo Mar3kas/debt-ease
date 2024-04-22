@@ -32,12 +32,12 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         if (optionalCustomUser.isPresent())
         {
             CustomUser customUser = optionalCustomUser.get();
-            Optional<RefreshToken> optionalRefreshToken = refreshTokenRepository.findByCustomUser_Username(customUser.getUsername());
+            Optional<RefreshToken> optionalRefreshToken = refreshTokenRepository.findByUser_Username(customUser.getUsername());
             RefreshToken refreshToken = optionalRefreshToken.orElse(new RefreshToken());
             String token = UUID.randomUUID().toString();
             refreshToken.setToken(token);
             refreshToken.setExpirationDate(Instant.now().plusMillis(refreshTokenExpiration));
-            refreshToken.setCustomUser(customUser);
+            refreshToken.setUser(customUser);
             refreshTokenRepository.save(refreshToken);
             return token;
         }

@@ -76,8 +76,8 @@ public class CreditorServiceImpl implements CreditorService {
         creditor.setEmail(creditorDTO.getEmail());
         creditor.setAccountNumber(creditorDTO.getAccountNumber());
         CustomUser customUser = new CustomUser();
-        customUser.setUsername(!creditorDTO.getUsername().isEmpty() ? creditorDTO.getUsername() : creditor.getName());
-        customUser.setPassword(bCryptPasswordEncoder.encode(!creditorDTO.getPassword().isEmpty() ? creditorDTO.getPassword() : creditor.getName()));
+        customUser.setUsername(!creditorDTO.getUsername().isBlank() ? creditorDTO.getUsername() : creditor.getName());
+        customUser.setPassword(bCryptPasswordEncoder.encode(!creditorDTO.getPassword().isBlank() ? creditorDTO.getPassword() : creditor.getName()));
         customUser.setRole(Role.CREDITOR);
         creditor.setUser(customUser);
         return creditorRepository.save(creditor);
