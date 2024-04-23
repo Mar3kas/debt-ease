@@ -1,40 +1,29 @@
-# DebtEase
+# DebtEase: Innovative Debt Management System
 
-<h2>Sprendžiamo uždavinio aprašymas</h2>
+DebtEase is an innovative debt management system designed to enhance the quality of information provided about cases while improving the efficiency of debt management processes. It aims to provide debtors and creditors with accurate and timely updates, fostering a culture of trust between the two parties.
 
-1.1.	Sistemos paskirtis
+## Features
 
-  Šios sistemos tikslas – suteikti patogią internetinę sąsają, kurioje organizacijos galėtų patogiai susikelti ir vienoje vietoje turėti visus skolininkus, valdyti jų skolas, stebėti mokėjimus bei norimu laiku išsiųsti priminimus apie nesumokėtas skolas. Skolintojams sistema leistų patogiai matyti nesumokėtas arba apmokėtas skolas bei kokios organizacijoms yra skolingas.
-  
-  Tam, kad kreditorius, galėtų naudotis šia internetine svetaine, administratorius turi įtrauktį organizaciją į sistemą. Įtraukus naudotoją, kreditorius gali įkelti CSV failą su skolintojų informacija, kuriems sistema išsiunčia laišką su laikinais prisijungimo duomenimis prie sistemos.
+- **Enhanced Information Quality**: DebtEase enriches the information available about cases, ensuring that creditors and debtors have access to up-to-date and relevant data.
+- **Streamlined Obligation Management**: The system simplifies the management of obligations for both creditors and debtors, facilitating smoother transactions.
+- **Mutual Trust Promotion**: By providing additional information about both creditors and debtors, DebtEase encourages mutual trust between the parties involved.
 
-1.2.	Funkciniai reikalavimai
+## Requirements
 
-•	Neregistruotas sistemos naudotojas galės:
-1.	Peržiūrėti svetainės reprezentacinį puslapį.
+To utilize DebtEase, the following dependencies are required:
 
-•	Registruotas sistemos naudotojas galės:
-1.	Prisijungti prie svetainės;
-2.	Atsijungti nuo svetainės.
+- [Stripe](https://stripe.com/), [Numverify](https://numverify.com/), [Google](https://developers.google.com/gmail/api/guides/sending) accounts.
+- Kafka either in Docker or other form of runnable.
+- Integration with technologies such as Kafka, PostgreSQL, JWT, Numverify, Stripe, and Google email configuration in the `application.properties` file.
 
-•	Skolintojas galės:
-1.	Peržiūrėti paskyrą;
-2.	Atnaujinti savo duomenis;
-3.	Peržiūrėti (ne)sumokėtas skolas pagal tipus.
+## Usage
 
-•	Kreditorius galės:
-1.	Įkelti CSV failą su skolintojų ir skolos informacija;
-2.	Peržiūrėti visus savo skolintojus su skolomis;
-3.	Valdyti skolas;
-4.	Peržiūrėti paskyrą;
-5.	Atnaujinti savo duomenis;
+1. Set up accounts with Stripe, Numverify and Google.
+2. Set up Kafka.
+3. Configure the necessary technologies, including Kafka, PosstgreSQL, JWT, Numverify, Stripe, and Google email, in the `application.properties` file.
+4. Run maven in backend e.g Spring Boot application and npm install for frontend e.g React application.
+5. Start using DebtEase to streamline your debt management processes and foster trust between creditors and borrowers.
 
-•	Administratorius galės:
-1.	Užregistruoti naujus kreditorius;
-2.	Valdyti kreditorius ir skolintojus;
-3.	Valdyti skolas.
+## License
 
-•	Sistema galės:
-1.	Šifruoti slaptažodžius;
-2.	Autentifikuoti ir autorizuoti naudotojus;
-3.	Automatiškai išsiųsti laišką apie nesumokėtas skolas.
+This project is licensed under the [MIT License](LICENSE).
