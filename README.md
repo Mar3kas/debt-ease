@@ -26,4 +26,4 @@ To utilize DebtEase, the following dependencies are required:
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the [MIT License]().
