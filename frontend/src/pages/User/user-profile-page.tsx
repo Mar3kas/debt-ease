@@ -77,7 +77,7 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
       ? "debtors/{id}"
       : "";
 
-  const { error: editError, editData } = useEdit<ICreditorDTO | IDebtorDTO>(
+  const { error: editError, editData } = useEdit<ICreditor | IDebtorDTO>(
     roleSpecificEndpoint,
     { id: data?.id }
   );
@@ -142,8 +142,8 @@ const UserProfilePage: FC<IPage> = (props): ReactElement => {
       userEditedData = {
         name: data.name,
         surname: data.surname,
-        email: data.email,
-        phoneNumber: data.phoneNumber,
+        email: data.email || "",
+        phoneNumber: data.phoneNumber || "",
       };
     }
 

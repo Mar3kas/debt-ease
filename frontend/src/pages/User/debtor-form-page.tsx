@@ -28,7 +28,7 @@ const DebtorFormPage: FC<IPage> = (props): ReactElement => {
   const [editCompleted, setEditCompleted] = useState(false);
   const [editedData, setEditedData] = useState<IDebtor | null>(null);
 
-  const { error: editError, editData } = useEdit<IDebtorDTO>(`debtors/${id}`, {
+  const { error: editError, editData } = useEdit<IDebtor>(`debtors/${id}`, {
     id: Number(id),
   });
 
@@ -86,8 +86,8 @@ const DebtorFormPage: FC<IPage> = (props): ReactElement => {
     const debtorEditedData: IDebtorDTO = {
       name: editedData.name,
       surname: editedData.surname,
-      email: editedData.email,
-      phoneNumber: editedData.phoneNumber,
+      email: editedData.email || "",
+      phoneNumber: editedData.phoneNumber || "",
     };
 
     await editData(debtorEditedData);

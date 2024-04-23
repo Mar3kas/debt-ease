@@ -89,7 +89,7 @@ const CreditorCreationFormPage: FC<IPage> = ({
 
     const request: ICreditorDTO = Object.keys(form).reduce(
       (acc, key) => ({ ...acc, [key]: form[key].value }),
-      {}
+      {} as ICreditorDTO
     );
 
     await postData(request);

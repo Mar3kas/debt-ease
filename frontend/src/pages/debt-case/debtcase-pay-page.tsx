@@ -52,10 +52,9 @@ const DebtCasePaymentForm: FC<IPage> = (props): ReactElement => {
   const classes = useStyles("light");
   const navigate = useNavigate();
   const { id } = useParams<{ id?: string }>();
-  const { data, error, postData } = usePost<IPaymentRequestDTO>(
-    "payments/{id}/pay",
-    { id: Number(id) }
-  );
+  const { data, error, postData } = usePost<String>("payments/{id}/pay", {
+    id: Number(id),
+  });
 
   useEffect(() => {
     if (data !== null && paymentCompleted) {

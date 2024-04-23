@@ -156,25 +156,27 @@ const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
                   Debt Cases
                 </Button>
               )}
-              {currentPageUrl !== "/debt/payment/strategy" && !isMobile && (
-                <Button
-                  sx={{
-                    color: "black",
-                    backgroundColor: "white",
-                    border: "3px solid #8FBC8F",
-                    marginRight: 1,
-                    "&:hover": {
+              {currentPageUrl !== "/debt/payment/strategy" &&
+                role === "DEBTOR" &&
+                !isMobile && (
+                  <Button
+                    sx={{
                       color: "black",
-                      backgroundColor: "#F8DE7E",
-                    },
-                  }}
-                  onClick={() => {
-                    navigate("/debt/payment/strategy");
-                  }}
-                >
-                  When'll I Become Debt Free
-                </Button>
-              )}
+                      backgroundColor: "white",
+                      border: "3px solid #8FBC8F",
+                      marginRight: 1,
+                      "&:hover": {
+                        color: "black",
+                        backgroundColor: "#F8DE7E",
+                      },
+                    }}
+                    onClick={() => {
+                      navigate("/debt/payment/strategy");
+                    }}
+                  >
+                    When'll I Become Debt Free
+                  </Button>
+                )}
               {currentPageUrl !== "/profile" && !isMobile && (
                 <IconButton
                   color="inherit"
@@ -266,6 +268,28 @@ const Navbar: FC<NavbarProps> = ({ title }): ReactElement => {
                       DebtCases
                     </Button>
                   </ListItem>
+                  {role === "DEBTOR" && (
+                    <ListItem
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Button
+                        sx={{
+                          color: "black",
+                          backgroundColor: "white",
+                          border: "3px solid #8FBC8F",
+                          marginRight: 2,
+                        }}
+                        onClick={() => {
+                          navigate("/debt/payment/strategy");
+                        }}
+                      >
+                        When'll I Become Debt Free
+                      </Button>
+                    </ListItem>
+                  )}
                   {role === "ADMIN" && (
                     <ListItem
                       sx={{
