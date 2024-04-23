@@ -34,7 +34,7 @@ public class DebtCaseTypeServiceImpl implements DebtCaseTypeService {
         return debtCaseTypes.stream()
                 .filter(debtCaseType -> debtCaseType.getType().contains(typeToMatch))
                 .findFirst()
-                .orElse(null);
+                .orElse(getDefaultDebtCaseType());
     }
 
     @Override
@@ -44,6 +44,14 @@ public class DebtCaseTypeServiceImpl implements DebtCaseTypeService {
                 .filter(debtCaseType -> debtCaseType.getId() == 15)
                 .findFirst()
                 .orElse(null);
+    }
+
+    @Override
+    public String getTypeToMatch(String type) {
+        if (type.isBlank()) {
+            return "DEFAULT_DEBT";
+        }
+        return type.toUpperCase().contains("_DEBT") ? type.toUpperCase() : type.toUpperCase().concat("_DEBT");
     }
 
     @Override

@@ -87,9 +87,9 @@ public class CreditorServiceImpl implements CreditorService {
     public boolean deleteCreditorById(int id) {
         Optional<Creditor> optionalCreditor = creditorRepository.findById(id);
         if (optionalCreditor.isPresent()) {
-            List<DebtCase> debtCases = debtCaseService.getAllDebtCases()
-                    .stream()
-                    .filter(debtCase -> debtCase.getCreditor().getId() == id).toList();
+            List<DebtCase> debtCases = debtCaseService.getAllDebtCases().stream()
+                    .filter(debtCase -> debtCase.getCreditor().getId() == id)
+                    .toList();
             if (!debtCases.isEmpty()) {
                 return false;
             }

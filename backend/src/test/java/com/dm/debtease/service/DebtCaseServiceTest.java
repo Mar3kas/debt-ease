@@ -239,7 +239,7 @@ public class DebtCaseServiceTest {
     void findExistingDebtCase_WhenDebtCaseExists_ShouldReturnOptionalContainingDebtCase() {
         BigDecimal amountOwed = new BigDecimal(TestUtils.INDICATOR[0]);
         LocalDateTime dueDate = LocalDateTime.parse(TestUtils.INDICATOR[1], Constants.DATE_TIME_FORMATTER);
-        String debtCaseType = debtCaseService.getTypeToMatch(TestUtils.INDICATOR[2]);
+        String debtCaseType = debtCaseTypeService.getTypeToMatch(TestUtils.INDICATOR[2]);
         String username = "username";
         String debtorName = TestUtils.INDICATOR[3];
         String debtorSurname = TestUtils.INDICATOR[4];
@@ -255,36 +255,6 @@ public class DebtCaseServiceTest {
         verify(debtCaseRepository,
                 times(1)).findByAmountOwedAndDueDateAndDebtCaseType_TypeAndCreditor_User_UsernameAndDebtor_NameAndDebtor_Surname(
                 amountOwed, dueDate, debtCaseType, username, debtorName, debtorSurname);
-    }
-
-    @Test
-    void getTypeToMatch_WhenTypeExists_ShouldReturnMatchedType() {
-        String input = "personal_debt";
-        String expected = "PERSONAL_DEBT";
-
-        String actual = debtCaseService.getTypeToMatch(input);
-
-        Assertions.assertEquals(expected, actual);
-    }
-
-    @Test
-    void getTypeToMatch_WhenTypeExists_NoDebtWord_ShouldReturnMatchedType() {
-        String input = "personal";
-        String expected = "PERSONAL_DEBT";
-
-        String actual = debtCaseService.getTypeToMatch(input);
-
-        Assertions.assertEquals(expected, actual);
-    }
-
-    @Test
-    void getTypeToMatch_WhenTypeDoesNotExist_ShouldReturnDefaultType() {
-        String input = "";
-        String expected = "DEFAULT_DEBT";
-
-        String actual = debtCaseService.getTypeToMatch(input);
-
-        Assertions.assertEquals(expected, actual);
     }
 
     @Test

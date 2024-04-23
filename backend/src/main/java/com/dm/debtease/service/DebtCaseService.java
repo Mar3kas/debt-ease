@@ -26,8 +26,6 @@ public interface DebtCaseService {
 
     Optional<DebtCase> findExistingDebtCase(String username, String... indicator);
 
-    String getTypeToMatch(String type);
-
     boolean isDebtCasePending(DebtCase debtCase, LocalDateTime startTime, LocalDateTime endTime);
 
     DebtCase updateDebtCaseAfterPayment(DebtCase debtCase, PaymentRequestDTO paymentRequestDTO);

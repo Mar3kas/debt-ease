@@ -29,4 +29,5 @@ public class Constants {
     public static final int STRIPE_AMOUNT_MULTIPLIER = 100;
     public static final String CSV_EXAMPLE_PATH = "src/main/resources/files/debtcase_1.csv";
     public static final String REQUEST_FORM_EXAMPLE_PATH = "src/main/resources/files/DebtEase Debt Management Form.docx";
+    public static final String LOGO_PATH = "src/main/resources/images/debtease.png";
 }

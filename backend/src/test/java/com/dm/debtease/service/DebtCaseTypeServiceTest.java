@@ -75,7 +75,7 @@ public class DebtCaseTypeServiceTest {
     }
 
     @Test
-    void getMatchingDebtCaseTypeByType_WhenMatchingTypeDoesNotExist_ShouldReturnNull() {
+    void getMatchingDebtCaseTypeByType_WhenMatchingTypeDoesNotExist_ShouldReturnDefault() {
         String nonExistingDebtType = "NON_EXISTING_DEBT";
         String debtCaseType = "DEFAULT_DEBT";
         DebtCaseType expectedDebtCaseType = TestUtils.setupDebtCaseTypeTestData(debtCaseType);
@@ -83,7 +83,8 @@ public class DebtCaseTypeServiceTest {
 
         DebtCaseType actualMatchedDebtCaseType = debtCaseTypeService.findMatchingDebtCaseType(nonExistingDebtType);
 
-        Assertions.assertNull(actualMatchedDebtCaseType);
+        Assertions.assertNotNull(actualMatchedDebtCaseType);
+        Assertions.assertEquals(debtCaseType, actualMatchedDebtCaseType.getType());
     }
 
     @Test
@@ -115,5 +116,35 @@ public class DebtCaseTypeServiceTest {
         String actualDebtCaseType = debtCaseTypeService.formatDebtCaseType(inputDebtCaseType);
 
         Assertions.assertEquals(expectedDebtCaseType, actualDebtCaseType);
+    }
+
+    @Test
+    void getTypeToMatch_WhenTypeExists_ShouldReturnMatchedType() {
+        String input = "personal_debt";
+        String expected = "PERSONAL_DEBT";
+
+        String actual = debtCaseTypeService.getTypeToMatch(input);
+
+        Assertions.assertEquals(expected, actual);
+    }
+
+    @Test
+    void getTypeToMatch_WhenTypeExists_NoDebtWord_ShouldReturnMatchedType() {
+        String input = "personal";
+        String expected = "PERSONAL_DEBT";
+
+        String actual = debtCaseTypeService.getTypeToMatch(input);
+
+        Assertions.assertEquals(expected, actual);
+    }
+
+    @Test
+    void getTypeToMatch_WhenTypeDoesNotExist_ShouldReturnDefaultType() {
+        String input = "";
+        String expected = "DEFAULT_DEBT";
+
+        String actual = debtCaseTypeService.getTypeToMatch(input);
+
+        Assertions.assertEquals(expected, actual);
     }
 }

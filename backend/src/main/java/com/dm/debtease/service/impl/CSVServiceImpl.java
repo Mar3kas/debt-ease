@@ -54,7 +54,7 @@ public class CSVServiceImpl implements CSVService {
                     debtorDTO.setPhoneNumber(line[3]);
                     debtor = debtorService.createDebtor(debtorDTO);
                 }
-                String typeToMatch = debtCaseService.getTypeToMatch(line[4]);
+                String typeToMatch = debtCaseTypeService.getTypeToMatch(line[4]);
                 Optional<DebtCase> existingDebtCase =
                         debtCaseService.findExistingDebtCase(username, line[5], line[8], typeToMatch, line[0], line[1]);
                 DebtCase debtCase =

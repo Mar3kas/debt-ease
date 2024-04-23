@@ -48,7 +48,7 @@ public class PDFServiceImpl implements PDFService {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         PdfWriter.getInstance(document, outputStream);
         document.open();
-        Image img = Image.getInstance("src/main/resources/images/debtease.png");
+        Image img = Image.getInstance(Constants.LOGO_PATH);
         img.scaleToFit(100, 100);
         img.setAbsolutePosition(36, 770);
         document.add(img);

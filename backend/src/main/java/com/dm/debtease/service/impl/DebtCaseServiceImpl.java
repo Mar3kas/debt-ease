@@ -84,19 +84,11 @@ public class DebtCaseServiceImpl implements DebtCaseService {
         return debtCaseRepository.findByAmountOwedAndDueDateAndDebtCaseType_TypeAndCreditor_User_UsernameAndDebtor_NameAndDebtor_Surname(
                 new BigDecimal(indicator[0]),
                 LocalDateTime.parse(indicator[1], Constants.DATE_TIME_FORMATTER),
-                getTypeToMatch(indicator[2]),
+                debtCaseTypeService.getTypeToMatch(indicator[2]),
                 username,
                 indicator[3],
                 indicator[4]
         );
-    }
-
-    @Override
-    public String getTypeToMatch(String type) {
-        if (type.isEmpty()) {
-            return "DEFAULT_DEBT";
-        }
-        return type.toUpperCase().contains("_DEBT") ? type.toUpperCase() : type.toUpperCase().concat("_DEBT");
     }
 
     @Override
@@ -135,16 +127,17 @@ public class DebtCaseServiceImpl implements DebtCaseService {
         List<DebtCase> debtCases = getDebtCasesByDebtorUsername(username);
         if (!debtCases.isEmpty())
         {
-            debtCases = new ArrayList<>(debtCases.stream()
-                    .filter(debtCase -> !DebtCaseStatus.CLOSED.equals(debtCase.getDebtCaseStatus()))
-                    .toList());
+            debtCases = new ArrayList<>(filterClosedDebtCases(debtCases));
             DebtPaymentStrategy debtPaymentStrategy = new DebtPaymentStrategy();
+
             debtCases.sort(Comparator.comparing(DebtCase::getAmountOwed));
-            debtPaymentStrategy.setSnowballBalanceEachMonth(
-                    calculatePaymentStrategyUntilPayedOff(debtPaymentStrategyDTO, debtCases));
+            List<BigDecimal> snowballStrategyResult =  calculatePaymentStrategyUntilPayedOff(debtPaymentStrategyDTO, debtCases);
+            debtPaymentStrategy.setSnowballBalanceEachMonth(snowballStrategyResult);
+
             debtCases.sort(Comparator.comparing(DebtCase::getDebtInterestRate).reversed());
-            debtPaymentStrategy.setAvalancheBalanceEachMonth(
-                    calculatePaymentStrategyUntilPayedOff(debtPaymentStrategyDTO, debtCases));
+            List<BigDecimal> avalancheStrategyResult = calculatePaymentStrategyUntilPayedOff(debtPaymentStrategyDTO, debtCases);
+            debtPaymentStrategy.setAvalancheBalanceEachMonth(avalancheStrategyResult);
+
             return debtPaymentStrategy;
         }
         throw new EntityNotFoundException(
@@ -194,5 +187,11 @@ public class DebtCaseServiceImpl implements DebtCaseService {
         return debtCases.stream()
                 .map(DebtCase::getAmountOwed)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private List<DebtCase> filterClosedDebtCases(List<DebtCase> debtCases) {
+        return debtCases.stream()
+                .filter(debtCase -> !DebtCaseStatus.CLOSED.equals(debtCase.getDebtCaseStatus()))
+                .toList();
     }
 }

@@ -58,7 +58,7 @@ public class CSVServiceTest {
         String debtorSurname = TestUtils.INDICATOR[4];
         when(debtorService.getDebtorByNameAndSurname(debtorName, debtorSurname)).thenReturn(new Debtor());
         when(debtCaseService.findExistingDebtCase(username, TestUtils.INDICATOR)).thenReturn(Optional.empty());
-        when(debtCaseService.getTypeToMatch("tax")).thenReturn("TAX_DEBT");
+        when(debtCaseTypeService.getTypeToMatch("tax")).thenReturn("TAX_DEBT");
 
         csvService.readCsvDataAndSendToKafka(file, "username");
 
@@ -75,7 +75,7 @@ public class CSVServiceTest {
         when(debtorService.getDebtorByNameAndSurname(debtorName, debtorSurname)).thenReturn(null);
         when(debtCaseService.findExistingDebtCase(username, TestUtils.INDICATOR)).thenReturn(
                 Optional.of(new DebtCase()));
-        when(debtCaseService.getTypeToMatch("tax")).thenReturn("TAX_DEBT");
+        when(debtCaseTypeService.getTypeToMatch("tax")).thenReturn("TAX_DEBT");
 
         csvService.readCsvDataAndSendToKafka(file, "username");
 
