@@ -6,5 +6,5 @@ import lombok.Getter;
 public enum DebtCaseStatus {
     NEW,
     UNPAID,
-    CLOSED;
+    CLOSED
 }

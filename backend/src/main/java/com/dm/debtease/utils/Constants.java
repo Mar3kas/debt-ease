@@ -30,4 +30,5 @@ public class Constants {
     public static final String CSV_EXAMPLE_PATH = "src/main/resources/files/debtcase_1.csv";
     public static final String REQUEST_FORM_EXAMPLE_PATH = "src/main/resources/files/DebtEase Debt Management Form.docx";
     public static final String LOGO_PATH = "src/main/resources/images/debtease.png";
+    public static final String DEBT_EASE_EMAIL = "debtease@gmail.com";
 }

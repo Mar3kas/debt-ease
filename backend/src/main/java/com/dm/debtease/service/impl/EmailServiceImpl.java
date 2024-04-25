@@ -31,7 +31,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(mailMessage, true);
             if (infoEmailUsername == null)
             {
-                infoEmailUsername = debtCase.getDebtor().getEmail();
+                infoEmailUsername = Constants.DEBT_EASE_EMAIL;
             }
             helper.setFrom(new InternetAddress(infoEmailUsername));
             Debtor debtor = debtCase.getDebtor();

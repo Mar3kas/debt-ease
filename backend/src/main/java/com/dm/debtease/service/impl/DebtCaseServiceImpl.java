@@ -95,8 +95,7 @@ public class DebtCaseServiceImpl implements DebtCaseService {
     public boolean isDebtCasePending(DebtCase debtCase, LocalDateTime startTime, LocalDateTime endTime) {
         return debtCase.getDueDate().isAfter(startTime)
                 && debtCase.getDueDate().isBefore(endTime)
-                && (DebtCaseStatus.NEW.equals(debtCase.getDebtCaseStatus()) ||
-                DebtCaseStatus.UNPAID.equals(debtCase.getDebtCaseStatus()));
+                && !DebtCaseStatus.CLOSED.equals(debtCase.getDebtCaseStatus());
     }
 
     @Override

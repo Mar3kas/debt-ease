@@ -25,7 +25,7 @@ public class Scheduler {
     private final DebtCaseRepository debtCaseRepository;
     private final EmailService emailService;
 
-    @Scheduled(cron = "0 12 * * * *")
+    @Scheduled(cron = "0 0 0 * * *")
     public void emailNotificationForUpcomingDueDatePaymentScheduler() {
         log.info("Starting cron job scheduler for email notification for upcoming due date payment!");
         LocalDateTime now = LocalDateTime.now();
@@ -51,7 +51,7 @@ public class Scheduler {
         log.info("Cron job scheduler for email notification each month 20th day has finished!");
     }
 
-    @Scheduled(cron = "0 0 1 * * *")
+    @Scheduled(cron = "0 0 0 * * *")
     public void calculateOutstandingBalanceScheduler() {
         log.info("Starting cron job scheduler for calculating outstanding balance!");
         LocalDateTime currentDate = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
@@ -72,7 +72,7 @@ public class Scheduler {
         log.info("Cron job scheduler for calculating outstanding balance has finished!");
     }
 
-    @Scheduled(cron = "0 0 1 * * *")
+    @Scheduled(cron = "0 0 0 1 * *")
     public void calculateOutstandingBalanceWithInterestRateScheduler() {
         log.info("Starting cron job scheduler for calculating outstanding balance with interest rate!");
         List<DebtCase> debtCases = debtCaseRepository.findAll();

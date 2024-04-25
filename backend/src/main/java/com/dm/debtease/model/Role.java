@@ -6,5 +6,5 @@ import lombok.Getter;
 public enum Role {
     ADMIN,
     CREDITOR,
-    DEBTOR;
+    DEBTOR
 }
