@@ -152,7 +152,6 @@ public class DebtCaseServiceImpl implements DebtCaseService {
         BigDecimal extraPaymentForSmallestDebt = debtPaymentStrategyDTO.getExtraMonthlyPaymentForHighestDebt();
         BigDecimal minimalMonthlyPaymentForEachDebt = debtPaymentStrategyDTO.getMinimalMonthlyPaymentForEachDebt();
         while (totalDebt.compareTo(BigDecimal.ZERO) > 0) {
-            BigDecimal totalMinimalPayment = BigDecimal.ZERO;
             for (int i = 0; i < tempDebtCases.size(); i++) {
                 DebtCase debt = tempDebtCases.get(i);
                 BigDecimal amountOwedWithInterestRate =
@@ -169,7 +168,6 @@ public class DebtCaseServiceImpl implements DebtCaseService {
                     BigDecimal minimalPayment = minimalMonthlyPaymentForEachDebt.compareTo(debt.getAmountOwed()) < 0 ?
                             minimalMonthlyPaymentForEachDebt : debt.getAmountOwed();
                     debt.setAmountOwed(debt.getAmountOwed().subtract(minimalPayment));
-                    totalMinimalPayment = totalMinimalPayment.add(minimalPayment);
                     totalDebt = totalDebt.subtract(minimalPayment);
                 }
                 if (debt.getAmountOwed().compareTo(BigDecimal.ZERO) <= 0) {
