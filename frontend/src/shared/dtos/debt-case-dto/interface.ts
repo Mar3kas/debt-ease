@@ -1,4 +1,4 @@
 export interface IDebtCaseDTO {
-  dueDate: string;
-  typeId: number;
+  dueDate?: string;
+  typeId?: number;
 }
