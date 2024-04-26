@@ -34,15 +34,12 @@ public class StripePaymentServiceImpl implements PaymentService {
         try {
             PaymentIntent paymentIntent = createPaymentIntent(paymentRequestDTO, debtCase);
             debtCase = debtCaseService.updateDebtCaseAfterPayment(debtCase, paymentRequestDTO);
-            if (debtCase != null) {
-                savePayment(debtCase, paymentIntent);
-                return true;
-            }
+            savePayment(debtCase, paymentIntent);
+            return true;
         } catch (StripeException e) {
             log.error("Error with Stripe payment: {}", e.getStripeError().getMessage());
             return false;
         }
-        return false;
     }
 
     @Override
