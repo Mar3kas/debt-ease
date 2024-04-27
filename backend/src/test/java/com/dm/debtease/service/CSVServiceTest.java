@@ -94,6 +94,6 @@ public class CSVServiceTest {
                 "Expected readCsvDataAndSendToKafka to throw, but it didn't"
         );
 
-        Assertions.assertTrue(thrown.getMessage().contains(Constants.NOT_CSV));
+        Assertions.assertTrue(thrown.getMessage().contains(Constants.UPLOADED_FILE_IS_NOT_CSV));
     }
 }

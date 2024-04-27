@@ -1,5 +1,6 @@
 package com.dm.debtease.service.impl;
 
+import com.dm.debtease.exception.InvalidFileException;
 import com.dm.debtease.exception.InvalidFileFormatException;
 import com.dm.debtease.model.*;
 import com.dm.debtease.model.dto.DebtorDTO;
@@ -21,7 +22,6 @@ import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.Objects;
 import java.util.Optional;
 
 @Log4j2
@@ -37,39 +37,45 @@ public class CSVServiceImpl implements CSVService {
     @Override
     public void readCsvDataAndSendToKafka(MultipartFile file, String username)
             throws IOException, CsvValidationException, InvalidFileFormatException {
-        String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
-        validateCsvFile(fileName);
-        Creditor creditor = creditorService.getCreditorByUsername(username);
-        log.info("Reading csv file");
-        try (CSVReader reader = buildCsvReader(file)) {
-            String[] line;
-            reader.skip(1);
-            while ((line = reader.readNext()) != null) {
-                Debtor debtor = debtorService.getDebtorByNameAndSurname(line[0], line[1]);
-                if (debtor == null) {
-                    DebtorDTO debtorDTO = new DebtorDTO();
-                    debtorDTO.setName(line[0]);
-                    debtorDTO.setSurname(line[1]);
-                    debtorDTO.setEmail(line[2]);
-                    debtorDTO.setPhoneNumber(line[3]);
-                    debtor = debtorService.createDebtor(debtorDTO);
+        if (file.isEmpty()) {
+            if (file.getOriginalFilename() != null) {
+                String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+                validateCsvFile(fileName);
+                Creditor creditor = creditorService.getCreditorByUsername(username);
+                log.info("Reading csv file");
+                try (CSVReader reader = buildCsvReader(file)) {
+                    String[] line;
+                    reader.skip(1);
+                    while ((line = reader.readNext()) != null) {
+                        Debtor debtor = debtorService.getDebtorByNameAndSurname(line[0], line[1]);
+                        if (debtor == null) {
+                            DebtorDTO debtorDTO = new DebtorDTO();
+                            debtorDTO.setName(line[0]);
+                            debtorDTO.setSurname(line[1]);
+                            debtorDTO.setEmail(line[2]);
+                            debtorDTO.setPhoneNumber(line[3]);
+                            debtor = debtorService.createDebtor(debtorDTO);
+                        }
+                        String typeToMatch = debtCaseTypeService.getTypeToMatch(line[4]);
+                        Optional<DebtCase> existingDebtCase =
+                                debtCaseService.findExistingDebtCase(username, line[5], line[8], typeToMatch, line[0],
+                                        line[1]);
+                        DebtCase debtCase =
+                                createOrUpdateDebtCase(debtor, creditor, line, existingDebtCase, typeToMatch);
+                        log.info(String.format("sending %s to kafka topic", debtCase));
+                        kafkaTemplate.send("base-debt-case-topic", debtCase);
+                    }
                 }
-                String typeToMatch = debtCaseTypeService.getTypeToMatch(line[4]);
-                Optional<DebtCase> existingDebtCase =
-                        debtCaseService.findExistingDebtCase(username, line[5], line[8], typeToMatch, line[0], line[1]);
-                DebtCase debtCase =
-                        createOrUpdateDebtCase(debtor, creditor, line, existingDebtCase, typeToMatch);
-                log.info(String.format("sending %s to kafka topic", debtCase));
-                kafkaTemplate.send("base-debt-case-topic", debtCase);
+                log.info("File read!");
             }
         }
-        log.info("File read!");
+        throw new InvalidFileException(Constants.INVALID_UPLOAD_FILE);
     }
 
     private void validateCsvFile(String fileName) throws InvalidFileFormatException {
         if (!fileName.toLowerCase().endsWith(".csv")) {
             log.error("File is not csv");
-            throw new InvalidFileFormatException(Constants.NOT_CSV);
+            throw new InvalidFileFormatException(Constants.UPLOADED_FILE_IS_NOT_CSV);
         }
     }
 

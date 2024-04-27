@@ -1,5 +1,6 @@
 package com.dm.debtease;
 
+import com.dm.debtease.exception.InvalidFileException;
 import com.dm.debtease.exception.InvalidFileFormatException;
 import com.dm.debtease.exception.LoginException;
 import com.dm.debtease.exception.LogoutException;
@@ -90,7 +91,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler({InvalidFileFormatException.class, ConstraintViolationException.class,
+    @ExceptionHandler({InvalidFileFormatException.class, InvalidFileException.class, ConstraintViolationException.class,
             InvalidMediaTypeException.class, HttpMessageNotReadableException.class})
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     public ResponseEntity<APIError> handleInvalidFormatError(Exception ex) {
