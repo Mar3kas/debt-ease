@@ -37,7 +37,7 @@ public class CSVServiceImpl implements CSVService {
     @Override
     public void readCsvDataAndSendToKafka(MultipartFile file, String username)
             throws IOException, CsvValidationException, InvalidFileFormatException {
-        if (file.isEmpty()) {
+        if (!(file.getBytes().length == 0)) {
             if (file.getOriginalFilename() != null) {
                 String fileName = StringUtils.cleanPath(file.getOriginalFilename());
                 validateCsvFile(fileName);
@@ -67,6 +67,7 @@ public class CSVServiceImpl implements CSVService {
                     }
                 }
                 log.info("File read!");
+                return;
             }
         }
         throw new InvalidFileException(Constants.INVALID_UPLOAD_FILE);

@@ -28,6 +28,7 @@ public class Constants {
     public static final String REQUEST_FORM_EXAMPLE_PATH = "src/main/resources/files/DebtEase Debt Management Form.docx";
     public static final String LOGO_PATH = "src/main/resources/images/debtease.png";
     public static final String DEBT_EASE_EMAIL = "debtease@gmail.com";
+    public static final String TEST_ENVIRONMENT = "TEST";
 
     public static final int DELAY_BETWEEN_NUMVERIFY_REQUESTS = 1000;
     public static final int STRIPE_AMOUNT_MULTIPLIER = 100;

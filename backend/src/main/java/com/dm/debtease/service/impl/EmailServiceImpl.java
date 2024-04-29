@@ -23,20 +23,25 @@ public class EmailServiceImpl implements EmailService {
     private final JavaMailSender javaMailSender;
     @Value("${spring.mail.username}")
     private String infoEmailUsername;
+    @Value("${spring.environment}")
+    private String environment;
 
     @Override
     public void sendNotificationEmail(DebtCase debtCase) {
         MimeMessage mailMessage = javaMailSender.createMimeMessage();
         try {
             MimeMessageHelper helper = new MimeMessageHelper(mailMessage, true);
-            if (infoEmailUsername == null)
-            {
+            if (infoEmailUsername == null) {
                 infoEmailUsername = Constants.DEBT_EASE_EMAIL;
             }
             helper.setFrom(new InternetAddress(infoEmailUsername));
             Debtor debtor = debtCase.getDebtor();
             Creditor creditor = debtCase.getCreditor();
-            helper.setTo(debtor.getEmail());
+            if (Constants.TEST_ENVIRONMENT.equals(environment)) {
+                helper.setTo(infoEmailUsername);
+            } else {
+                helper.setTo(debtor.getEmail());
+            }
             helper.setSubject(String.format("Pending debt until %s from %s",
                     debtCase.getDueDate().format(Constants.DATE_TIME_FORMATTER), creditor.getName()));
             String htmlContent = String.format(
