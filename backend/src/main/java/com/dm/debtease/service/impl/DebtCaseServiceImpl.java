@@ -17,10 +17,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Service
@@ -145,7 +142,7 @@ public class DebtCaseServiceImpl implements DebtCaseService {
 
     private List<BigDecimal> calculatePaymentStrategyUntilPayedOff(DebtPaymentStrategyDTO debtPaymentStrategyDTO,
                                                                    List<DebtCase> debtCases) {
-        List<BigDecimal> strategyBalanceEachMonth = new ArrayList<>();
+        List<BigDecimal> strategyBalanceEachMonth = new LinkedList<>();
         List<DebtCase> tempDebtCases = new ArrayList<>(debtCases.stream().map(DebtCase::new).toList());
         BigDecimal totalDebt = calculateTotalDebt(tempDebtCases);
         strategyBalanceEachMonth.add(totalDebt);
@@ -153,6 +150,9 @@ public class DebtCaseServiceImpl implements DebtCaseService {
         BigDecimal minimalMonthlyPaymentForEachDebt = debtPaymentStrategyDTO.getMinimalMonthlyPaymentForEachDebt();
         while (totalDebt.compareTo(BigDecimal.ZERO) > 0) {
             for (int i = 0; i < tempDebtCases.size(); i++) {
+                if (strategyBalanceEachMonth.size() == 240) {
+                    return strategyBalanceEachMonth;
+                }
                 DebtCase debt = tempDebtCases.get(i);
                 BigDecimal amountOwedWithInterestRate =
                         debt.getAmountOwed().multiply(BigDecimal.valueOf((debt.getDebtInterestRate() / 12) / 100))
