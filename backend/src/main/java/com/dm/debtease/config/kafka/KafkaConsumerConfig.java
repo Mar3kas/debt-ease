@@ -1,6 +1,7 @@
 package com.dm.debtease.config.kafka;
 
 import com.dm.debtease.model.DebtCase;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
+import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
@@ -25,6 +27,10 @@ public class KafkaConsumerConfig {
     private String groupId;
     @Value("${spring.kafka.consumer.auto-offset-reset}")
     private String autoOffsetReset;
+    @Value("${spring.kafka.consumer.topic-name}")
+    private String topicName;
+
+    private static final int NUM_PARTITIONS = 5;
 
     @Bean
     public ProducerFactory<String, DebtCase> producerFactory() {
@@ -33,6 +39,11 @@ public class KafkaConsumerConfig {
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
         return new DefaultKafkaProducerFactory<>(config);
+    }
+
+    @Bean
+    public NewTopic createTopic() {
+        return new NewTopic(topicName, NUM_PARTITIONS, (short) 1);
     }
 
     @Bean
@@ -57,6 +68,9 @@ public class KafkaConsumerConfig {
         ConcurrentKafkaListenerContainerFactory<String, DebtCase> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
+        factory.setConcurrency(5);
+        factory.getContainerProperties().setMissingTopicsFatal(false);
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
         return factory;
     }
 }

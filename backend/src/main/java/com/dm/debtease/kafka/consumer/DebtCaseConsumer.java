@@ -36,6 +36,7 @@ public class DebtCaseConsumer {
 
     @Value("${spring.numverify.api.access-key}")
     private String numverifyAccessKey;
+
     private static final Map<String, String> PHONE_FORMAT_MAP = Map.of(
             "mobile", "Mobile Phone",
             "landline", "Landline",
@@ -46,7 +47,7 @@ public class DebtCaseConsumer {
             "paging", "Paging"
     );
 
-    @KafkaListener(topics = "base-debt-case-topic")
+    @KafkaListener(topics = "not-enriched-debt-cases")
     public void consumeAndEnrich(DebtCase debtCase) {
         log.info(String.format("Consuming %s", debtCase));
         DebtCase enrichedDebtCase = debtCaseRepository.save(enrich(debtCase));
