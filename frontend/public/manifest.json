@@ -3,7 +3,7 @@
   "name": "Create DebtEase React App Sample",
   "icons": [
     {
-      "src": "debtease.png.png",
+      "src": "debtease.png",
       "type": "image/png",
       "sizes": "512x512"
     }
