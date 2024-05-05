@@ -36,7 +36,6 @@ public class SecurityConfig implements WebMvcConfigurer {
             "/v3/api-docs.yaml",
             "/swagger-ui.html",
             "/api/login",
-            "/api/refresh",
             "/ws/**",
             "/api/files/**",
     };

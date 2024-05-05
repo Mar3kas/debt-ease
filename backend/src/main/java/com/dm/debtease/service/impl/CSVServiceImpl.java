@@ -12,6 +12,7 @@ import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -33,6 +34,8 @@ public class CSVServiceImpl implements CSVService {
     private final CreditorService creditorService;
     private final DebtorService debtorService;
     private final KafkaTemplate<String, DebtCase> kafkaTemplate;
+    @Value("${spring.kafka.consumer.topic-name}")
+    private String topicName;
 
     @Override
     public void readCsvDataAndSendToKafka(MultipartFile file, String username)
@@ -63,7 +66,7 @@ public class CSVServiceImpl implements CSVService {
                         DebtCase debtCase =
                                 createOrUpdateDebtCase(debtor, creditor, line, existingDebtCase, typeToMatch);
                         log.info(String.format("sending %s to kafka topic", debtCase));
-                        kafkaTemplate.send("base-debt-case-topic", debtCase);
+                        kafkaTemplate.send(topicName, debtCase);
                     }
                 }
                 log.info("File read!");
