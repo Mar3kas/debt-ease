@@ -56,10 +56,21 @@ class WebSocketService {
   ) {
     const connectAndSubscribe = () => {
       if (!this.isConnected) {
-        this.connect();
-      } else {
-        this.stompClient?.subscribe(topic, (message) =>
-          this.onMessage(message, callback)
+        const socket = new SockJS(this.socketUrl);
+        this.stompClient = Stomp.over(socket);
+
+        this.stompClient.connect(
+          {},
+          () => {
+            this.onConnect();
+            this.stompClient?.subscribe(topic, (message) =>
+              this.onMessage(message, callback)
+            );
+          },
+          (error) => {
+            this.onError(error);
+            setTimeout(connectAndSubscribe, 5000); // Retry after 5 seconds
+          }
         );
       }
     };
