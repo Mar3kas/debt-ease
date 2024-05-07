@@ -51,7 +51,7 @@ public class StripePaymentServiceImpl implements PaymentService {
         Payment payment = new Payment();
         payment.setPaymentDate(LocalDateTime.now());
         payment.setDebtCase(debtCase);
-        payment.setAmount(BigDecimal.valueOf(paymentIntent.getAmount()));
+        payment.setAmount(BigDecimal.valueOf(paymentIntent.getAmount() / Constants.STRIPE_AMOUNT_MULTIPLIER));
         payment.setDescription(paymentIntent.getDescription());
         payment.setPaymentMethod(paymentIntent.getPaymentMethod());
         paymentRepository.save(payment);
@@ -62,8 +62,12 @@ public class StripePaymentServiceImpl implements PaymentService {
         Map<String, Object> params = new HashMap<>();
         BigDecimal paymentAmount = debtCase.getAmountOwed();
         if (!paymentRequestDTO.getIsPaymentInFull()) {
-            paymentAmount = debtCaseService.getValidLeftAmountOwed(
+            BigDecimal amountLeft = debtCaseService.getValidLeftAmountOwed(
                     paymentRequestDTO.getPaymentAmount(), paymentAmount);
+            paymentAmount = paymentAmount.subtract(amountLeft);
+            if (paymentAmount.compareTo(BigDecimal.ZERO) == 0) {
+                paymentAmount = debtCase.getAmountOwed();
+            }
         }
         params.put("amount", paymentAmount.multiply(BigDecimal.valueOf(Constants.STRIPE_AMOUNT_MULTIPLIER)).intValue());
         params.put("currency", "eur");

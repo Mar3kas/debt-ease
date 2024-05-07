@@ -61,6 +61,9 @@ const DebtCaseListPage: FC<IPage> = (props): ReactElement => {
   }, {} as Record<string, IDebtCase[]>);
   const { handleErrorResponse } = useErrorHandling();
   const { openSnackbar } = props;
+  const webSocketService = WebSocketService.getInstance(
+    "http://localhost:8080/ws"
+  );
 
   const roleSpecificEndpoint = (() => {
     switch (role) {
@@ -153,9 +156,6 @@ const DebtCaseListPage: FC<IPage> = (props): ReactElement => {
 
   useEffect(() => {
     if (role === "CREDITOR") {
-      const webSocketService = WebSocketService.getInstance(
-        "http://localhost:8080/ws"
-      );
       webSocketService.subscribe(
         `/user/${username}/topic/enriched-debt-cases`,
         (message) => {
@@ -187,7 +187,10 @@ const DebtCaseListPage: FC<IPage> = (props): ReactElement => {
         }
       );
     }
-  }, [openSnackbar, role, username]);
+    return () => {
+      webSocketService.unsubscribeAll();
+    };
+  }, [role, username, openSnackbar, webSocketService]);
 
   useEffect(() => {
     if (downloadPdf && !fileLoading && !pdfError) {
@@ -210,14 +213,14 @@ const DebtCaseListPage: FC<IPage> = (props): ReactElement => {
   }, [pdfData, fileLoading, pdfError, downloadPdf, openSnackbar, fileError]);
 
   useEffect(() => {
-    if (fileData) {
+    if (fileError) {
+      openSnackbar(fileError.description, "error");
+    } else if (fileData) {
       openSnackbar(
         "CSV uploaded successfully and debt cases are being enriched",
         "success"
       );
       setCreditorId(undefined);
-    } else if (fileError) {
-      openSnackbar(fileError.description, "error");
     }
   }, [fileData, fileError, openSnackbar]);
 

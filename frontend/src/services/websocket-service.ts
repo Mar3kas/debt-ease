@@ -2,7 +2,7 @@ import SockJS from "sockjs-client";
 import Stomp from "stompjs";
 
 class WebSocketService {
-  private static instance: WebSocketService;
+  private static instance: WebSocketService | null = null;
 
   static getInstance(url: string): WebSocketService {
     if (!WebSocketService.instance) {
@@ -14,7 +14,7 @@ class WebSocketService {
   private socketUrl: string;
   private stompClient: Stomp.Client | null;
   private subscriptions: Map<string, (message: any) => void>;
-  private isConnected: Boolean;
+  private isConnected: boolean;
 
   private constructor(url: string) {
     this.socketUrl = url;
@@ -24,14 +24,16 @@ class WebSocketService {
   }
 
   connect() {
-    const socket = new SockJS(this.socketUrl);
-    this.stompClient = Stomp.over(socket);
+    if (!this.stompClient || !this.isConnected) {
+      const socket = new SockJS(this.socketUrl);
+      this.stompClient = Stomp.over(socket);
 
-    this.stompClient.connect(
-      {},
-      () => this.onConnect(),
-      (error) => this.onError(error)
-    );
+      this.stompClient.connect(
+        {},
+        () => this.onConnect(),
+        (error) => this.onError(error)
+      );
+    }
   }
 
   onConnect() {
@@ -44,6 +46,7 @@ class WebSocketService {
 
   onError(error: any) {
     console.error("Connection error", error);
+    this.isConnected = false;
   }
 
   subscribe(
@@ -53,21 +56,10 @@ class WebSocketService {
   ) {
     const connectAndSubscribe = () => {
       if (!this.isConnected) {
-        const socket = new SockJS(this.socketUrl);
-        this.stompClient = Stomp.over(socket);
-
-        this.stompClient.connect(
-          {},
-          () => {
-            this.onConnect();
-            this.stompClient?.subscribe(topic, (message) =>
-              this.onMessage(message, callback)
-            );
-          },
-          (error) => {
-            this.onError(error);
-            setTimeout(connectAndSubscribe, 5000); // Retry after 5 seconds
-          }
+        this.connect();
+      } else {
+        this.stompClient?.subscribe(topic, (message) =>
+          this.onMessage(message, callback)
         );
       }
     };
@@ -97,7 +89,7 @@ class WebSocketService {
   }
 
   disconnect() {
-    if (this.stompClient) {
+    if (this.stompClient && this.isConnected) {
       this.unsubscribeAll();
       this.stompClient.disconnect(() => this.onDisconnect());
       this.stompClient = null;
@@ -107,6 +99,7 @@ class WebSocketService {
 
   onDisconnect() {
     console.log("WebSocket disconnected");
+    this.isConnected = false;
   }
 }
 
