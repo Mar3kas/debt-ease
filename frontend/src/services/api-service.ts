@@ -25,7 +25,8 @@ async function handleResponse<T>(
       if (
         responseJson.description.includes("JSON") ||
         responseJson.description.includes("CSV") ||
-        responseJson.description.includes("Refresh Token")
+        responseJson.description.includes("Refresh Token") ||
+        responseJson.description.includes("file")
       ) {
         return responseJson;
       } else {
