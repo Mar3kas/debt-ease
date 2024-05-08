@@ -51,7 +51,7 @@ public class StripePaymentServiceImpl implements PaymentService {
         Payment payment = new Payment();
         payment.setPaymentDate(LocalDateTime.now());
         payment.setDebtCase(debtCase);
-        payment.setAmount(BigDecimal.valueOf(paymentIntent.getAmount() / Constants.STRIPE_AMOUNT_MULTIPLIER));
+        payment.setAmount(BigDecimal.valueOf(paymentIntent.getAmount()).divide(BigDecimal.valueOf(Constants.STRIPE_AMOUNT_MULTIPLIER)));
         payment.setDescription(paymentIntent.getDescription());
         payment.setPaymentMethod(paymentIntent.getPaymentMethod());
         paymentRepository.save(payment);
