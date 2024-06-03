@@ -198,6 +198,16 @@ const DebtCaseFormPage: FC<IPage> = (props): ReactElement => {
       return;
     }
 
+    const now = dayjs();
+    const dueDate = dayjs(editedDebtCaseData.dueDate);
+    if (dueDate.isBefore(now)) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        dueDate: "Due date cannot be in the past.",
+      }));
+      return;
+    }
+
     const debtCaseRequest: IDebtCaseDTO = {
       dueDate: editedDebtCaseData.dueDate,
       typeId: editedDebtCaseData.debtCaseType.id,

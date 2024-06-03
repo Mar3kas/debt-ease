@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity(name = "verified_phone_number_information")
-@Table(name = "verified_phone_number_information")
+@Table(name = "verified_phone_number_information", schema = "public")
 public class VerifiedPhoneNumberInformation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

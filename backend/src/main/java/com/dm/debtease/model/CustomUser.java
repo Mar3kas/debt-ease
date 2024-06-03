@@ -12,7 +12,7 @@ import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 @Setter
 @NoArgsConstructor
 @Entity(name = "custom_user")
-@Table(name = "custom_user")
+@Table(name = "custom_user", schema = "public")
 public class CustomUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

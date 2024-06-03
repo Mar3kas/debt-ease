@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity(name = "debtor")
-@Table(name = "debtor")
+@Table(name = "debtor", schema = "public")
 public class Debtor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

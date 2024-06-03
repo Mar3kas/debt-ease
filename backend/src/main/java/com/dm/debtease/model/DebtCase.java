@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @Entity(name = "debt_case")
-@Table(name = "debt_case")
+@Table(name = "debt_case", schema = "public")
 public class DebtCase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

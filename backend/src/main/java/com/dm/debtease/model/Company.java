@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @Entity(name = "company")
-@Table(name = "company")
+@Table(name = "company", schema = "public")
 public class Company {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

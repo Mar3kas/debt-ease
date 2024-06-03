@@ -11,7 +11,7 @@ import java.time.Instant;
 @Setter
 @NoArgsConstructor
 @Entity(name = "refresh_token")
-@Table(name = "refresh_token")
+@Table(name = "refresh_token", schema = "public")
 public class RefreshToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
