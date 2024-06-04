@@ -267,8 +267,8 @@ const DebtCaseListPage: FC<IPage> = (props): ReactElement => {
     navigate(`/debt/cases/${id}/creditor/${creditorId}`);
   };
 
-  const handlePay = (id: number) => {
-    navigate(`/debt/cases/${id}/pay`);
+  const handlePay = (id: number, amount: number) => {
+    navigate(`/debt/cases/${id}/pay/${amount}`);
   };
 
   const handleDelete = (creditorId: number, id: number) => {
@@ -300,6 +300,7 @@ const DebtCaseListPage: FC<IPage> = (props): ReactElement => {
 
   const renderActionButtons = (
     creditorId: number,
+    amount: number,
     id: number,
     status: String
   ) => (
@@ -327,7 +328,7 @@ const DebtCaseListPage: FC<IPage> = (props): ReactElement => {
                   ? handleEdit(creditorId, id)
                   : action === "Delete"
                   ? handleDelete(creditorId, id)
-                  : handlePay(id)
+                  : handlePay(id, amount)
               }
             >
               {action}
@@ -418,6 +419,7 @@ const DebtCaseListPage: FC<IPage> = (props): ReactElement => {
             <Grid item xs={12}>
               {renderActionButtons(
                 debtCase.creditor.id,
+                debtCase.amountOwed,
                 debtCase.id,
                 debtCase.debtCaseStatus
               )}

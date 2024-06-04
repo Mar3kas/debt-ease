@@ -52,6 +52,8 @@ const DebtCasePaymentForm: FC<IPage> = (props): ReactElement => {
   const classes = useStyles("light");
   const navigate = useNavigate();
   const { id } = useParams<{ id?: string }>();
+  const { amount } = useParams<{ amount?: string }>();
+  const displayedAmount = amount ? parseFloat(amount) : 0;
   const { data, error, postData } = usePost<String>("payments/{id}/pay", {
     id: Number(id),
   });
@@ -165,6 +167,16 @@ const DebtCasePaymentForm: FC<IPage> = (props): ReactElement => {
           </Box>
           <Box p={2}>
             <CardElement />
+          </Box>
+          <Box p={2}>
+            <Typography
+              variant="body1"
+              color="textSecondary"
+              align="center"
+              gutterBottom
+            >
+              Total Amount Due: €{displayedAmount}
+            </Typography>
           </Box>
           {!isFullPayment && (
             <Box p={2}>

@@ -75,7 +75,7 @@ export const routes: Route[] = [
   {
     key: "pay-page-route",
     title: "Debt Case Payment",
-    path: "/debt/cases/:id?/pay",
+    path: "/debt/cases/:id?/pay/:amount?",
     enabled: true,
     component: DebtCasePayPage,
   },
